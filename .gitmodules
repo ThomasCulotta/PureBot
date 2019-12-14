@@ -1,0 +1,3 @@
+[submodule "TwitchWebsocket"]
+	path = TwitchWebsocket
+	url = git@github.com:CubieDev/TwitchWebsocket.git
