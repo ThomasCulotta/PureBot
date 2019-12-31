@@ -34,11 +34,11 @@ class PureBot:
                                   capability=["membership", "tags", "commands"],
                                   live=True)
 
-        self.scoreCommands = ScoreCommands(chan=self.chan[1:],
+        self.scoreCommands = ScoreCommands(chan=self.chan,
                                            ws=self.ws,
                                            mongoClient=client)
 
-        self.quoteCommands = QuoteCommands(chan=self.chan[1:],
+        self.quoteCommands = QuoteCommands(chan=self.chan,
                                            ws=self.ws,
                                            mongoClient=client)
 
@@ -48,7 +48,7 @@ class PureBot:
     def message_handler(self, m):
         # Create your bot functionality here.
         ptf(m)
-        if m.message is None or m.type != "PRIVMSG":
+        if m.message is None or (m.type != "PRIVMSG" and m.type != "WHISPER"):
             return
 
         ##############################################
@@ -59,13 +59,30 @@ class PureBot:
             m.message.startswith("!clearboard") or
             m.message.startswith("!clearscore")):
 
-            self.scoreCommands.Execute(m)
+            response = self.scoreCommands.Execute(m)
+
+            if (m.type == "PRIVMSG"):
+                self.ws.send_message(response)
+                return
+            if (m.type == "WHISPER"):
+                self.ws.send_whisper(m.user, response)
+                return
+            ptf("Failed to send!")
             return
 
         ##############################################
 
         if m.message.startswith("!quote"):
-            self.quoteCommands.Execute(m)
+            response = self.quoteCommands.Execute(m)
+            ptf(m.type)
+            ptf(m.user)
+            if (m.type == "PRIVMSG"):
+                self.ws.send_message(response)
+                return
+            if (m.type == "WHISPER"):
+                self.ws.send_whisper(m.user, response)
+                return
+            ptf("Failed to send!")
             return
 
         ##############################################
@@ -76,7 +93,18 @@ class PureBot:
 
         importlib.reload(botstrings)
         if tokens[0] in botstrings.commands:
-            self.ws.send_message(botstrings.commands[tokens[0]])
+            response = botstrings.commands[tokens[0]]
+
+            if (m.type == "PRIVMSG"):
+                self.ws.send_message(response)
+                return
+            if (m.type == "WHISPER"):
+                #self.ws.send_message(f"/w {m.user} {response}")
+                self.ws.send_whisper(m.user, response)
+                return
+            ptf("Failed to send!")
+            return
+
 
 
 if __name__ == "__main__":

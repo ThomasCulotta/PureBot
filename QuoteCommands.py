@@ -18,14 +18,16 @@ class QuoteCommands():
 
         self.counter_col = mongoClient.QuoteBotDB['counters']
 
-    def Execute(msg):
+    def Execute(self,msg):
+
+        ##############################################
+        
         if msg.message.startswith("!quoteadd "):
             regmatch = re.match("^!quoteadd (.+?)$", msg.message)
             if regmatch == None:
-                self.ws.send_message(f"[{msg.user}]: The syntax for that command is !quoteadd \"TEXT\"")
-                return
+                return f"[{msg.user}]: The syntax for that command is !quoteadd TEXT"
 
-            counterName = self.chan[1:] + "counter"
+            counterName = self.chan[1:] + "Counter"
             result = None
             result = self.counter_col.find_one_and_update(
                 {"name": counterName},
@@ -33,8 +35,7 @@ class QuoteCommands():
                 upsert=True
             )
             if result == None:
-                self.ws.send_message(f"[{msg.user}]: Mistakes have been made. quoteID: [{quoteID}]")
-                return
+                return f"[{msg.user}]: Mistakes have been made. quoteID: [{quoteID}]"
 
             quoteID = result['value']
 
@@ -48,33 +49,29 @@ class QuoteCommands():
                 "date": datetime.datetime.now()
             }
             self.quote_col.insert_one(quoteObj)
-            self.ws.send_message(f"[{msg.user}]: Your quote has been added with id {quoteID}!")
-            return
+            return f"[{msg.user}]: Your quote has been added with id {quoteID}!"
 
         ##############################################
 
         if msg.message.startswith("!quoteget "):
             regmatch = re.match("^!quoteget (\d+)$", msg.message)
             if regmatch == None:
-                self.ws.send_message(f"[{msg.user}]: The syntax for that command is !quoteget NUMBER")
-                return
+                return f"[{msg.user}]: The syntax for that command is !quoteget NUMBER"
             quoteID = int(regmatch.group(1))
             result = None
             result = self.quote_col.find_one({"id":quoteID})
             if result == None:
-                self.ws.send_message(f"[{msg.user}]: No quote with an ID of [{quoteID}]!")
+                return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
             else:
                 formattedDate = result['date'].strftime("%x")
-                self.ws.send_message(f"[{quoteID}]: \"{result['text']}\" - {result['game']} on {formattedDate}")
-            return
+                return f"[{quoteID}]: \"{result['text']}\" - {result['game']} on {formattedDate}"
 
         ##############################################
 
         if msg.message.startswith("!quotechange "):
             regmatch = re.match("^!quotechange (\d+) (.+?)$", msg.message)
             if regmatch == None:
-                self.ws.send_message(f"[{msg.user}]: The syntax for that command is !quotechange NUMBER \"TEXT\"")
-                return
+                return f"[{msg.user}]: The syntax for that command is !quotechange NUMBER TEXT"
 
             quoteID = int(regmatch.group(1))
             newQuote = regmatch.group(2)
@@ -84,31 +81,26 @@ class QuoteCommands():
             result = self.quote_col.find_one({"id":quoteID})
 
             if result == None:
-                self.ws.send_message(f"[{msg.user}]: No quote with an ID of [{quoteID}]!")
-                return
+                return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
             if msg.tags['mod'] != '1':
                 if result['user'] != msg.user:
-                    self.ws.send_message(f"[{msg.user}]: Regular users can't edit a quote someone else added!")
-                    return
+                    return f"[{msg.user}]: Regular users can't edit a quote someone else added!"
                 if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
-                    self.ws.send_message(f"[{msg.user}]: Regular users can't edit a quote except on the day it was added!")
-                    return
+                    return f"[{msg.user}]: Regular users can't edit a quote except on the day it was added!"
 
             self.quote_col.update_one(
                 {"id": quoteID},
                 {'$set': {'text': newQuote}}
             )
 
-            self.ws.send_message(f"[{msg.user}]: Updated quote #{quoteID}!")
-            return
+            return f"[{msg.user}]: Updated quote #{quoteID}!"
 
         ##############################################
 
         if msg.message.startswith("!quotedelete "):
             regmatch = re.match("^!quotedelete (\d+|last)$", msg.message)
             if regmatch == None:
-                self.ws.send_message(f"[{msg.user}]: The syntax for that command is !quotedelete NUMBER")
-                return
+                return f"[{msg.user}]: The syntax for that command is !quotedelete NUMBER"
 
             deleteFlag = False
             counterName = self.chan[1:] + "counter"
@@ -116,8 +108,7 @@ class QuoteCommands():
             result = None
             result = self.counter_col.find_one({"name": counterName})
             if result == None:
-                self.ws.send_message(f"[{msg.user}]: QuoteID could not be found: [{quoteID}]")
-                return
+                return f"[{msg.user}]: QuoteID could not be found: [{quoteID}]"
             lastquoteID = int(result['value']) - 1
 
             if regmatch.group(1) == "last":
@@ -134,15 +125,12 @@ class QuoteCommands():
             result = None
             result = self.quote_col.find_one({"id":quoteID})
             if result == None:
-                self.ws.send_message(f"[{msg.user}]: No quote with an ID of [{quoteID}]!")
-                return
+                return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
             if msg.tags['mod'] != '1':
                 if result['user'] != msg.user:
-                    self.ws.send_message(f"[{msg.user}]: Regular users can't delete a quote someone else added!")
-                    return
+                    return f"[{msg.user}]: Regular users can't delete a quote someone else added!"
                 if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
-                    self.ws.send_message(f"[{msg.user}]: Regular users can't delete a quote except on the day it was added!")
-                    return
+                    return f"[{msg.user}]: Regular users can't delete a quote except on the day it was added!"
 
             if deleteFlag:
                 self.quote_col.delete_one({"id":quoteID})
@@ -153,5 +141,4 @@ class QuoteCommands():
                     {'$set': {'text': ""}}
                 )
 
-            self.ws.send_message(f"[{msg.user}]: Deleted quote #{quoteID}!")
-            return
+            return f"[{msg.user}]: Deleted quote #{quoteID}!"
