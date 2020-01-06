@@ -1,22 +1,31 @@
 import random
 import pymongo
- 
+import datetime
+
 from TwitchWebsocket import TwitchWebsocket
- 
+
 from FlushPrint import ptf
- 
+import botconfig
+
 class ScoreCommands:
     def __init__(self, chan, ws, mongoClient):
         self.ws = ws
         self.chan = chan
  
-        LBcolName = self.chan[1:] + "LB"
-        self.leaderboard_col = mongoClient.QuoteBotDB[LBcolName]
+        leaderboard_col_name = self.chan[1:] + "LB"
+        self.leaderboard_col = mongoClient.QuoteBotDB[leaderboard_col_name]
         self.leaderboard_col.create_index([("user", pymongo.ASCENDING)])
-        ptf(LBcolName)
+
+        #Set expiration timer on collection documents 
+        self.leaderboard_col.drop_index([("createdAt", pymongo.ASCENDING)])
+        self.leaderboard_col.create_index([("createdAt", pymongo.ASCENDING)], expireAfterSeconds=botconfig.scoreLifespan)
+        ptf(leaderboard_col_name)
  
     def Execute(self,msg):
-        ptf("executing")
+        ptf("Beginning Score Command")
+        
+        ##############################################
+        
         if msg.message.startswith("!score"):
             tempscore = random.randint(0,100)
             ptf("tempscore: " + str(tempscore))
@@ -27,14 +36,15 @@ class ScoreCommands:
                 score = tempscore
                 userObj = {
                     "user": msg.user,
-                    "score": tempscore
+                    "score": tempscore,
+                    "createdAt": datetime.datetime.utcnow()
                 }
                 self.leaderboard_col.insert_one(userObj)
             else:
                 ptf(result)
                 score = result['score']
  
-            message = f"[{msg.user}] Your pure count is : {str(score)}/100"
+            message = f"[{msg.user}] Your pure count is: {str(score)}/100"
  
             if score == 69:
                 #message += " nice :sunglasses:"
