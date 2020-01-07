@@ -8,8 +8,7 @@ from FlushPrint import ptf
 import botconfig
 
 class ScoreCommands:
-    def __init__(self, chan, ws, mongoClient):
-        self.ws = ws
+    def __init__(self, chan, mongoClient):
         self.chan = chan
 
         leaderboard_col_name = self.chan[1:] + "LB"

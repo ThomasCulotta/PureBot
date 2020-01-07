@@ -7,10 +7,7 @@ from TwitchWebsocket import TwitchWebsocket
 from FlushPrint import ptf
 
 class CustomCommands:
-    def __init__(self, prefix, ws):
-        self.prefix = prefix
-        self.ws = ws
-
+    def __init__(self):
         with open('CustomCommands.json', 'r') as file:
             self.self.customCommandList = json.load(file)
 
@@ -27,7 +24,7 @@ class CustomCommands:
             regmatch = re.match("^addcommand (.+? \[ARG\]|.+?) (.+?)$", message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: addcommand TEXT TEXT"
-            newCommand = self.prefix + regmatch.group(1)
+            newCommand = regmatch.group(1)
             newCommandText = regmatch.group(2)
 
             with open('CustomCommands.json', 'r') as file:
@@ -59,7 +56,7 @@ class CustomCommands:
             regmatch = re.match("^delcommand (.+?)$", message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is delcommand TEXT"
-            command = self.prefix + regmatch.group(1)
+            command = regmatch.group(1)
 
             with open('CustomCommands.json', 'r') as file:
                 self.customCommandList = json.load(file)

@@ -42,9 +42,9 @@ class PureBot:
         # TODO: remove ws param from constructors
         self.commands = {
             "who"   : WhoCommands(chan=self.chan, mongoClient=client),
-            "score" : ScoreCommands(chan=self.chan, ws=self.ws, mongoClient=client),
-            "quote" : QuoteCommands(chan=self.chan, ws=self.ws, mongoClient=client),
-            "custom" : CustomCommands(prefix=self.prefix, ws=self.ws),
+            "score" : ScoreCommands(chan=self.chan, mongoClient=client),
+            "quote" : QuoteCommands(chan=self.chan, mongoClient=client),
+            "custom" : CustomCommands(),
         }
 
         # Defines all command strings caught by imported command modules

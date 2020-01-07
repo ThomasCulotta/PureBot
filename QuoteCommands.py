@@ -7,8 +7,7 @@ from TwitchWebsocket import TwitchWebsocket
 from FlushPrint import ptf
 
 class QuoteCommands:
-    def __init__(self, chan, ws, mongoClient):
-        self.ws = ws
+    def __init__(self, chan, mongoClient):
         self.chan = chan
 
         quote_col_name = self.chan[1:] + "Quotes"
