@@ -9,7 +9,7 @@ from FlushPrint import ptf
 class CustomCommands:
     def __init__(self):
         with open('CustomCommands.json', 'r') as file:
-            self.self.customCommandList = json.load(file)
+            self.customCommandList = json.load(file)
 
     def Execute(self, msg):
         ptf("Beginning Custom Command")
