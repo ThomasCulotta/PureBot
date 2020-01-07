@@ -22,11 +22,12 @@ class QuoteCommands:
         ptf("Beginning Quote Command")
 
         ##############################################
-        
-        if msg.message.startswith("!quoteadd "):
-            regmatch = re.match("^!quoteadd (.+?)$", msg.message)
+
+        message = msg.message[1:]
+        if message.startswith("quote add"):
+            regmatch = re.match("^quote add (.+?)$", message)
             if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is !quoteadd TEXT"
+                return f"[{msg.user}]: The syntax for that command is quoteadd TEXT"
 
             counterName = self.chan[1:] + "Counter"
             result = None
@@ -54,25 +55,10 @@ class QuoteCommands:
 
         ##############################################
 
-        if msg.message.startswith("!quoteget "):
-            regmatch = re.match("^!quoteget (\d+)$", msg.message)
+        if message.startswith("quote change"):
+            regmatch = re.match("^quote change (\d+) (.+?)$", message)
             if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is !quoteget NUMBER"
-            quoteID = int(regmatch.group(1))
-            result = None
-            result = self.quote_col.find_one({"id":quoteID})
-            if result == None:
-                return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
-            else:
-                formattedDate = result['date'].strftime("%x")
-                return f"[{quoteID}]: \"{result['text']}\" - {result['game']} on {formattedDate}"
-
-        ##############################################
-
-        if msg.message.startswith("!quotechange "):
-            regmatch = re.match("^!quotechange (\d+) (.+?)$", msg.message)
-            if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is !quotechange NUMBER TEXT"
+                return f"[{msg.user}]: The syntax for that command is: quote change NUMBER TEXT"
 
             quoteID = int(regmatch.group(1))
             newQuote = regmatch.group(2)
@@ -98,10 +84,10 @@ class QuoteCommands:
 
         ##############################################
 
-        if msg.message.startswith("!quotedelete "):
-            regmatch = re.match("^!quotedelete (\d+|last)$", msg.message)
+        if message.startswith("quote delete"):
+            regmatch = re.match("^quote delete (\d+|last)$", message)
             if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is !quotedelete NUMBER"
+                return f"[{msg.user}]: The syntax for that command is: quote delete NUMBER"
 
             deleteFlag = False
             counterName = self.chan[1:] + "counter"
@@ -143,3 +129,24 @@ class QuoteCommands:
                 )
 
             return f"[{msg.user}]: Deleted quote #{quoteID}!"
+
+        ##############################################
+
+        if message.startswith("quote"):
+            regmatch = re.match("^quote (\d+)$", message)
+
+            quoteID = None
+            if regmatch == None:
+                result = self.quote_col.aggregate([{ "$sample": { size: 1 } }])
+            else:
+                quoteID = int(regmatch.group(1))
+                result = self.quote_col.find_one({"id":quoteID})
+
+            if result == None:
+                if quoteID == None:
+                    return f"[{msg.user}]: No quotes found"
+
+                return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
+            else:
+                formattedDate = result['date'].strftime("%x")
+                return f"[{quoteID}]: \"{result['text']}\" - {result['game']} on {formattedDate}"

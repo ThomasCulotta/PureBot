@@ -13,16 +13,17 @@ class CustomCommands:
 
     def Execute(self, msg):
         ptf("Beginning Custom Command")
-        
+
         ##############################################
 
-        if msg.message.startswith("!addcommand "):
+        message = msg.message[1:]
+        if message.startswith("addcommand"):
             if msg.tags['mod'] != '1' and msg.user != "doomzero":
-                return f"[{msg.user}]: Regular users can't add quotes! Please ask a mod to add it for you."
+                return f"[{msg.user}]: Regular users can't add commands! Please ask a mod to add it for you."
 
-            regmatch = re.match("^!addcommand (.+? \[ARG\]|.+?) (.+?)$", msg.message)
+            regmatch = re.match("^addcommand (.+? \[ARG\]|.+?) (.+?)$", message)
             if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is !addcommand TEXT TEXT"
+                return f"[{msg.user}]: The syntax for that command is: addcommand TEXT TEXT"
             newCommand = self.prefix + regmatch.group(1)
             newCommandText = regmatch.group(2)
 
@@ -32,7 +33,7 @@ class CustomCommands:
 
             if newCommand in customCommandList:
                 return f"[{msg.user}]: That command ({newCommand}) already exists!"
-            
+
             customCommandList[newCommand] = newCommandText
 
             with open('CustomCommands.json', 'w') as outfile:
@@ -49,13 +50,13 @@ class CustomCommands:
 
         ##############################################
 
-        if msg.message.startswith("!delcommand "):
+        if message.startswith("delcommand"):
             if msg.tags['mod'] != '1' and msg.user != "doomzero":
-                return f"[{msg.user}]: Regular users can't delete quotes! Please ask a mod to delete it for you."
+                return f"[{msg.user}]: Regular users can't delete commands! Please ask a mod to delete it for you."
 
-            regmatch = re.match("^!delcommand (.+?)$", msg.message)
+            regmatch = re.match("^delcommand (.+?)$", message)
             if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is !delcommand TEXT"
+                return f"[{msg.user}]: The syntax for that command is delcommand TEXT"
             command = self.prefix + regmatch.group(1)
 
             with open('CustomCommands.json', 'r') as file:
@@ -63,7 +64,7 @@ class CustomCommands:
 
             if command not in customCommandList:
                 return f"[{msg.user}]: That command ({command}) is not a command!"
-            
+
             customCommandList.pop(command)
 
             #write changes to file
@@ -85,18 +86,17 @@ class CustomCommands:
 
         #Generic Commands
 
-        if msg.message.startswith("!"):
-            tokens = msg.message.lower().split(" ")
+        tokens = message.lower().split(" ")
 
-            with open('CustomCommands.json', 'r') as file:
-                customCommandList = json.load(file)
+        with open('CustomCommands.json', 'r') as file:
+            customCommandList = json.load(file)
 
-            if tokens[0] in customCommandList:
-                return customCommandList[tokens[0]]
-            else:
-                if len(tokens) > 1 and (tokens[0] + " [ARG]") in customCommandList:
-                    ptf("arg command")
-                    response = customCommandList[(tokens[0] + " [ARG]")].replace("[ARG]", tokens[1])   
-                    return response
-                else:
-                    return f"[{msg.user}]: That command does not exist yet!"
+        if tokens[0] in customCommandList:
+            return customCommandList[tokens[0]]
+        else:
+            if len(tokens) > 1 and (tokens[0] + " [ARG]") in customCommandList:
+                ptf("arg command")
+                response = customCommandList[(tokens[0] + " [ARG]")].replace("[ARG]", tokens[1])
+                return response
+
+        return

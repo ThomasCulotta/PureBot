@@ -15,9 +15,9 @@ regUserGroup = "(\w+?)"
 regTextGroup = "(.+?)"
 regIdOrLastGroup = "(\d+?|last)"
 
-# !who [USER] (ID)
-# !who add [USER] [QUOTE]
-# !who delete [USER] [ID]
+# who [USER] (ID)
+# who add [USER] [QUOTE]
+# who delete [USER] [ID]
 class WhoCommands():
     def __init__(self, chan, mongoClient):
         self.chan = chan
@@ -28,11 +28,12 @@ class WhoCommands():
         ptf(colNameWho)
 
     def Execute(self,msg):
-        if msg.message.startswith("!who add "):
-            regMatch = re.match(f"^!who add {regUserGroup} {regTextGroup}$", msg.message)
+        message = msg.message[1:]
+        if message.startswith("who add"):
+            regMatch = re.match(f"^who add {regUserGroup} {regTextGroup}$", message)
 
             if regMatch == None:
-                return f"[{msg.user}]: The syntax for that command is !who add USER TEXT"
+                return f"[{msg.user}]: The syntax for that command is: who add USER TEXT"
 
             userName = regMatch.group(1)
             quoteText = regMatch.group(2)
@@ -61,11 +62,11 @@ class WhoCommands():
 
         ##############################################
 
-        if msg.message.startswith("!who delete "):
-            regMatch = re.match(f"^!who delete {regUserGroup} {regIdOrLastGroup}$", msg.message)
+        if message.startswith("who delete"):
+            regMatch = re.match(f"^who delete {regUserGroup} {regIdOrLastGroup}$", message)
 
             if regMatch == None:
-                return f"[{msg.user}]: The syntax for that command is !who delete USER NUMBER"
+                return f"[{msg.user}]: The syntax for that command is: who delete USER NUMBER"
 
             userName = regMatch.group(1)
             quoteId = regMatch.group(2)
@@ -117,11 +118,11 @@ class WhoCommands():
 
         ##############################################
 
-        if msg.message.startswith("!who "):
-            regMatch = re.match(f"^!who {regUserGroup} {regNumGroup}?$", msg.message)
+        if message.startswith("who"):
+            regMatch = re.match(f"^who {regUserGroup} {regNumGroup}?$", message)
 
             if regMatch == None:
-                return f"[{msg.user}]: The syntax for that command is !who USER (ID)"
+                return f"[{msg.user}]: The syntax for that command is: who USER (ID)"
 
             userName = regMatch.group(1)
             quoteId = regMatch.group(2)
