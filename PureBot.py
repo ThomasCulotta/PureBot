@@ -40,8 +40,7 @@ class PureBot:
                                   live=True)
 
         # TODO: remove ws param from constructors
-        self.commands =
-        {
+        self.commands = {
             "who"   : WhoCommands(chan=self.chan, mongoClient=client),
             "score" : ScoreCommands(chan=self.chan, ws=self.ws, mongoClient=client),
             "quote" : QuoteCommands(chan=self.chan, ws=self.ws, mongoClient=client),
@@ -50,8 +49,7 @@ class PureBot:
 
         # Defines all command strings caught by imported command modules
         # TODO: is there a cleaner way to define duplicate values (e.g. "score")
-        self.execute =
-        {
+        self.execute = {
             "who" : self.commands["who"].Execute,
             "quote" : self.commands["quote"].Execute,
             "purecount"  : self.commands["score"].Execute,
@@ -69,28 +67,25 @@ class PureBot:
     def SendMessage(self, type, user, response):
         if (type == "PRIVMSG"):
             self.ws.send_message(response)
-        elif (type == "WHISPER")
+        elif (type == "WHISPER"):
             self.ws.send_whisper(m.user, response)
-        else
+        else:
             ptf("Failed to send message")
         return
 
     def message_handler(self, m):
-        # Create your bot functionality here.
-        ptf(m)
-
         # Check for valid message with prefix
         # TODO: add ability for multiple prefixes
-        if m.message is None or
+        if (m.message is None or
            (m.type != "PRIVMSG" and m.type != "WHISPER") or
-           (not m.message.startswith(self.prefix)):
+           (not m.message.startswith(self.prefix))):
             return
 
         try:
             # Retrieve first word without prefix
             token = m.message.lower().split(" ")[0][1:]
 
-            if (token in self.execute)
+            if (token in self.execute):
                 self.SendMessage(m.type, m.user, self.execute[token](m))
                 return
 
@@ -99,11 +94,9 @@ class PureBot:
             # Simple response commands
             # Note that we don't get this far unless the message does not match other commands
 
-            if m.message.startswith(self.prefix):
-                response = self.execute["custom"](m)
-
-                self.SendMessage(m.type, m.user, response)
-                return
+            response = self.execute["custom"](m)
+            self.SendMessage(m.type, m.user, response)
+            return
 
         except Exception as e:
             ptf(f"Error: {e}")

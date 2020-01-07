@@ -135,9 +135,9 @@ class WhoCommands():
 
             if quoteId == None:
                 quoteId, quote = random.choice(list(quoteBank.items()))
-            elif quoteId in quoteBank
+            elif quoteId in quoteBank:
                 quote = quoteBank[quoteId]
-            else
+            else:
                 return f"[{msg.user}]: No quote from {userName} with id {quoteId}"
 
             return f"[{userName} {quoteId}]: \"{result[quote]}\""
