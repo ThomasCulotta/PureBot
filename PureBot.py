@@ -79,6 +79,8 @@ class PureBot:
         # Create your bot functionality here.
         ptf(m)
 
+        # Check for valid message with prefix
+        # TODO: add ability for multiple prefixes
         if m.message is None or
            (m.type != "PRIVMSG" and m.type != "WHISPER") or
            (not m.message.startswith(self.prefix)):
@@ -89,7 +91,7 @@ class PureBot:
             token = m.message.lower().split(" ")[0][1:]
 
             if (token in self.execute)
-                SendMessage(m.type, m.user, self.execute[token](m))
+                self.SendMessage(m.type, m.user, self.execute[token](m))
                 return
 
             ##############################################
@@ -100,7 +102,7 @@ class PureBot:
             if m.message.startswith(self.prefix):
                 response = self.execute["custom"](m)
 
-                self.send(m.type, m.user, response)
+                self.SendMessage(m.type, m.user, response)
                 return
 
         except Exception as e:
