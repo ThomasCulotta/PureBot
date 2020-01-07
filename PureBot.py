@@ -63,9 +63,6 @@ class PureBot:
             "delcommand" : self.commands["custom"].Execute,
         }
 
-        self.customCommands = CustomCommands(prefix=self.prefix,
-                                             ws=self.ws)
-
         self.ws.start_bot()
         # Any code after this will be executed after a KeyboardInterrupt
 
@@ -101,7 +98,7 @@ class PureBot:
             # Note that we don't get this far unless the message does not match other commands
 
             if m.message.startswith(self.prefix):
-                response = self.customCommands.Execute(m)
+                response = self.execute["custom"](m)
 
                 self.send(m.type, m.user, response)
                 return
