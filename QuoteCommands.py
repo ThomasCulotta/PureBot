@@ -6,19 +6,20 @@ from TwitchWebsocket import TwitchWebsocket
 
 from FlushPrint import ptf
 
-class QuoteCommands():
+class QuoteCommands:
     def __init__(self, chan, ws, mongoClient):
         self.ws = ws
         self.chan = chan
 
-        QuotesColName = self.chan[1:] + "Quotes"
-        self.quote_col = mongoClient.QuoteBotDB[QuotesColName]
+        quote_col_name = self.chan[1:] + "Quotes"
+        self.quote_col = mongoClient.QuoteBotDB[quote_col_name]
         self.quote_col.create_index([("id", pymongo.ASCENDING)])
-        ptf(QuotesColName)
+        ptf(quote_col_name)
 
         self.counter_col = mongoClient.QuoteBotDB['counters']
 
     def Execute(self,msg):
+        ptf("Beginning Quote Command")
 
         ##############################################
         
