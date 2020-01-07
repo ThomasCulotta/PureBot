@@ -42,25 +42,25 @@ class PureBot:
         # TODO: remove ws param from constructors
         self.commands =
         {
-            "who"   : WhoCommands(chan=self.chan, mongoClient=client)
-            "score" : ScoreCommands(chan=self.chan, ws=self.ws, mongoClient=client)
-            "quote" : QuoteCommands(chan=self.chan, ws=self.ws, mongoClient=client)
-            "custom" : CustomCommands(prefix=self.prefix, ws=self.ws)
+            "who"   : WhoCommands(chan=self.chan, mongoClient=client),
+            "score" : ScoreCommands(chan=self.chan, ws=self.ws, mongoClient=client),
+            "quote" : QuoteCommands(chan=self.chan, ws=self.ws, mongoClient=client),
+            "custom" : CustomCommands(prefix=self.prefix, ws=self.ws),
         }
 
         # Defines all command strings caught by imported command modules
         # TODO: is there a cleaner way to define duplicate values (e.g. "score")
         self.execute =
         {
-            "who" : self.commands["who"].Execute
-            "quote" : self.commands["quote"].Execute
-            "purecount"  : self.commands["score"].Execute
-            "pureboard"  : self.commands["score"].Execute
-            "curseboard" : self.commands["score"].Execute
-            "clearboard" : self.commands["score"].Execute
-            "clearscore" : self.commands["score"].Execute
-            "addcommand" : self.commands["custom"].Execute
-            "delcommand" : self.commands["custom"].Execute
+            "who" : self.commands["who"].Execute,
+            "quote" : self.commands["quote"].Execute,
+            "purecount"  : self.commands["score"].Execute,
+            "pureboard"  : self.commands["score"].Execute,
+            "curseboard" : self.commands["score"].Execute,
+            "clearboard" : self.commands["score"].Execute,
+            "clearscore" : self.commands["score"].Execute,
+            "addcommand" : self.commands["custom"].Execute,
+            "delcommand" : self.commands["custom"].Execute,
         }
 
         self.customCommands = CustomCommands(prefix=self.prefix,
