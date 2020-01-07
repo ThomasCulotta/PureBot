@@ -11,6 +11,7 @@ import botconfig
 from FlushPrint import ptf
 
 # Command imports
+from WhoCommands   import WhoCommands
 from ScoreCommands import ScoreCommands
 from QuoteCommands import QuoteCommands
 from CustomCommands import CustomCommands
@@ -38,115 +39,75 @@ class PureBot:
                                   capability=["membership", "tags", "commands"],
                                   live=True)
 
-        self.scoreCommands = ScoreCommands(chan=self.chan,
-                                           ws=self.ws,
-                                           mongoClient=client)
+        # TODO: remove ws param from constructors
+        self.commands =
+        {
+            "who"   : WhoCommands(chan=self.chan, mongoClient=client)
+            "score" : ScoreCommands(chan=self.chan, ws=self.ws, mongoClient=client)
+            "quote" : QuoteCommands(chan=self.chan, ws=self.ws, mongoClient=client)
+            "custom" : CustomCommands(prefix=self.prefix, ws=self.ws)
+        }
 
-        self.quoteCommands = QuoteCommands(chan=self.chan,
-                                           ws=self.ws,
-                                           mongoClient=client)
+        # Defines all command strings caught by imported command modules
+        # TODO: is there a cleaner way to define duplicate values (e.g. "score")
+        self.execute =
+        {
+            "who" : self.commands["who"].Execute
+            "quote" : self.commands["quote"].Execute
+            "purecount"  : self.commands["score"].Execute
+            "pureboard"  : self.commands["score"].Execute
+            "curseboard" : self.commands["score"].Execute
+            "clearboard" : self.commands["score"].Execute
+            "clearscore" : self.commands["score"].Execute
+            "addcommand" : self.commands["custom"].Execute
+            "delcommand" : self.commands["custom"].Execute
+        }
 
-        self.customCommands = CustomCommands(prefix=self.prefix, 
+        self.customCommands = CustomCommands(prefix=self.prefix,
                                              ws=self.ws)
 
         self.ws.start_bot()
         # Any code after this will be executed after a KeyboardInterrupt
 
+    def SendMessage(self, type, user, response):
+        if (type == "PRIVMSG"):
+            self.ws.send_message(response)
+        elif (type == "WHISPER")
+            self.ws.send_whisper(m.user, response)
+        else
+            ptf("Failed to send message")
+        return
 
     def message_handler(self, m):
         # Create your bot functionality here.
         ptf(m)
-        if m.message is None or (m.type != "PRIVMSG" and m.type != "WHISPER"):
+
+        if m.message is None or
+           (m.type != "PRIVMSG" and m.type != "WHISPER") or
+           (not m.message.startswith(self.prefix)):
             return
 
-        ##############################################
-        try: 
-            if (m.message.startswith("!lewdcount") or 
-                m.message.startswith("~lewdcount")):
+        try:
+            # Retrieve first word without prefix
+            token = m.message.lower().split(" ")[0][1:]
 
-                response = f"[{m.user}]: That command is fake! Please use !score instead!"
-
-                self.ws.send_message(response)
+            if (token in self.execute)
+                SendMessage(m.type, m.user, self.execute[token](m))
                 return
 
             ##############################################
 
-            #ignore messages that don't start with the bot's prefix
-            if (not m.message.startswith(self.prefix)):
-                return
-
-            ##############################################
-
-            if (m.message.startswith(self.prefix + "score") or
-                m.message.startswith(self.prefix + "pureboard") or
-                m.message.startswith(self.prefix + "cursedboard") or
-                m.message.startswith(self.prefix + "clearboard") or
-                m.message.startswith(self.prefix + "clearscore")):
-
-                response = self.scoreCommands.Execute(m)
-
-                self.send(m.type, m.user, response)
-                return
-
-            ##############################################
-
-            if m.message.startswith(self.prefix + "quote"):
-                
-                response = self.quoteCommands.Execute(m)
-
-                self.send(m.type, m.user, response)
-                return
-
-            ##############################################
-
-            if (m.message.startswith(self.prefix + "addcommand ") or
-                m.message.startswith(self.prefix + "delcommand ")):
-
-                response = self.customCommands.Execute(m)                
-
-                self.send(m.type, m.user, response)
-                return
-
-            ##############################################
-
-            # Simple response commands 
+            # Simple response commands
             # Note that we don't get this far unless the message does not match other commands
 
             if m.message.startswith(self.prefix):
-                tokens = m.message.lower().split(" ")
-
                 response = self.customCommands.Execute(m)
-                
+
                 self.send(m.type, m.user, response)
                 return
 
-            ##############################################
-
-            #Code written after this point will execute upon every message sent to the channel, including non-command messages 
-            
-            #this one might be excessive, so keep it commented out when the channel's active
-            #ptf("No command recognized!")
-
-
         except Exception as e:
             ptf(f"Error: {e}")
-
-    ##############################################
-
-    def send(self, mType, user, response):
-        ptf("in send")
-        if (mType == "PRIVMSG"):
-            self.ws.send_message(response)
-            ptf("after message")
-            return
-        if (mType == "WHISPER"):
-            #self.ws.send_message(f"/w {m.user} {response}")
-            self.ws.send_whisper(m.user, response)
-            ptf("after whisper")
-            return
-        ptf("Failed to send!")
-
-    ##############################################
 
 if __name__ == "__main__":
     PureBot()
