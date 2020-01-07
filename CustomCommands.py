@@ -11,6 +11,9 @@ class CustomCommands:
         self.prefix = prefix
         self.ws = ws
 
+        with open('CustomCommands.json', 'r') as file:
+            self.self.customCommandList = json.load(file)
+
     def Execute(self, msg):
         ptf("Beginning Custom Command")
 
@@ -27,22 +30,21 @@ class CustomCommands:
             newCommand = self.prefix + regmatch.group(1)
             newCommandText = regmatch.group(2)
 
-
             with open('CustomCommands.json', 'r') as file:
-                customCommandList = json.load(file)
+                self.customCommandList = json.load(file)
 
-            if newCommand in customCommandList:
+            if newCommand in self.customCommandList:
                 return f"[{msg.user}]: That command ({newCommand}) already exists!"
 
-            customCommandList[newCommand] = newCommandText
+            self.customCommandList[newCommand] = newCommandText
 
             with open('CustomCommands.json', 'w') as outfile:
-                json.dump(customCommandList, outfile, indent = 2)
+                json.dump(self.customCommandList, outfile, indent = 2)
 
             with open('CustomCommands.json', 'r') as file:
-                customCommandList = json.load(file)
+                self.customCommandList = json.load(file)
 
-            if newCommand in customCommandList:
+            if newCommand in self.customCommandList:
                 return f"[{msg.user}]: Command added as [{newCommand}]!"
             else:
                 return f"[{msg.user}]: Command not added, for some reason."
@@ -60,23 +62,23 @@ class CustomCommands:
             command = self.prefix + regmatch.group(1)
 
             with open('CustomCommands.json', 'r') as file:
-                customCommandList = json.load(file)
+                self.customCommandList = json.load(file)
 
-            if command not in customCommandList:
+            if command not in self.customCommandList:
                 return f"[{msg.user}]: That command ({command}) is not a command!"
 
-            customCommandList.pop(command)
+            self.customCommandList.pop(command)
 
             #write changes to file
             with open('CustomCommands.json', 'w') as outfile:
-                json.dump(customCommandList, outfile, indent = 2)
+                json.dump(self.customCommandList, outfile, indent = 2)
 
             #reload file's contents
             with open('CustomCommands.json', 'r') as file:
-                customCommandList = json.load(file)
+                self.customCommandList = json.load(file)
 
             #test if the command has been removed
-            if command not in customCommandList:
+            if command not in self.customCommandList:
                 return f"[{msg.user}]: That command ({command}) has been removed!"
             else:
                 return f"[{msg.user}]: Command not removed, for some reason."
@@ -88,15 +90,12 @@ class CustomCommands:
 
         tokens = message.lower().split(" ")
 
-        with open('CustomCommands.json', 'r') as file:
-            customCommandList = json.load(file)
-
-        if tokens[0] in customCommandList:
-            return customCommandList[tokens[0]]
+        if tokens[0] in self.customCommandList:
+            return self.customCommandList[tokens[0]]
         else:
-            if len(tokens) > 1 and (tokens[0] + " [ARG]") in customCommandList:
+            if len(tokens) > 1 and (tokens[0] + " [ARG]") in self.customCommandList:
                 ptf("arg command")
-                response = customCommandList[(tokens[0] + " [ARG]")].replace("[ARG]", tokens[1])
+                response = self.customCommandList[(tokens[0] + " [ARG]")].replace("[ARG]", tokens[1])
                 return response
 
         return
