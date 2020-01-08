@@ -22,8 +22,10 @@ class ScoreCommands:
 
     def Execute(self,msg):
         ptf("Beginning purecount Command")
-
         message = msg.message[1:]
+
+        # snippet start
+        # purecount
         if message.startswith("purecount"):
             LBcolName = self.chan[1:] + "LB"
             self.leaderboard_col = mongoClient.QuoteBotDB[LBcolName]
@@ -59,6 +61,8 @@ class ScoreCommands:
 
         ##############################################
 
+        # snippet start
+        # pureboard
         if message.startswith("pureboard"):
             result = self.leaderboard_col.find().sort("score", 1)
 
@@ -71,6 +75,8 @@ class ScoreCommands:
 
         ##############################################
 
+        # snippet start
+        # cursedboard
         if message.startswith("cursedboard"):
             result = self.leaderboard_col.find().sort("score", -1)
             message = result[0]['user'] + ": " + str(result[0]['score'])
@@ -83,6 +89,8 @@ class ScoreCommands:
 
         ##############################################
 
+        # snippet start
+        # clearboard
         if message.startswith("clearboard"):
             if msg.tags['mod'] == '1' or msg.user == "doomzero":
                 self.leaderboard_col.remove({})
@@ -92,6 +100,8 @@ class ScoreCommands:
 
         ##############################################
 
+        # snippet start
+        # clearscore
         if message.startswith("clearscore"):
             if msg.tags['custom-reward-id'] == "769e238b-fe80-49ba-ab89-1e7e8ad75c88":
                 self.leaderboard_col.remove({"user": msg.user})

@@ -19,10 +19,11 @@ class QuoteCommands:
 
     def Execute(self,msg):
         ptf("Beginning Quote Command")
-
-        ##############################################
-
         message = msg.message[1:]
+
+        # snippet start
+        # quote add TEXT
+        # quote add Hi, I'm a PureSushi quote
         if message.startswith("quote add"):
             regmatch = re.match("^quote add (.+?)$", message)
             if regmatch == None:
@@ -54,6 +55,9 @@ class QuoteCommands:
 
         ##############################################
 
+        # snippet start
+        # quote change ID TEXT
+        # quote change 12 Hi, I'm a better PureSushi quote
         if message.startswith("quote change"):
             regmatch = re.match("^quote change (\d+) (.+?)$", message)
             if regmatch == None:
@@ -83,6 +87,10 @@ class QuoteCommands:
 
         ##############################################
 
+        # snippet start
+        # quote delete ID
+        # quote delete 123
+        # quote delete last
         if message.startswith("quote delete"):
             regmatch = re.match("^quote delete (\d+|last)$", message)
             if regmatch == None:
@@ -131,6 +139,10 @@ class QuoteCommands:
 
         ##############################################
 
+        # snippet start
+        # quote (ID)
+        # quote
+        # quote 123
         if message.startswith("quote"):
             regmatch = re.match("^quote (\d+)$", message)
 

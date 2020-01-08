@@ -13,10 +13,11 @@ class CustomCommands:
 
     def Execute(self, msg):
         ptf("Beginning Custom Command")
-
-        ##############################################
-
         message = msg.message[1:]
+
+        # snippet start
+        # addcommand COMMAND TEXT
+        # addcommand newcom I'm a new command
         if message.startswith("addcommand"):
             if msg.tags['mod'] != '1' and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't add commands! Please ask a mod to add it for you."
@@ -49,6 +50,9 @@ class CustomCommands:
 
         ##############################################
 
+        # snippet start
+        # delcommand COMMAND
+        # delcommand newcom
         if message.startswith("delcommand"):
             if msg.tags['mod'] != '1' and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't delete commands! Please ask a mod to delete it for you."

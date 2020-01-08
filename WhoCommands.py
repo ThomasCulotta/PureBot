@@ -15,9 +15,6 @@ regUserGroup = "(\w+?)"
 regTextGroup = "(.+?)"
 regIdOrLastGroup = "(\d+?|last)"
 
-# who [USER] (ID)
-# who add [USER] [QUOTE]
-# who delete [USER] [ID]
 class WhoCommands():
     def __init__(self, chan, mongoClient):
         self.chan = chan
@@ -29,6 +26,10 @@ class WhoCommands():
 
     def Execute(self,msg):
         message = msg.message[1:]
+
+        # snippet start
+        # who add USER TEXT
+        # who add Babotz Hello I'm a Babotz quote
         if message.startswith("who add"):
             regMatch = re.match(f"^who add {regUserGroup} {regTextGroup}$", message)
 
@@ -62,6 +63,9 @@ class WhoCommands():
 
         ##############################################
 
+        # snippet start
+        # who delete USER ID
+        # who delete Babotz 12
         if message.startswith("who delete"):
             regMatch = re.match(f"^who delete {regUserGroup} {regIdOrLastGroup}$", message)
 
@@ -118,6 +122,10 @@ class WhoCommands():
 
         ##############################################
 
+        # snippet start
+        # who USER (ID)
+        # who Babotz
+        # who Babotz 14
         if message.startswith("who"):
             regMatch = re.match(f"^who {regUserGroup} {regNumGroup}?$", message)
 
