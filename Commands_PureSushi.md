@@ -79,15 +79,26 @@ who Babotz
 who Babotz 14
 ```
 
-lewdcount
-discord
-bonsai
-chateau
-compilation
-youtube
-twitter
-multi
-movienight
-fiona
-welcome [ARG]
+`lewdcount`
+
+`discord`
+
+`bonsai`
+
+`chateau`
+
+`compilation`
+
+`youtube`
+
+`twitter`
+
+`multi`
+
+`movienight`
+
+`fiona`
+
+`welcome [ARG]`
+
 

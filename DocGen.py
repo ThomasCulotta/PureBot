@@ -42,7 +42,7 @@ if customCommandsFile != None:
         customJson = json.load(file)
 
     for command in customJson:
-        docFile.write(command + "\n")
+        docFile.write("`" + command + "`\n\n")
 
 
 docFile.write("\n")
