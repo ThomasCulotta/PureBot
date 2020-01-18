@@ -36,7 +36,7 @@ class WhoCommands():
             if regMatch == None:
                 return f"[{msg.user}]: The syntax for that command is: who add USER TEXT"
 
-            userName = regMatch.group(1)
+            userName = regMatch.group(1).lower()
             quoteText = regMatch.group(2)
             ptf(f"{userName} : {quoteText}")
 
@@ -46,6 +46,9 @@ class WhoCommands():
 
             if result == None:
                 return f"[{msg.user}]: Unable to add quote for user:. quoteId: [{quoteId}]"
+
+            if msg.tags['mod'] != '1':
+                return f"[{msg.user}]: Regular users can't add a who quote!"
 
             quoteId = result["counter"]
             quoteBank = json.loads(result["quotes"])
@@ -72,7 +75,7 @@ class WhoCommands():
             if regMatch == None:
                 return f"[{msg.user}]: The syntax for that command is: who delete USER NUMBER"
 
-            userName = regMatch.group(1)
+            userName = regMatch.group(1).lower()
             quoteId = regMatch.group(2)
 
             result = self.colWho.find_one({"user":userName})
@@ -104,19 +107,11 @@ class WhoCommands():
 
             ##### TODO: How do we want to handle mods vs reg users??? #####
 
-            # TODO: I currently have all the quotes in one doc per user since mongodb is
-            # suited to larger docs anyway and a collection per user will add
-            # unnecessary overhead pretty quickly and bloat the db regardless
-            # Gonna need to look into collection performance to see how impactful
-            # it would actually be. May end up being a nonissue after all (doubtful)
-
             if result == None:
                 return f"[{msg.user}]: No quote with an ID of [{quoteId}]!"
+
             if msg.tags['mod'] != '1':
-                if result['user'] != msg.user:
-                    return f"[{msg.user}]: Regular users can't delete a quote someone else added!"
-                if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
-                    return f"[{msg.user}]: Regular users can't delete a quote except on the day it was added!"
+                return f"[{msg.user}]: Regular users can't delete a who quote!"
 
             return f"[{msg.user}]: Deleted quote #{quoteId}!"
 
@@ -132,7 +127,7 @@ class WhoCommands():
             if regMatch == None:
                 return f"[{msg.user}]: The syntax for that command is: who USER (ID)"
 
-            userName = regMatch.group(1)
+            userName = regMatch.group(1).lower()
             quoteId = regMatch.group(2)
 
             result = self.colWho.find_one({"user":userName})
