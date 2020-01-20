@@ -62,21 +62,21 @@ clearscore
 ## WhoCommands
 
 ```
-who add USER TEXT
+who add @USER TEXT
 
-who add Babotz Hello I'm a Babotz quote
+who add @BabotzInc Hello I'm a Babotz quote
 ```
 ```
-who delete USER ID
+who delete @USER ID
 
-who delete Babotz 12
+who delete @BabotzInc 12
 ```
 ```
-who USER (ID)
+who @USER (ID)
 
-who Babotz
+who @BabotzInc
 
-who Babotz 14
+who @BabotzInc 14
 ```
 
 ---
@@ -110,7 +110,7 @@ multi
 movienight
 ```
 ```
-fiona
+list
 ```
 ```
 welcome [ARG]
