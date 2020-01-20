@@ -128,13 +128,18 @@ class WhoCommands():
         # who @BabotzInc
         # who @BabotzInc 14
         if message.startswith("who"):
-            regMatch = re.match(f"^who @{regUserGroup} {regNumGroup}?$", message)
+            regMatch = re.match(f"^who @{regUserGroup} {regNumGroup}$", message)
 
             if regMatch == None:
-                return f"[{msg.user}]: The syntax for that command is: who @USER (ID)"
+                regMatch = re.match(f"^who @{regUserGroup}$", message)
+                quoteId = None
+
+                if regMatch == None:
+                    return f"[{msg.user}]: The syntax for that command is: who @USER (ID)"
+            else:
+                quoteId = regMatch.group(2)
 
             userName = regMatch.group(1).lower()
-            quoteId = regMatch.group(2)
 
             result = self.colWho.find_one({"user":userName})
 
