@@ -148,7 +148,9 @@ class QuoteCommands:
 
             quoteID = None
             if regmatch == None:
-                result = self.quote_col.aggregate([{ "$sample": { size: 1 } }])
+                results = self.quote_col.aggregate([{ "$sample": { "size": 1 }}])
+                for item in results:
+                    result = item
             else:
                 quoteID = int(regmatch.group(1))
                 result = self.quote_col.find_one({"id":quoteID})
@@ -160,4 +162,5 @@ class QuoteCommands:
                 return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
             else:
                 formattedDate = result['date'].strftime("%x")
+                quoteID = result['id']
                 return f"[{quoteID}]: \"{result['text']}\" - {result['game']} on {formattedDate}"
