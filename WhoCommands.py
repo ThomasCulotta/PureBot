@@ -40,28 +40,41 @@ class WhoCommands():
                 return f"[{msg.user}]: The syntax for that command is: who add @USER TEXT"
 
             userName = regMatch.group(1).lower()
-            quoteText = regMatch.group(2)
-            ptf(f"{userName} : {quoteText}")
+            quote = regMatch.group(2)
 
             result = self.colWho.find_one(
                 {"user": userName}
             )
 
+            newCol = False
+            quoteBank = {}
             if result == None:
-                return f"[{msg.user}]: Unable to add quote for user {userName}"
+                newCol = True
+                quoteId = 1
+            else:
+                quoteId = result['counter']
+                quoteBank = json.loads(result['quotes'])
 
-            quoteId = result['counter']
-            quoteBank = json.loads(result['quotes'])
+            quoteBank[quoteId] = quote
+            ptf(f"{userName} : {quote}")
 
-            quoteBank[quoteId] = quoteText
+            if newCol:
+                userObj = {
+                    "user": userName,
+                    "quotes": json.dumps(quoteBank),
+                    "counter": int(quoteId)+1,
+                }
+                self.colWho.insert_one(userObj)
+            else:
+                self.colWho.update_one(
+                    {"user": userName},
+                    {"$set": {
+                        "quotes": json.dumps(quoteBank),
+                        "counter": int(quoteId)+1
+                        }
+                    }
+                )
 
-            userObj = {
-                "user": msg.user,
-                "quotes": json.dumps(quoteBank),
-                "counter": quoteId+1,
-            }
-
-            self.colWho.insert_one(quoteObj)
             return f"[{msg.user}]: Your quote for user {userName} has been added with id {quoteId}!"
 
         ##############################################
