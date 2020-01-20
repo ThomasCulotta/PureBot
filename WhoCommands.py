@@ -24,17 +24,20 @@ class WhoCommands():
         self.colWho.create_index([("user", pymongo.ASCENDING)])
         ptf(colNameWho)
 
-    def Execute(self,msg):
+    def Execute(self, msg):
         message = msg.message[1:]
 
         # snippet start
-        # who add USER TEXT
-        # who add Babotz Hello I'm a Babotz quote
+        # who add @USER TEXT
+        # who add @BabotzInc Hello I'm a Babotz quote
         if message.startswith("who add"):
-            regMatch = re.match(f"^who add {regUserGroup} {regTextGroup}$", message)
+            regMatch = re.match(f"^who add @{regUserGroup} {regTextGroup}$", message)
+
+            if msg.tags['mod'] != '1':
+                return f"[{msg.user}]: Regular users can't add a who quote!"
 
             if regMatch == None:
-                return f"[{msg.user}]: The syntax for that command is: who add USER TEXT"
+                return f"[{msg.user}]: The syntax for that command is: who add @USER TEXT"
 
             userName = regMatch.group(1).lower()
             quoteText = regMatch.group(2)
@@ -45,13 +48,10 @@ class WhoCommands():
             )
 
             if result == None:
-                return f"[{msg.user}]: Unable to add quote for user:. quoteId: [{quoteId}]"
+                return f"[{msg.user}]: Unable to add quote for user {userName}"
 
-            if msg.tags['mod'] != '1':
-                return f"[{msg.user}]: Regular users can't add a who quote!"
-
-            quoteId = result["counter"]
-            quoteBank = json.loads(result["quotes"])
+            quoteId = result['counter']
+            quoteBank = json.loads(result['quotes'])
 
             quoteBank[quoteId] = quoteText
 
@@ -62,18 +62,21 @@ class WhoCommands():
             }
 
             self.colWho.insert_one(quoteObj)
-            return f"[{msg.user}]: Your quote has been added with id {quoteId}!"
+            return f"[{msg.user}]: Your quote for user {userName} has been added with id {quoteId}!"
 
         ##############################################
 
         # snippet start
-        # who delete USER ID
-        # who delete Babotz 12
+        # who delete @USER ID
+        # who delete @BabotzInc 12
         if message.startswith("who delete"):
-            regMatch = re.match(f"^who delete {regUserGroup} {regIdOrLastGroup}$", message)
+            regMatch = re.match(f"^who delete @{regUserGroup} {regIdOrLastGroup}$", message)
+
+            if msg.tags['mod'] != '1':
+                return f"[{msg.user}]: Regular users can't delete a who quote!"
 
             if regMatch == None:
-                return f"[{msg.user}]: The syntax for that command is: who delete USER NUMBER"
+                return f"[{msg.user}]: The syntax for that command is: who delete @USER NUMBER"
 
             userName = regMatch.group(1).lower()
             quoteId = regMatch.group(2)
@@ -83,7 +86,7 @@ class WhoCommands():
             if result == None:
                 return f"[{msg.user}]: No quotes from {userName}"
 
-            quoteBank = json.loads(result["quotes"])
+            quoteBank = json.loads(result['quotes'])
             deletedQuote = None
 
             if quoteId == "last":
@@ -91,8 +94,8 @@ class WhoCommands():
             else:
                 deletedQuote = quoteBank.pop(quoteId, None)
 
-                if deletedQuote == None:
-                    return f"[{msg.user}]: No {userName} quote #{quoteId}"
+            if deletedQuote == None:
+                return f"[{msg.user}]: No {userName} quote #{quoteId}"
 
             if len(quoteBank) == 0:
                 self.colWho.delete_one({"user":userName})
@@ -105,27 +108,17 @@ class WhoCommands():
 
             return f"[{msg.user}]: Deleted {userName} quote #{quoteId}"
 
-            ##### TODO: How do we want to handle mods vs reg users??? #####
-
-            if result == None:
-                return f"[{msg.user}]: No quote with an ID of [{quoteId}]!"
-
-            if msg.tags['mod'] != '1':
-                return f"[{msg.user}]: Regular users can't delete a who quote!"
-
-            return f"[{msg.user}]: Deleted quote #{quoteId}!"
-
         ##############################################
 
         # snippet start
-        # who USER (ID)
-        # who Babotz
-        # who Babotz 14
+        # who @USER (ID)
+        # who @BabotzInc
+        # who @BabotzInc 14
         if message.startswith("who"):
-            regMatch = re.match(f"^who {regUserGroup} {regNumGroup}?$", message)
+            regMatch = re.match(f"^who @{regUserGroup} {regNumGroup}?$", message)
 
             if regMatch == None:
-                return f"[{msg.user}]: The syntax for that command is: who USER (ID)"
+                return f"[{msg.user}]: The syntax for that command is: who @USER (ID)"
 
             userName = regMatch.group(1).lower()
             quoteId = regMatch.group(2)
@@ -135,7 +128,7 @@ class WhoCommands():
             if result == None:
                 return f"[{msg.user}]: No quotes from {userName}"
 
-            quoteBank = json.loads(result["quotes"])
+            quoteBank = json.loads(result['quotes'])
 
             if quoteId == None:
                 quoteId, quote = random.choice(list(quoteBank.items()))
@@ -144,4 +137,4 @@ class WhoCommands():
             else:
                 return f"[{msg.user}]: No quote from {userName} with id {quoteId}"
 
-            return f"[{userName} {quoteId}]: \"{result[quote]}\""
+            return f"[{userName} {quoteId}]: {quote}"
