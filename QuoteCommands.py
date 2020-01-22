@@ -20,9 +20,7 @@ class QuoteCommands:
     def Execute(self,msg):
         ptf("Beginning Quote Command")
         message = msg.message[1:]
-        ptf(message)
 
-        ptf("checking quote add")
         # snippet start
         # quote add TEXT
         # quote add Hi, I'm a PureSushi quote
@@ -57,7 +55,6 @@ class QuoteCommands:
 
         ##############################################
 
-        ptf("checking quote change")
         # snippet start
         # quote change ID TEXT
         # quote change 12 Hi, I'm a better PureSushi quote
@@ -90,26 +87,25 @@ class QuoteCommands:
 
         ##############################################
 
-        ptf("checking quote del")
         # snippet start
         # quote del ID
         # quote del 123
         # quote del last
         if message.startswith("quote del"):
-            ptf("Deleting quote")
             regmatch = re.match("^quote del (\d+?|last)$", message)
 
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: quote del NUMBER"
 
             deleteFlag = False
-            counterName = self.chan[1:] + "counter"
+            counterName = self.chan[1:] + "Counter"
 
             result = None
             result = self.counter_col.find_one({"name": counterName})
 
             if result == None:
-                return f"[{msg.user}]: QuoteID could not be found: [{quoteID}]"
+                ptf(f"Counter not found for {counterName}")
+                return f"[{msg.user}]: Database error. Unable to delete quote"
 
             lastquoteID = int(result['value']) - 1
 
@@ -122,10 +118,9 @@ class QuoteCommands:
                 if quoteID == lastquoteID:
                     deleteFlag = True
 
-            ptf(f"Deleting quoteID: {quoteID}")
-
             result = None
             result = self.quote_col.find_one({"id":quoteID})
+
             if result == None:
                 return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
             if msg.tags['mod'] != '1':
@@ -133,6 +128,8 @@ class QuoteCommands:
                     return f"[{msg.user}]: Regular users can't delete a quote someone else added!"
                 if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
                     return f"[{msg.user}]: Regular users can't delete a quote except on the day it was added!"
+
+            ptf(f"Deleting quoteID: {quoteID}")
 
             if deleteFlag:
                 self.quote_col.delete_one({"id":quoteID})
@@ -144,7 +141,6 @@ class QuoteCommands:
 
         ##############################################
 
-        ptf("checking quote")
         # snippet start
         # quote (ID)
         # quote
