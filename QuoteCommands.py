@@ -92,7 +92,9 @@ class QuoteCommands:
         # quote del 123
         # quote del last
         if message.startswith("quote del"):
-            regmatch = re.match("^quote del (\d+|last)$", message)
+            ptf("Deleting quote")
+            regmatch = re.match("^quote del (\d+?|last)$", message)
+
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: quote del NUMBER"
 
@@ -101,8 +103,10 @@ class QuoteCommands:
 
             result = None
             result = self.counter_col.find_one({"name": counterName})
+
             if result == None:
                 return f"[{msg.user}]: QuoteID could not be found: [{quoteID}]"
+
             lastquoteID = int(result['value']) - 1
 
             if regmatch.group(1) == "last":
@@ -114,7 +118,7 @@ class QuoteCommands:
                 if quoteID == lastquoteID:
                     deleteFlag = True
 
-            ptf(f"quoteID: {quoteID}")
+            ptf(f"Deleting quoteID: {quoteID}")
 
             result = None
             result = self.quote_col.find_one({"id":quoteID})
@@ -130,10 +134,7 @@ class QuoteCommands:
                 self.quote_col.delete_one({"id":quoteID})
                 self.counter_col.update_one({"name": counterName}, {'$inc': {'value':-1}})
             else:
-                self.quote_col.update_one(
-                    {"id": quoteID},
-                    {'$set': {'text': ""}}
-                )
+                self.quote_col.delete_one({"id":quoteID})
 
             return f"[{msg.user}]: Deleted quote #{quoteID}!"
 
