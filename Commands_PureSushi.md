@@ -27,11 +27,11 @@ quote change ID TEXT
 quote change 12 Hi, I'm a better PureSushi quote
 ```
 ```
-quote delete ID
+quote del ID
 
-quote delete 123
+quote del 123
 
-quote delete last
+quote del last
 ```
 ```
 quote (ID)
@@ -67,12 +67,14 @@ who add @USER TEXT
 who add @BabotzInc Hello I'm a Babotz quote
 ```
 ```
-who delete @USER ID
+who del @USER ID
 
-who delete @BabotzInc 12
+who del @BabotzInc 12
 ```
 ```
-who @USER (ID)
+who (@USER) (ID)
+
+who
 
 who @BabotzInc
 

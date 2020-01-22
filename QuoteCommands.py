@@ -27,7 +27,7 @@ class QuoteCommands:
         if message.startswith("quote add"):
             regmatch = re.match("^quote add (.+?)$", message)
             if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is quoteadd TEXT"
+                return f"[{msg.user}]: The syntax for that command is: quote add TEXT"
 
             counterName = self.chan[1:] + "Counter"
             result = None
@@ -88,13 +88,13 @@ class QuoteCommands:
         ##############################################
 
         # snippet start
-        # quote delete ID
-        # quote delete 123
-        # quote delete last
-        if message.startswith("quote delete"):
-            regmatch = re.match("^quote delete (\d+|last)$", message)
+        # quote del ID
+        # quote del 123
+        # quote del last
+        if message.startswith("quote del"):
+            regmatch = re.match("^quote del (\d+|last)$", message)
             if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is: quote delete NUMBER"
+                return f"[{msg.user}]: The syntax for that command is: quote del NUMBER"
 
             deleteFlag = False
             counterName = self.chan[1:] + "counter"

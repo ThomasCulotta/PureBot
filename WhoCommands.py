@@ -80,16 +80,16 @@ class WhoCommands():
         ##############################################
 
         # snippet start
-        # who delete @USER ID
-        # who delete @BabotzInc 12
-        if message.startswith("who delete"):
-            regMatch = re.match(f"^who delete @{regUserGroup} {regIdOrLastGroup}$", message)
+        # who del @USER ID
+        # who del @BabotzInc 12
+        if message.startswith("who del"):
+            regMatch = re.match(f"^who del @{regUserGroup} {regIdOrLastGroup}$", message)
 
             if msg.tags['mod'] != '1':
                 return f"[{msg.user}]: Regular users can't delete a who quote!"
 
             if regMatch == None:
-                return f"[{msg.user}]: The syntax for that command is: who delete @USER NUMBER"
+                return f"[{msg.user}]: The syntax for that command is: who del @USER NUMBER"
 
             userName = regMatch.group(1).lower()
             quoteId = regMatch.group(2)
@@ -124,7 +124,8 @@ class WhoCommands():
         ##############################################
 
         # snippet start
-        # who @USER (ID)
+        # who (@USER) (ID)
+        # who
         # who @BabotzInc
         # who @BabotzInc 14
         if message.startswith("who"):
