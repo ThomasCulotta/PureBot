@@ -27,11 +27,6 @@ class ScoreCommands:
         # snippet start
         # purecount
         if message.startswith("purecount"):
-            LBcolName = self.chan[1:] + "LB"
-            self.leaderboard_col = mongoClient.QuoteBotDB[LBcolName]
-            self.leaderboard_col.create_index([("user", pymongo.ASCENDING)])
-            ptf(LBcolName)
-
             tempscore = random.randint(0,100)
             ptf("tempscore: " + str(tempscore))
             result = None;
