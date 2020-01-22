@@ -20,7 +20,9 @@ class QuoteCommands:
     def Execute(self,msg):
         ptf("Beginning Quote Command")
         message = msg.message[1:]
+        ptf(message)
 
+        ptf("checking quote add")
         # snippet start
         # quote add TEXT
         # quote add Hi, I'm a PureSushi quote
@@ -55,6 +57,7 @@ class QuoteCommands:
 
         ##############################################
 
+        ptf("checking quote change")
         # snippet start
         # quote change ID TEXT
         # quote change 12 Hi, I'm a better PureSushi quote
@@ -87,6 +90,7 @@ class QuoteCommands:
 
         ##############################################
 
+        ptf("checking quote del")
         # snippet start
         # quote del ID
         # quote del 123
@@ -140,6 +144,7 @@ class QuoteCommands:
 
         ##############################################
 
+        ptf("checking quote")
         # snippet start
         # quote (ID)
         # quote
