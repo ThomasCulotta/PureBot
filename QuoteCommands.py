@@ -4,7 +4,7 @@ import datetime
 
 from TwitchWebsocket import TwitchWebsocket
 
-from FlushPrint import ptf
+from FlushPrint import ptf, ptfDebug
 
 class QuoteCommands:
     def __init__(self, chan, mongoClient):
@@ -13,12 +13,12 @@ class QuoteCommands:
         quote_col_name = self.chan[1:] + "Quotes"
         self.quote_col = mongoClient.QuoteBotDB[quote_col_name]
         self.quote_col.create_index([("id", pymongo.ASCENDING)])
-        ptf(quote_col_name)
+        ptfDebug(f"quote_col_name: {quote_col_name}")
 
         self.counter_col = mongoClient.QuoteBotDB['counters']
 
     def Execute(self,msg):
-        ptf("Beginning Quote Command")
+        ptfDebug("Beginning Quote Command")
         message = msg.message[1:]
 
         # snippet start
@@ -42,7 +42,7 @@ class QuoteCommands:
             quoteID = result['value']
 
             quoteText = regmatch.group(1)
-            ptf(quoteText)
+            ptfDebug(quoteText)
             quoteObj = {
                 "id": quoteID,
                 "user": msg.user,
@@ -65,7 +65,7 @@ class QuoteCommands:
 
             quoteID = int(regmatch.group(1))
             newQuote = regmatch.group(2)
-            ptf(newQuote)
+            ptfDebug(newQuote)
 
             result = None
             result = self.quote_col.find_one({"id":quoteID})
@@ -104,7 +104,7 @@ class QuoteCommands:
             result = self.counter_col.find_one({"name": counterName})
 
             if result == None:
-                ptf(f"Counter not found for {counterName}")
+                ptfDebug(f"Counter not found for {counterName}")
                 return f"[{msg.user}]: Database error. Unable to delete quote"
 
             lastquoteID = int(result['value']) - 1
@@ -129,7 +129,7 @@ class QuoteCommands:
                 if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
                     return f"[{msg.user}]: Regular users can't delete a quote except on the day it was added!"
 
-            ptf(f"Deleting quoteID: {quoteID}")
+            ptfDebug(f"Deleting quoteID: {quoteID}")
 
             if deleteFlag:
                 self.quote_col.delete_one({"id":quoteID})

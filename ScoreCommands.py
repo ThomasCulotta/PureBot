@@ -4,7 +4,7 @@ import datetime
 
 from TwitchWebsocket import TwitchWebsocket
 
-from FlushPrint import ptf
+from FlushPrint import ptf, ptfDebug
 import botconfig
 
 class ScoreCommands:
@@ -18,17 +18,17 @@ class ScoreCommands:
         #Set expiration timer on collection documents
         self.leaderboard_col.drop_index([("createdAt", pymongo.ASCENDING)])
         self.leaderboard_col.create_index([("createdAt", pymongo.ASCENDING)], expireAfterSeconds=botconfig.scoreLifespan)
-        ptf(leaderboard_col_name)
+        ptfDebug(f"leaderboard_col_name: {leaderboard_col_name}")
 
     def Execute(self,msg):
-        ptf("Beginning purecount Command")
+        ptfDebug("Beginning purecount Command")
         message = msg.message[1:]
 
         # snippet start
         # purecount
         if message.startswith("purecount"):
             tempscore = random.randint(0,100)
-            ptf("tempscore: " + str(tempscore))
+            ptfDebug("tempscore: " + str(tempscore))
             result = None;
             result = self.leaderboard_col.find_one({"user": msg.user})
 
@@ -41,9 +41,9 @@ class ScoreCommands:
                 }
                 self.leaderboard_col.insert_one(userObj)
             else:
-                ptf(result)
+                ptfDebug(result)
                 score = result['score']
-            
+
             message = f"[{msg.user}] Your pure count is: {str(score)}/100"
 
             if score == 69:
@@ -109,16 +109,16 @@ class ScoreCommands:
                 #if reward and syntax
                 if msg.user != "doomzero":
                     return f"[{msg.user}]: That command is in testing, sorry. Only DoomZero can use it right now."
-                
+
                 targUser = regmatch[1].lower()
 
                 self.leaderboard_col.remove({"user": targUser})
                 return f"[{msg.user}]: You have cleared {targUser}'s score! 😈"
-            if regmatch: 
+            if regmatch:
                 #if no reward and syntax
                 return f"[{msg.user}]: That command requires spending Sushi Rolls on the \"doomtest2\" custom reward!"
-            
-            #for the Score Reset reward command            
+
+            #for the Score Reset reward command
             if msg.tags['custom-reward-id'] == "769e238b-fe80-49ba-ab89-1e7e8ad75c88":
                 self.leaderboard_col.remove({"user": msg.user})
                 return f"[{msg.user}]: Your score has been cleared!"
@@ -126,13 +126,13 @@ class ScoreCommands:
             return f"[{msg.user}]: That command requires spending Sushi Rolls on the \"Score Reset\" custom reward!"
 
         ##############################################
-        
+
         # snippet start
         # stealscore
         if msg.message.startswith("!stealscore"):
             regmatch = re.match(r"^!stealscore (\S+?) ?$", msg.message)
             if regmatch == None:
-                ptf(f"message: [{msg.message}]")
+                ptfDebug(f"message: [{msg.message}]")
                 return f"[{msg.user}]: The syntax for that command is !stealscore NAME"
 
             if msg.tags['custom-reward-id'] != "14986982-3669-4e26-a3c4-bf34025e005d":
@@ -148,14 +148,14 @@ class ScoreCommands:
             if targResult == None:
                 return f"[{msg.user}]: That user does not have a score!"
 
-            ptf(f"targResult: {targResult}")
+            ptfDebug(f"targResult: {targResult}")
             targScore = targResult['score']
 
             if targScore == None:
                 return
 
             userResult = self.leaderboard_col.find_one({"user": msgUser})
-            ptf(f"UserResult: {userResult}")
+            ptfDebug(f"UserResult: {userResult}")
             userScore = userResult['score']
 
             if userScore == None:
@@ -164,7 +164,7 @@ class ScoreCommands:
                 self.leaderboard_col.insert_one({"user": msgUser, "score": targScore, "createdAt": datetime.datetime.utcnow()})
 
                 return f"[{msg.user}]: You have stolen {targUser}'s score, and theirs has been reset! Your pure count is: {str(targScore)}/100"
-            
+
             else:
                 self.leaderboard_col.remove({"user": targUser})
                 self.leaderboard_col.remove({"user": msgUser})

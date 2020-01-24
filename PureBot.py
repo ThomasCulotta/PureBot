@@ -8,7 +8,7 @@ from TwitchWebsocket import TwitchWebsocket
 
 # Local misc imports
 import botconfig
-from FlushPrint import ptf
+from FlushPrint import ptf, ptfDebug
 
 # Command imports
 from WhoCommands   import WhoCommands
@@ -68,9 +68,9 @@ class PureBot:
         if (type == "PRIVMSG"):
             self.ws.send_message(response)
         elif (type == "WHISPER"):
-            self.ws.send_whisper(m.user, response)
-        else:
-            ptf("Failed to send message")
+            self.ws.send_whisper(user, response)
+
+        ptf(f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Sent [{type}] to [{user}]: {response}\n")
         return
 
     def message_handler(self, m):
@@ -86,6 +86,9 @@ class PureBot:
             token = m.message.lower().split(" ")[0][1:]
 
             if (token in self.execute):
+                # TODO: make this repeated log cleaner
+                ptf(f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Received [{m.type}] from [{m.user}]: {m.message}")
+                ptf(f"With tags: {m.tags}")
                 self.SendMessage(m.type, m.user, self.execute[token](m))
                 return
 
@@ -94,7 +97,7 @@ class PureBot:
             # Simple response commands
             # Note that we don't get this far unless the message does not match other commands
 
-            response = self.execute["custom"](m)
+            response = self.commands["custom"].Execute(m)
             self.SendMessage(m.type, m.user, response)
             return
 

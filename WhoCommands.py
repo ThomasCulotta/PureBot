@@ -6,7 +6,7 @@ import datetime
 
 from TwitchWebsocket import TwitchWebsocket
 
-from FlushPrint import ptf
+from FlushPrint import ptf, ptfDebug
 
 # TODO: Move these to a separate file to make regex readable and centralized
 # no need to duplicate these patterns each time and increase chances of typos
@@ -22,7 +22,7 @@ class WhoCommands():
         colNameWho = self.chan[1:] + "Who"
         self.colWho = mongoClient.QuoteBotDB[colNameWho]
         self.colWho.create_index([("user", pymongo.ASCENDING)])
-        ptf(colNameWho)
+        ptfDebug(f"colNameWho: {colNameWho}")
 
     def Execute(self, msg):
         message = msg.message[1:]
@@ -56,7 +56,7 @@ class WhoCommands():
                 quoteBank = json.loads(result['quotes'])
 
             quoteBank[quoteId] = quote
-            ptf(f"{userName} : {quote}")
+            ptfDebug(f"{userName} : {quote}")
 
             if newCol:
                 userObj = {
