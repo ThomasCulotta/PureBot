@@ -19,8 +19,6 @@ class CustomCommands:
         # addcommand COMMAND TEXT
         # addcommand newcom I'm a new command
         if message.startswith("addcommand"):
-            ptf(f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Received [{msg.type}] from [{msg.user}]: {msg.message}")
-            ptf(f"With tags: {msg.tags}")
 
             if msg.tags['mod'] != '1' and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't add commands! Please ask a mod to add it for you."
@@ -28,7 +26,7 @@ class CustomCommands:
             regmatch = re.match("^addcommand (.+? \[ARG\]|.+?) (.+?)$", message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: addcommand TEXT TEXT"
-            newCommand = regmatch.group(1)
+            newCommand = regmatch.group(1).lower()
             newCommandText = regmatch.group(2)
 
             with open('CustomCommands.json', 'r') as file:
@@ -49,7 +47,9 @@ class CustomCommands:
                 return f"[{msg.user}]: Command added as [{newCommand}]!"
             else:
                 return f"[{msg.user}]: Command not added, for some reason."
-            return
+
+            #This return is a failure state
+            return None
 
         ##############################################
 
@@ -57,8 +57,6 @@ class CustomCommands:
         # delcommand COMMAND
         # delcommand newcom
         if message.startswith("delcommand"):
-            ptf(f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Received [{msg.type}] from [{msg.user}]: {msg.message}")
-            ptf(f"With tags: {msg.tags}")
 
             if msg.tags['mod'] != '1' and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't delete commands! Please ask a mod to delete it for you."
@@ -66,7 +64,7 @@ class CustomCommands:
             regmatch = re.match("^delcommand (.+?)$", message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is delcommand TEXT"
-            command = regmatch.group(1)
+            command = regmatch.group(1).lower()
 
             with open('CustomCommands.json', 'r') as file:
                 self.customCommandList = json.load(file)
@@ -89,7 +87,9 @@ class CustomCommands:
                 return f"[{msg.user}]: That command ({command}) has been removed!"
             else:
                 return f"[{msg.user}]: Command not removed, for some reason."
-            return
+            
+            #This return is a failure state
+            return None
 
         ##############################################
 
@@ -110,4 +110,5 @@ class CustomCommands:
             response = self.customCommandList[(tokens[0] + " [ARG]")].replace("[ARG]", tokens[1])
             return response
 
-        return
+        #This return is a failure state
+        return None

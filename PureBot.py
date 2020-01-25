@@ -57,14 +57,22 @@ class PureBot:
             "curseboard" : self.commands["score"].Execute,
             "clearboard" : self.commands["score"].Execute,
             "clearscore" : self.commands["score"].Execute,
+            "swapscore"  : self.commands["score"].Execute,
+            "stealscore" : self.commands["score"].Execute,
             "addcommand" : self.commands["custom"].Execute,
             "delcommand" : self.commands["custom"].Execute,
         }
+
+        ptf("Bot Started!")
 
         self.ws.start_bot()
         # Any code after this will be executed after a KeyboardInterrupt
 
     def SendMessage(self, type, user, response):
+        if response == None:
+            ptf(f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Response \"None\" of type [{type}] was NOT sent to [{user}]: {response}\n")
+            return
+
         if (type == "PRIVMSG"):
             self.ws.send_message(response)
         elif (type == "WHISPER"):
@@ -98,7 +106,8 @@ class PureBot:
             # Note that we don't get this far unless the message does not match other commands
 
             response = self.commands["custom"].Execute(m)
-            self.SendMessage(m.type, m.user, response)
+            if response != None:
+                self.SendMessage(m.type, m.user, response)
             return
 
         except Exception as e:

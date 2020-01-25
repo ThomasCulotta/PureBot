@@ -1,6 +1,7 @@
 import random
 import pymongo
 import datetime
+import re
 
 from TwitchWebsocket import TwitchWebsocket
 
@@ -136,10 +137,10 @@ class ScoreCommands:
                 return f"[{msg.user}]: The syntax for that command is !stealscore NAME"
 
             if msg.tags['custom-reward-id'] != "14986982-3669-4e26-a3c4-bf34025e005d":
-                return f"[{msg.user}]: That command requires spending Sushi Rolls on the \"doomtest1\" custom reward!"
+               return f"[{msg.user}]: That command requires spending Sushi Rolls on the \"doomtest1\" custom reward!"
 
-            if msg.user != "doomzero":
-                return f"[{msg.user}]: That command is in testing, sorry. Only DoomZero can use it right now."
+            # if msg.user != "doomzero":
+            #     return f"[{msg.user}]: That command is in testing, sorry. Only DoomZero can use it right now."
 
             targUser = regmatch[1].lower()
             msgUser = msg.user.lower()
@@ -151,25 +152,62 @@ class ScoreCommands:
             ptfDebug(f"targResult: {targResult}")
             targScore = targResult['score']
 
-            if targScore == None:
-                return
+            userResult = self.leaderboard_col.find_one({"user": msgUser})
+            ptfDebug(f"UserResult: {userResult}")
+
+            #reset the target's score
+            newScore = random.randint(0,100)
+            self.leaderboard_col.update_one({"user": targUser}, { "$set": {"score": newScore, "createdAt": datetime.datetime.utcnow()}})
+            
+            #set the user's score to the target's old score
+            userScore = userResult['score']
+            if userScore == None:
+                self.leaderboard_col.insert_one({"user": msgUser, "score": targScore, "createdAt": datetime.datetime.utcnow()})
+            else:
+                self.leaderboard_col.update_one({"user": msgUser}, { "$set": {"score": targScore, "createdAt": datetime.datetime.utcnow()}})
+
+            return f"[{msg.user}]: You have stolen {targUser}'s score, and theirs has been reset! Your pure count is {str(targScore)}/100, and theirs is {str(newScore)}/100"
+
+        ##############################################
+
+        # snippet start
+        # swapscore
+        if msg.message.startswith("!swapscore"):
+            regmatch = re.match(r"^!swapscore (\S+?) ?$", msg.message)
+            if regmatch == None:
+                ptfDebug(f"message: [{msg.message}]")
+                return f"[{msg.user}]: The syntax for that command is !swapscore NAME"
+
+            if msg.tags['custom-reward-id'] != "14986982-3669-4e26-a3c4-bf34025e005d":
+                return f"[{msg.user}]: That command requires spending Sushi Rolls on the \"doomtest3\" custom reward!"
+
+            # if msg.user != "doomzero":
+            #     return f"[{msg.user}]: That command is in testing, sorry. Only DoomZero can use it right now."
+
+            targUser = regmatch[1].lower()
+            msgUser = msg.user.lower()
+
+            targResult = self.leaderboard_col.find_one({"user": targUser})
+            if targResult == None:
+                return f"[{msg.user}]: That user does not have a score!"
+
+            ptfDebug(f"targResult: {targResult}")
+            targScore = targResult['score']
 
             userResult = self.leaderboard_col.find_one({"user": msgUser})
             ptfDebug(f"UserResult: {userResult}")
             userScore = userResult['score']
 
             if userScore == None:
-                self.leaderboard_col.remove({"user": targUser})
-                self.leaderboard_col.remove({"user": msgUser})
+                newScore = random.randint(0,100)
                 self.leaderboard_col.insert_one({"user": msgUser, "score": targScore, "createdAt": datetime.datetime.utcnow()})
+                self.leaderboard_col.update_one({"user": targUser}, { "$set": {"score": newScore, "createdAt": datetime.datetime.utcnow()}})
 
-                return f"[{msg.user}]: You have stolen {targUser}'s score, and theirs has been reset! Your pure count is: {str(targScore)}/100"
+                return f"[{msg.user}]: You have taken {targUser}'s score, and theirs has been reset! Your pure count is {str(targScore)}/100, and theirs is {str(newScore)}/100"
 
             else:
-                self.leaderboard_col.remove({"user": targUser})
-                self.leaderboard_col.remove({"user": msgUser})
+                self.leaderboard_col.update_one({"user": msgUser}, { "$set": {"score": targScore, "createdAt": datetime.datetime.utcnow()}})
+                self.leaderboard_col.update_one({"user": targUser}, { "$set": {"score": userScore, "createdAt": datetime.datetime.utcnow()}})
 
-                self.leaderboard_col.insert_one({"user": msgUser, "score": targScore, "createdAt": datetime.datetime.utcnow()})
-                self.leaderboard_col.insert_one({"user": targUser, "score": userScore, "createdAt": datetime.datetime.utcnow()})
+                return f"[{msg.user}]: You have swapped {targUser}'s score with your own! Your pure count is {str(targScore)}/100, and theirs is {str(userScore)}/100"
 
-                return f"[{msg.user}]: You have stolen {targUser}'s score, and given them yours! Your pure count is: {str(targScore)}/100"
