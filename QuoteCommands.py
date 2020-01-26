@@ -5,6 +5,7 @@ import datetime
 from TwitchWebsocket import TwitchWebsocket
 
 from FlushPrint import ptf, ptfDebug
+import RegGroups as groups
 
 class QuoteCommands:
     def __init__(self, chan, mongoClient):
@@ -25,7 +26,7 @@ class QuoteCommands:
         # quote add TEXT
         # quote add Hi, I'm a PureSushi quote
         if message.startswith("quote add"):
-            regmatch = re.match("^quote add (.+?)$", message)
+            regmatch = re.match(f"^quote add {groups.regTextGroup}$", message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: quote add TEXT"
 
@@ -59,7 +60,7 @@ class QuoteCommands:
         # quote change ID TEXT
         # quote change 12 Hi, I'm a better PureSushi quote
         if message.startswith("quote change"):
-            regmatch = re.match("^quote change (\d+) (.+?)$", message)
+            regmatch = re.match(f"^quote change {groups.regNumGroup} {groups.regTextGroup}$", message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: quote change NUMBER TEXT"
 
@@ -92,7 +93,7 @@ class QuoteCommands:
         # quote del 123
         # quote del last
         if message.startswith("quote del"):
-            regmatch = re.match("^quote del (\d+?|last)$", message)
+            regmatch = re.match(f"^quote del {groups.regIdOrLastGroup}$", message)
 
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: quote del NUMBER"
@@ -146,7 +147,7 @@ class QuoteCommands:
         # quote
         # quote 123
         if message.startswith("quote"):
-            regmatch = re.match("^quote (\d+)$", message)
+            regmatch = re.match(f"^quote {groups.regNumGroup}$", message)
 
             quoteID = None
             if regmatch == None:

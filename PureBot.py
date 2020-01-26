@@ -69,8 +69,10 @@ class PureBot:
         # Any code after this will be executed after a KeyboardInterrupt
 
     def SendMessage(self, type, user, response):
+        timestamp = datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')
+
         if response == None:
-            ptf(f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Response \"None\" of type [{type}] was NOT sent to [{user}]: {response}\n")
+            ptf(f"{timestamp} | Response \"None\" of type [{type}] was NOT sent to [{user}]: {response}\n")
             return
 
         if (type == "PRIVMSG"):
@@ -78,7 +80,7 @@ class PureBot:
         elif (type == "WHISPER"):
             self.ws.send_whisper(user, response)
 
-        ptf(f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Sent [{type}] to [{user}]: {response}\n")
+        ptf(f"{timestamp} | Sent [{type}] to [{user}]: {response}\n")
         return
 
     def message_handler(self, m):

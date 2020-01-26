@@ -5,6 +5,7 @@ import json
 from TwitchWebsocket import TwitchWebsocket
 
 from FlushPrint import ptf, ptfDebug
+import RegGroups as groups
 
 class CustomCommands:
     def __init__(self):
@@ -23,7 +24,7 @@ class CustomCommands:
             if msg.tags['mod'] != '1' and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't add commands! Please ask a mod to add it for you."
 
-            regmatch = re.match("^addcommand (.+? \[ARG\]|.+?) (.+?)$", message)
+            regmatch = re.match(f"^addcommand (.+? \[ARG\]|.+?) {groups.regTextGroup}$", message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: addcommand TEXT TEXT"
             newCommand = regmatch.group(1).lower()
@@ -61,7 +62,7 @@ class CustomCommands:
             if msg.tags['mod'] != '1' and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't delete commands! Please ask a mod to delete it for you."
 
-            regmatch = re.match("^delcommand (.+?)$", message)
+            regmatch = re.match(f"^delcommand {groups.regTextGroup}$", message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is delcommand TEXT"
             command = regmatch.group(1).lower()
@@ -87,7 +88,7 @@ class CustomCommands:
                 return f"[{msg.user}]: That command ({command}) has been removed!"
             else:
                 return f"[{msg.user}]: Command not removed, for some reason."
-            
+
             #This return is a failure state
             return None
 
@@ -96,15 +97,17 @@ class CustomCommands:
         #Generic Commands
 
         tokens = message.lower().split(" ")
+        recvLog = f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Received [{msg.type}] from [{msg.user}]: {msg.message}"
+        tagLog = f"With tags: {msg.tags}"
 
         if tokens[0] in self.customCommandList:
-            ptf(f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Received [{msg.type}] from [{msg.user}]: {msg.message}")
-            ptf(f"With tags: {msg.tags}")
+            ptf(recvLog)
+            ptf(tagLog)
 
             return self.customCommandList[tokens[0]]
         elif len(tokens) > 1 and (tokens[0] + " [ARG]") in self.customCommandList:
-            ptf(f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Received [{msg.type}] from [{msg.user}]: {msg.message}")
-            ptf(f"With tags: {msg.tags}")
+            ptf(recvLog)
+            ptf(tagLog)
 
             ptfDebug("arg command")
             response = self.customCommandList[(tokens[0] + " [ARG]")].replace("[ARG]", tokens[1])
