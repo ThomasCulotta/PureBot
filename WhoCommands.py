@@ -7,13 +7,10 @@ import datetime
 from TwitchWebsocket import TwitchWebsocket
 
 from FlushPrint import ptf, ptfDebug
+import RegGroups as groups
 
 # TODO: Move these to a separate file to make regex readable and centralized
 # no need to duplicate these patterns each time and increase chances of typos
-regNumGroup = "(\d+?)"
-regUserGroup = "(\w+?)"
-regTextGroup = "(.+?)"
-regIdOrLastGroup = "(\d+?|last)"
 
 class WhoCommands():
     def __init__(self, chan, mongoClient):
@@ -31,7 +28,7 @@ class WhoCommands():
         # who add @USER TEXT
         # who add @BabotzInc Hello I'm a Babotz quote
         if message.startswith("who add"):
-            regMatch = re.match(f"^who add @{regUserGroup} {regTextGroup}$", message)
+            regMatch = re.match(f"^who add @{groups.regUserGroup} {groups.regTextGroup}$", message)
 
             if msg.tags['mod'] != '1':
                 return f"[{msg.user}]: Regular users can't add a who quote!"
@@ -83,7 +80,7 @@ class WhoCommands():
         # who del @USER ID
         # who del @BabotzInc 12
         if message.startswith("who del"):
-            regMatch = re.match(f"^who del @{regUserGroup} {regIdOrLastGroup}$", message)
+            regMatch = re.match(f"^who del @{groups.regUserGroup} {groups.regIdOrLastGroup}$", message)
 
             if msg.tags['mod'] != '1':
                 return f"[{msg.user}]: Regular users can't delete a who quote!"
@@ -129,11 +126,11 @@ class WhoCommands():
         # who @BabotzInc
         # who @BabotzInc 14
         if message.startswith("who"):
-            regMatch = re.match(f"^who @{regUserGroup} {regNumGroup}$", message)
+            regMatch = re.match(f"^who @{groups.regUserGroup} {groups.regNumGroup}$", message)
 
             # TODO: clean this up
             if regMatch == None:
-                regMatch = re.match(f"^who @{regUserGroup}$", message)
+                regMatch = re.match(f"^who @{groups.regUserGroup}$", message)
                 quoteId = None
 
                 if regMatch == None:
@@ -145,6 +142,7 @@ class WhoCommands():
                 else:
                     userName = regMatch.group(1).lower()
             else:
+                userName = regMatch.group(1).lower()
                 quoteId = regMatch.group(2)
 
 
