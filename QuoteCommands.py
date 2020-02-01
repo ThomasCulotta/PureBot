@@ -4,6 +4,7 @@ import datetime
 
 from TwitchWebsocket import TwitchWebsocket
 
+from BotRequests import GetGame
 from FlushPrint import ptf, ptfDebug
 import RegGroups as groups
 
@@ -42,13 +43,18 @@ class QuoteCommands:
 
             quoteID = result['value']
 
+            gameName = GetGame()
+
+            if gameName == None:
+                gameName = "[Unknown Game]"
+
             quoteText = regmatch.group(1)
             ptfDebug(quoteText)
             quoteObj = {
                 "id": quoteID,
                 "user": msg.user,
                 "text": quoteText,
-                "game": "[game PH]",
+                "game": gameName,
                 "date": datetime.datetime.now()
             }
             self.quote_col.insert_one(quoteObj)
