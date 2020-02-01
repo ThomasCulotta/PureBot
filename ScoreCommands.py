@@ -74,7 +74,7 @@ class ScoreCommands:
 
         # snippet start
         # cursedboard
-        if message.startswith("cursedboard"):
+        if message.startswith("curseboard"):
             result = self.leaderboard_col.find().sort("score", -1)
             message = result[0]['user'] + ": " + str(result[0]['score'])
             result = result[1:5]
@@ -158,7 +158,7 @@ class ScoreCommands:
             #reset the target's score
             newScore = random.randint(0,100)
             self.leaderboard_col.update_one({"user": targUser}, { "$set": {"score": newScore, "createdAt": datetime.datetime.utcnow()}})
-            
+
             #set the user's score to the target's old score
             userScore = userResult['score']
             if userScore == None:
