@@ -61,7 +61,7 @@ class ScoreCommands:
         # snippet start
         # pureboard
         if message.startswith("pureboard"):
-            result = self.leaderboard_col.find().sort("score", 1)
+            result = self.leaderboard_col.find().sort("score", -1)
 
             message = result[0]['user'] + ": " + str(result[0]['score'])
             result = result[1:5]
@@ -75,7 +75,7 @@ class ScoreCommands:
         # snippet start
         # cursedboard
         if message.startswith("curseboard"):
-            result = self.leaderboard_col.find().sort("score", -1)
+            result = self.leaderboard_col.find().sort("score", 1)
             message = result[0]['user'] + ": " + str(result[0]['score'])
             result = result[1:5]
 
