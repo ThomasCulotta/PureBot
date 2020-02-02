@@ -45,16 +45,16 @@ class ScoreCommands:
                 ptfDebug(result)
                 score = result['score']
 
-            message = f"[{msg.user}] Your pure count is: {str(score)}/100"
+            resMessage = f"[{msg.user}] Your pure count is: {str(score)}/100"
 
             if score == 69:
-                message += " 😎"
+                resMessage += " 😎"
             elif score >= 75:
-                message += " 😇"
+                resMessage += " 😇"
             elif score <= 25:
-                message += " 😈"
+                resMessage += " 😈"
 
-            return message
+            return resMessage
 
         ##############################################
 
@@ -95,12 +95,12 @@ class ScoreCommands:
         # clearscore
         if message.startswith("clearscore"):
 
-            regmatch = re.match(r"^!clearscore (\S+?) ?$", msg.message)
+            regmatch = re.match(rf"^{botconfig.prefix}clearscore (\S+?) ?$", msg.message)
             #for the Reset Another's Score reward command
             if msg.tags['custom-reward-id'] == "490b67dd-a8d3-494f-b605-3626358acd5c":
                 #if reward and no syntax
                 if regmatch == None:
-                    return f"[{msg.user}]: The syntax for that command is !clearscore NAME"
+                    return f"[{msg.user}]: The syntax for that command is {botconfig.prefix}clearscore NAME"
                 #if reward and syntax
                 if msg.user != "doomzero":
                     return f"[{msg.user}]: That command is in testing, sorry. Only DoomZero can use it right now."
@@ -124,11 +124,11 @@ class ScoreCommands:
 
         # snippet start
         # stealscore
-        if msg.message.startswith("!stealscore"):
-            regmatch = re.match(r"^!stealscore (\S+?) ?$", msg.message)
+        if message.startswith("stealscore"):
+            regmatch = re.match(rf"^{botconfig.prefix}stealscore (\S+?) ?$", msg.message)
             if regmatch == None:
                 ptfDebug(f"message: [{msg.message}]")
-                return f"[{msg.user}]: The syntax for that command is !stealscore NAME"
+                return f"[{msg.user}]: The syntax for that command is {botconfig.prefix}stealscore NAME"
 
             if msg.tags['custom-reward-id'] != "14986982-3669-4e26-a3c4-bf34025e005d":
                return f"[{msg.user}]: That command requires spending Sushi Rolls on the \"doomtest1\" custom reward!"
@@ -166,11 +166,11 @@ class ScoreCommands:
 
         # snippet start
         # swapscore
-        if msg.message.startswith("!swapscore"):
-            regmatch = re.match(r"^!swapscore (\S+?) ?$", msg.message)
+        if message.startswith("swapscore"):
+            regmatch = re.match(rf"^{botconfig.prefix}swapscore (\S+?) ?$", msg.message)
             if regmatch == None:
                 ptfDebug(f"message: [{msg.message}]")
-                return f"[{msg.user}]: The syntax for that command is !swapscore NAME"
+                return f"[{msg.user}]: The syntax for that command is {botconfig.prefix}swapscore NAME"
 
             if msg.tags['custom-reward-id'] != "14986982-3669-4e26-a3c4-bf34025e005d":
                 return f"[{msg.user}]: That command requires spending Sushi Rolls on the \"doomtest3\" custom reward!"
