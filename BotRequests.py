@@ -21,9 +21,12 @@ def GetUserId(user=None):
     loginParam = { "login" : user }
 
     response = requests.get(f"{helixEndpoint}/users", params=loginParam, headers=helixHeader)
-    data = response.json()["data"][0]
+    data = response.json()["data"]
 
-    return data["id"]
+    if len(data) == 0:
+        return None
+
+    return data[0]["id"]
 
 # Remove when Kraken no longer needed
 def GetUserIdKraken(user=None):
@@ -33,9 +36,12 @@ def GetUserIdKraken(user=None):
     loginParam = { "login" : user }
 
     response = requests.get(f"{krakenEndpoint}/users", params=loginParam, headers=v5Header)
-    data = response.json()["users"][0]
+    data = response.json()["users"]
 
-    return data["_id"]
+    if len(data) == 0:
+        return None
+
+    return data[0]["_id"]
 
 # TODO: Currently partially using v5 API. Upgrade to Helix API ASAP
 def GetGame(user=None):

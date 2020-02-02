@@ -16,6 +16,7 @@ from PollCommands   import PollCommands
 from ScoreCommands  import ScoreCommands
 from QuoteCommands  import QuoteCommands
 from CustomCommands import CustomCommands
+from ShoutoutCommands import ShoutoutCommands
 
 client = pymongo.MongoClient(f"mongodb://{botconfig.DBusername}:{botconfig.DBpassword}@{botconfig.DBhostIP}/QuoteBotDB")
 
@@ -47,6 +48,7 @@ class PureBot:
             "score" : ScoreCommands(chan=self.chan, mongoClient=client),
             "quote" : QuoteCommands(chan=self.chan, mongoClient=client),
             "custom" : CustomCommands(),
+            "shoutout" : ShoutoutCommands(),
         }
 
         # Defines all command strings caught by imported command modules
@@ -65,6 +67,7 @@ class PureBot:
             "stealscore" : self.commands["score"].Execute,
             "addcommand" : self.commands["custom"].Execute,
             "delcommand" : self.commands["custom"].Execute,
+            "shoutout"   : self.commands["shoutout"].Execute,
         }
 
         ptf("Bot Started!")
