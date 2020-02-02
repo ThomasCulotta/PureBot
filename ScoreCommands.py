@@ -59,30 +59,24 @@ class ScoreCommands:
         ##############################################
 
         # snippet start
-        # pureboard
+        # pureboard or curseboard
+        sort_order = 1
+
         if message.startswith("pureboard"):
-            result = self.leaderboard_col.find().sort("score", -1)
+            sort_order = -1
 
-            message = result[0]['user'] + ": " + str(result[0]['score'])
-            result = result[1:5]
+        if message.startswith("pureboard") or message.startswith("curseboard"):
+            result = self.leaderboard_col.find().sort([("score", sort_order)]).limit(5)
+            
+            resMessage = ""
             for x in result:
-                message += ", " + x['user'] + ": " + str(x['score'])
+                resMessage += x['user'] + ": " + str(x['score']) + ", "
 
-            return message
+            if resMessage == "":
+                return f"[{msg.user}]: Nobody has a pure count yet!"
 
-        ##############################################
-
-        # snippet start
-        # cursedboard
-        if message.startswith("curseboard"):
-            result = self.leaderboard_col.find().sort("score", 1)
-            message = result[0]['user'] + ": " + str(result[0]['score'])
-            result = result[1:5]
-
-            for x in result:
-                message += ", " + x['user'] + ": " + str(x['score'])
-
-            return message
+            resMessage = resMessage[:-2]
+            return resMessage
 
         ##############################################
 
