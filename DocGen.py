@@ -21,8 +21,10 @@ for root, dirs, files in os.walk(botDir):
                             docFile.write(f"---\n## {title}\n\n")
                             title = None
 
+                        line = file.readline().strip()
+                        docFile.write(f"**{line[2:]}**\n```\n")
+
                         line = file.readline().lstrip()
-                        docFile.write("```\n")
                         newLine = ""
                         while len(line) > 0 and line[0] == "#":
                             docFile.write(newLine + line[2:])
