@@ -11,9 +11,10 @@ import botconfig
 from FlushPrint import ptf, ptfDebug
 
 # Command imports
-from WhoCommands   import WhoCommands
-from ScoreCommands import ScoreCommands
-from QuoteCommands import QuoteCommands
+from WhoCommands    import WhoCommands
+from PollCommands   import PollCommands
+from ScoreCommands  import ScoreCommands
+from QuoteCommands  import QuoteCommands
 from CustomCommands import CustomCommands
 
 client = pymongo.MongoClient(f"mongodb://{botconfig.DBusername}:{botconfig.DBpassword}@{botconfig.DBhostIP}/QuoteBotDB")
@@ -42,6 +43,7 @@ class PureBot:
         # TODO: remove ws param from constructors
         self.commands = {
             "who"   : WhoCommands(chan=self.chan, mongoClient=client),
+            "poll"  : PollCommands(chan=self.chan, socket=self.ws),
             "score" : ScoreCommands(chan=self.chan, mongoClient=client),
             "quote" : QuoteCommands(chan=self.chan, mongoClient=client),
             "custom" : CustomCommands(),
@@ -51,6 +53,8 @@ class PureBot:
         # TODO: is there a cleaner way to define duplicate values (e.g. "score")
         self.execute = {
             "who" : self.commands["who"].Execute,
+            "poll" : self.commands["poll"].Execute,
+            "vote" : self.commands["poll"].Execute,
             "quote" : self.commands["quote"].Execute,
             "purecount"  : self.commands["score"].Execute,
             "pureboard"  : self.commands["score"].Execute,
