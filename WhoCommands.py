@@ -22,13 +22,12 @@ class WhoCommands():
         ptfDebug(f"colNameWho: {colNameWho}")
 
     def Execute(self, msg):
-        message = msg.message[1:]
 
         # snippet start
         # who add @USER TEXT
         # who add @BabotzInc Hello I'm a Babotz quote
-        if message.startswith("who add"):
-            regMatch = re.match(f"^who add @{groups.regUserGroup} {groups.regTextGroup}$", message)
+        if msg.message.startswith("who add"):
+            regMatch = re.match(f"^who add @{groups.regUserGroup} {groups.regTextGroup}$", msg.message)
 
             if msg.tags['mod'] != '1':
                 return f"[{msg.user}]: Regular users can't add a who quote!"
@@ -79,8 +78,8 @@ class WhoCommands():
         # snippet start
         # who del @USER ID
         # who del @BabotzInc 12
-        if message.startswith("who del"):
-            regMatch = re.match(f"^who del @{groups.regUserGroup} {groups.regIdOrLastGroup}$", message)
+        if msg.message.startswith("who del"):
+            regMatch = re.match(f"^who del @{groups.regUserGroup} {groups.regIdOrLastGroup}$", msg.message)
 
             if msg.tags['mod'] != '1':
                 return f"[{msg.user}]: Regular users can't delete a who quote!"
@@ -125,16 +124,16 @@ class WhoCommands():
         # who
         # who @BabotzInc
         # who @BabotzInc 14
-        if message.startswith("who"):
-            regMatch = re.match(f"^who @{groups.regUserGroup} {groups.regNumGroup}$", message)
+        if msg.message.startswith("who"):
+            regMatch = re.match(f"^who @{groups.regUserGroup} {groups.regNumGroup}$", msg.message)
 
             # TODO: clean this up
             if regMatch == None:
-                regMatch = re.match(f"^who @{groups.regUserGroup}$", message)
+                regMatch = re.match(f"^who @{groups.regUserGroup}$", msg.message)
                 quoteId = None
 
                 if regMatch == None:
-                    regMatch = re.match(f"^who$", message)
+                    regMatch = re.match(f"^who$", msg.message)
                     userName = msg.user
 
                     if regMatch == None:

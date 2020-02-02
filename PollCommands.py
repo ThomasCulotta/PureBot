@@ -38,11 +38,10 @@ class PollCommands():
         return response
 
     def Execute(self, msg):
-        message = msg.message[1:]
 
         # snippet start
         # poll end
-        if message.startswith("poll end"):
+        if msg.message.startswith("poll end"):
             if msg.tags['mod'] != '1':
                 return f"[{msg.user}]: Regular users can't end a poll"
 
@@ -51,17 +50,17 @@ class PollCommands():
 
             return EndPoll()
 
-        if message.startswith("poll"):
+        if msg.message.startswith("poll"):
             if msg.tags['mod'] != '1':
                 return f"[{msg.user}]: Regular users can't start a poll"
 
             if not self.pollRunning:
                 return "Poll already active."
 
-            regMatch = re.match(f"^poll {groups.regNumGroup} {groups.regNumGroup}$", message)
+            regMatch = re.match(f"^poll {groups.regNumGroup} {groups.regNumGroup}$", msg.message)
 
             if regMatch == None:
-                regMatch = re.match(f"^poll {groups.regNumGroup}$", message)
+                regMatch = re.match(f"^poll {groups.regNumGroup}$", msg.message)
 
                 if regMatch == None:
                     return f"[{msg.user}]: The syntax for that command is: poll NUM_MINUTES (NUM_CHOICES)"
@@ -100,8 +99,8 @@ class PollCommands():
 
             return EndPoll()
 
-        if message.startswith("vote"):
-            regMatch = re.match(f"^vote {groups.regTextGroup}$", message)
+        if msg.message.startswith("vote"):
+            regMatch = re.match(f"^vote {groups.regTextGroup}$", msg.message)
 
             if not self.pollRunning:
                 return f"[{msg.user}]: Nothing to vote for."

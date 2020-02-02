@@ -21,13 +21,12 @@ class QuoteCommands:
 
     def Execute(self,msg):
         ptfDebug("Beginning Quote Command")
-        message = msg.message[1:]
 
         # snippet start
         # quote add TEXT
         # quote add Hi, I'm a PureSushi quote
-        if message.startswith("quote add"):
-            regmatch = re.match(f"^quote add {groups.regTextGroup}$", message)
+        if msg.message.startswith("quote add"):
+            regmatch = re.match(f"^quote add {groups.regTextGroup}$", msg.message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: quote add TEXT"
 
@@ -65,8 +64,8 @@ class QuoteCommands:
         # snippet start
         # quote change ID TEXT
         # quote change 12 Hi, I'm a better PureSushi quote
-        if message.startswith("quote change"):
-            regmatch = re.match(f"^quote change {groups.regNumGroup} {groups.regTextGroup}$", message)
+        if msg.message.startswith("quote change"):
+            regmatch = re.match(f"^quote change {groups.regNumGroup} {groups.regTextGroup}$", msg.message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: quote change NUMBER TEXT"
 
@@ -98,8 +97,8 @@ class QuoteCommands:
         # quote del ID
         # quote del 123
         # quote del last
-        if message.startswith("quote del"):
-            regmatch = re.match(f"^quote del {groups.regIdOrLastGroup}$", message)
+        if msg.message.startswith("quote del"):
+            regmatch = re.match(f"^quote del {groups.regIdOrLastGroup}$", msg.message)
 
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: quote del NUMBER"
@@ -152,8 +151,8 @@ class QuoteCommands:
         # quote (ID)
         # quote
         # quote 123
-        if message.startswith("quote"):
-            regmatch = re.match(f"^quote {groups.regNumGroup}$", message)
+        if msg.message.startswith("quote"):
+            regmatch = re.match(f"^quote {groups.regNumGroup}$", msg.message)
 
             quoteID = None
             if regmatch == None:

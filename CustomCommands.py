@@ -15,17 +15,16 @@ class CustomCommands:
 
     def Execute(self, msg):
         ptfDebug("Beginning Custom Command")
-        message = msg.message[1:]
 
         # snippet start
         # addcommand COMMAND TEXT
         # addcommand newcom I'm a new command
-        if message.startswith("addcommand"):
+        if msg.message.startswith("addcommand"):
 
             if msg.tags['mod'] != '1' and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't add commands! Please ask a mod to add it for you."
 
-            regmatch = re.match(f"^addcommand (.+? \[ARG\]|.+?) {groups.regTextGroup}$", message)
+            regmatch = re.match(f"^addcommand (.+? \[ARG\]|.+?) {groups.regTextGroup}$", msg.message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: addcommand TEXT TEXT"
             newCommand = regmatch.group(1).lower()
@@ -58,12 +57,12 @@ class CustomCommands:
         # snippet start
         # delcommand COMMAND
         # delcommand newcom
-        if message.startswith("delcommand"):
+        if msg.message.startswith("delcommand"):
 
             if msg.tags['mod'] != '1' and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't delete commands! Please ask a mod to delete it for you."
 
-            regmatch = re.match(f"^delcommand {groups.regTextGroup}$", message)
+            regmatch = re.match(f"^delcommand {groups.regTextGroup}$", msg.message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is delcommand TEXT"
             command = regmatch.group(1).lower()
@@ -97,7 +96,7 @@ class CustomCommands:
 
         #Generic Commands
 
-        tokens = message.lower().split(" ")
+        tokens = msg.message.lower().split(" ")
         recvLog = f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Received [{msg.type}] from [{msg.user}]: {msg.message}"
         tagLog = f"With tags: {msg.tags}"
 

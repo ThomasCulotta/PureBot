@@ -93,7 +93,8 @@ class PureBot:
 
         try:
             # Retrieve first word without prefix
-            token = m.message.lower().split(" ")[0][1:]
+            m.message = m.message[1:]
+            token = m.message.lower().split(" ")[0]
 
             if (token in self.execute):
                 # TODO: make this repeated log cleaner
