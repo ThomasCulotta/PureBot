@@ -1,6 +1,7 @@
 import re
 import datetime
 import json
+import random
 
 from TwitchWebsocket import TwitchWebsocket
 
@@ -104,7 +105,13 @@ class CustomCommands:
             ptf(recvLog)
             ptf(tagLog)
 
-            return self.customCommandList[tokens[0]]
+            response = self.customCommandList[tokens[0]]
+
+            if isinstance(response, list):
+                return random.choice(response)
+
+            return response
+
         elif len(tokens) > 1 and (tokens[0] + " [ARG]") in self.customCommandList:
             ptf(recvLog)
             ptf(tagLog)
