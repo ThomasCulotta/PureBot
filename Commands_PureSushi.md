@@ -88,9 +88,6 @@ deathcount
 hydrate
 ```
 ```
-keanu
-```
-```
 kick
 ```
 ```
@@ -98,12 +95,6 @@ leonhelp
 ```
 ```
 lore
-```
-```
-murder
-```
-```
-pupper
 ```
 ```
 puresushi
@@ -116,9 +107,6 @@ truth
 ```
 ```
 what
-```
-```
-woof
 ```
 ```
 wrench
@@ -155,6 +143,12 @@ list
 ```
 ```
 welcome [ARG]
+```
+```
+help
+```
+```
+commands
 ```
 ```
 fbi
