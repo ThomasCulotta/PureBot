@@ -43,20 +43,39 @@ quote 123
 **pureboard**
 ```
 ```
-**cursedboard**
+**curseboard**
 ```
 ```
 **clearboard**
 ```
 ```
-**clearscore**
+**clearscore USER**
+```
+clearscore BabotzInc
+```
+**stealscore USER**
+```
+stealscore BabotzInc
+```
+**swapscore USER**
+```
+swapscore BabotzInc
+```
+---
+## PollCommands
+
+**poll end**
 ```
 ```
-**stealscore**
+**poll NUM_MINUTES (NUM_OPTIONS)**
 ```
+poll 2
+
+poll 4 3
 ```
-**swapscore**
+**vote LETTER**
 ```
+vote y
 ```
 ---
 ## WhoCommands
@@ -152,5 +171,8 @@ commands
 ```
 ```
 fbi
+```
+```
+drive
 ```
 

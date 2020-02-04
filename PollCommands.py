@@ -90,8 +90,8 @@ class PollCommands():
 
         # snippet start
         # poll NUM_MINUTES (NUM_OPTIONS)
-        # poll 3
-        # poll 3 3
+        # poll 2
+        # poll 4 3
         if msg.message.startswith("poll"):
             if msg.tags['mod'] != '1':
                 return f"[{msg.user}]: Regular users can't start a poll"

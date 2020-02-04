@@ -7,6 +7,7 @@ from TwitchWebsocket import TwitchWebsocket
 
 from FlushPrint import ptf, ptfDebug
 import botconfig
+import RegGroups as groups
 
 class ScoreCommands:
     def __init__(self, chan, mongoClient):
@@ -58,12 +59,14 @@ class ScoreCommands:
         ##############################################
 
         # snippet start
-        # pureboard or curseboard
+        # pureboard
         sort_order = 1
 
         if msg.message.startswith("pureboard"):
             sort_order = -1
 
+        # snippet start
+        # curseboard
         if msg.message.startswith("pureboard") or msg.message.startswith("curseboard"):
             result = self.leaderboard_col.find().sort([("score", sort_order)]).limit(5)
 
@@ -91,10 +94,11 @@ class ScoreCommands:
         ##############################################
 
         # snippet start
-        # clearscore
+        # clearscore USER
+        # clearscore BabotzInc
         if msg.message.startswith("clearscore"):
 
-            regmatch = re.match(rf"^clearscore (\S+?) ?$", msg.message)
+            regmatch = re.match(rf"^clearscore {groups.regUserGroup}$", msg.message)
             #for the Reset Another's Score reward command
             if msg.tags['custom-reward-id'] == "490b67dd-a8d3-494f-b605-3626358acd5c":
                 #if reward and no syntax
@@ -122,9 +126,10 @@ class ScoreCommands:
         ##############################################
 
         # snippet start
-        # stealscore
+        # stealscore USER
+        # stealscore BabotzInc
         if msg.message.startswith("stealscore"):
-            regmatch = re.match(rf"^stealscore (\S+?) ?$", msg.message)
+            regmatch = re.match(rf"^stealscore {groups.regUserGroup}$", msg.message)
             if regmatch == None:
                 ptfDebug(f"message: [{msg.message}]")
                 return f"[{msg.user}]: The syntax for that command is stealscore NAME"
@@ -164,9 +169,10 @@ class ScoreCommands:
         ##############################################
 
         # snippet start
-        # swapscore
+        # swapscore USER
+        # swapscore BabotzInc
         if msg.message.startswith("swapscore"):
-            regmatch = re.match(rf"^swapscore (\S+?) ?$", msg.message)
+            regmatch = re.match(rf"^swapscore {groups.regUserGroup}$", msg.message)
             if regmatch == None:
                 ptfDebug(f"message: [{msg.message}]")
                 return f"[{msg.user}]: The syntax for that command is swapscore NAME"

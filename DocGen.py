@@ -6,6 +6,7 @@ botDir = os.path.dirname(os.path.realpath(__file__))
 docFile = open(os.path.join(botDir, "Commands_PureSushi.md"), "w")
 docFile.write("# PureSushi Channel Commands\n\n")
 customCommandsFile = None
+uniqueResponseFile = None
 
 for root, dirs, files in os.walk(botDir):
     for file in files:
@@ -38,16 +39,22 @@ for root, dirs, files in os.walk(botDir):
         elif file == "CustomCommands.json":
             customCommandsFile = os.path.join(root, file)
 
-if customCommandsFile != None:
-    docFile.write("\n")
-    with open(customCommandsFile, "r") as file:
-        customJson = json.load(file)
+        elif file == "UniqueResponseCommands.json":
+            uniqueResponseFile = os.path.join(root, file)
 
-    docFile.write(f"---\n## Other Commands\n\n")
+docFile.write("\n")
+docFile.write(f"---\n## Other Commands\n\n")
 
-    for command in customJson:
-        docFile.write("```\n" + command + "\n```\n")
+def WriteCommands(commandFile):
+    if commandFile != None:
+        with open(commandFile, "r") as file:
+            commandJson = json.load(file)
 
+        for command in commandJson:
+            docFile.write("```\n" + command + "\n```\n")
+
+WriteCommands(customCommandsFile)
+WriteCommands(uniqueResponseFile)
 
 docFile.write("\n")
 docFile.close()
