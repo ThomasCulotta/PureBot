@@ -9,7 +9,9 @@ import RegGroups as groups
 
 class DiceCommands():
     def __init__(self):
-        pass
+        self.activeCommands = {
+            "roll",
+        }
 
     def Execute(self, msg):
 

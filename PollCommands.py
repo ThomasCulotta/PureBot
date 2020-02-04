@@ -21,6 +21,11 @@ class PollCommands():
         self.pollThread = None
         self.pollLock = threading.Lock()
 
+        self.activeCommands = {
+            "poll",
+            "vote",
+        }
+
     def PollAsync(self):
         while self.pollTimeout >= 30:
             time.sleep(30)

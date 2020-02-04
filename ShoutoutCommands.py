@@ -11,7 +11,9 @@ import RegGroups as groups
 
 class ShoutoutCommands():
     def __init__(self):
-        pass
+        self.activeCommands = {
+            "shoutout",
+        }
 
     def Execute(self, msg):
         if msg.message.startswith("shoutout"):

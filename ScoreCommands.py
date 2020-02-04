@@ -22,6 +22,16 @@ class ScoreCommands:
         self.leaderboard_col.create_index([("createdAt", pymongo.ASCENDING)], expireAfterSeconds=botconfig.scoreLifespan)
         ptfDebug(f"leaderboard_col_name: {leaderboard_col_name}")
 
+        self.activeCommands = {
+            "purecount",
+            "pureboard",
+            "curseboard",
+            "clearboard",
+            "clearscore",
+            "stealscore",
+            "swapscore",
+        }
+
     def Execute(self,msg):
         ptfDebug("Beginning purecount Command")
 

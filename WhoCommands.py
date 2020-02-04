@@ -21,6 +21,10 @@ class WhoCommands():
         self.colWho.create_index([("user", pymongo.ASCENDING)])
         ptfDebug(f"colNameWho: {colNameWho}")
 
+        self.activeCommands = {
+            "who",
+        }
+
     def Execute(self, msg):
 
         # snippet start

@@ -19,6 +19,10 @@ class QuoteCommands:
 
         self.counter_col = mongoClient.QuoteBotDB['counters']
 
+        self.activeCommands = {
+            "quote",
+        }
+
     def Execute(self,msg):
         ptfDebug("Beginning Quote Command")
 

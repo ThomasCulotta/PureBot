@@ -55,25 +55,13 @@ class PureBot:
             "shoutout" : ShoutoutCommands(),
         }
 
-        # Defines all command strings caught by imported command modules
-        # TODO: is there a cleaner way to define duplicate values (e.g. "score")
-        self.execute = {
-            "who" : self.commands["who"].Execute,
-            "poll" : self.commands["poll"].Execute,
-            "vote" : self.commands["poll"].Execute,
-            "roll" : self.commands["dice"].Execute,
-            "quote" : self.commands["quote"].Execute,
-            "purecount"  : self.commands["score"].Execute,
-            "pureboard"  : self.commands["score"].Execute,
-            "curseboard" : self.commands["score"].Execute,
-            "clearboard" : self.commands["score"].Execute,
-            "clearscore" : self.commands["score"].Execute,
-            "swapscore"  : self.commands["score"].Execute,
-            "stealscore" : self.commands["score"].Execute,
-            "addcommand" : self.commands["custom"].Execute,
-            "delcommand" : self.commands["custom"].Execute,
-            "shoutout"   : self.commands["shoutout"].Execute,
-        }
+        # Maps all active command strings caught by imported command modules to their respective Execute function
+        self.execute = {}
+
+        for cmd in self.commands.values():
+            if hasattr(cmd, "activeCommands"):
+                for activeCommand in cmd.activeCommands:
+                    self.execute[activeCommand] = cmd.Execute
 
         ptf("Bot Started!")
 

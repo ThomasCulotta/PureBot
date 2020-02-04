@@ -13,6 +13,11 @@ class CustomCommands:
         with open('CustomCommands.json', 'r') as file:
             self.customCommandList = json.load(file)
 
+            self.activeCommands = {
+                "addcommand",
+                "delcommand",
+            }
+
     def Execute(self, msg):
         ptfDebug("Beginning Custom Command")
 
