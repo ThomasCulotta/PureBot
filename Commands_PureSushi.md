@@ -62,6 +62,15 @@ stealscore BabotzInc
 swapscore BabotzInc
 ```
 ---
+## DiceCommands
+
+**roll NUMdNUM**
+```
+roll 1d20
+
+roll 7d100
+```
+---
 ## PollCommands
 
 **poll end**

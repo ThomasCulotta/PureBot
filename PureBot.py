@@ -13,6 +13,7 @@ from FlushPrint import ptf, ptfDebug
 # Command imports
 from WhoCommands    import WhoCommands
 from PollCommands   import PollCommands
+from DiceCommands   import DiceCommands
 from ScoreCommands  import ScoreCommands
 from QuoteCommands  import QuoteCommands
 from CustomCommands import CustomCommands
@@ -48,6 +49,7 @@ class PureBot:
             "poll"  : PollCommands(chan=self.chan, socket=self.ws),
             "score" : ScoreCommands(chan=self.chan, mongoClient=client),
             "quote" : QuoteCommands(chan=self.chan, mongoClient=client),
+            "dice"  : DiceCommands(),
             "custom" : CustomCommands(),
             "unique" : UniqueResponseCommands(),
             "shoutout" : ShoutoutCommands(),
@@ -59,6 +61,7 @@ class PureBot:
             "who" : self.commands["who"].Execute,
             "poll" : self.commands["poll"].Execute,
             "vote" : self.commands["poll"].Execute,
+            "roll" : self.commands["dice"].Execute,
             "quote" : self.commands["quote"].Execute,
             "purecount"  : self.commands["score"].Execute,
             "pureboard"  : self.commands["score"].Execute,
