@@ -17,6 +17,7 @@ from ScoreCommands  import ScoreCommands
 from QuoteCommands  import QuoteCommands
 from CustomCommands import CustomCommands
 from ShoutoutCommands import ShoutoutCommands
+from UniqueResponseCommands import UniqueResponseCommands
 
 client = pymongo.MongoClient(f"mongodb://{botconfig.DBusername}:{botconfig.DBpassword}@{botconfig.DBhostIP}/QuoteBotDB")
 
@@ -48,6 +49,7 @@ class PureBot:
             "score" : ScoreCommands(chan=self.chan, mongoClient=client),
             "quote" : QuoteCommands(chan=self.chan, mongoClient=client),
             "custom" : CustomCommands(),
+            "unique" : UniqueResponseCommands(),
             "shoutout" : ShoutoutCommands(),
         }
 
@@ -118,6 +120,15 @@ class PureBot:
             response = self.commands["custom"].Execute(m)
             if response != None:
                 self.SendMessage(m.type, m.user, response)
+                return
+
+            # Commands with unique responses for one or more users
+
+            response = self.commands["unique"].Execute(m)
+            if response != None:
+                self.SendMessage(m.type, m.user, response)
+                return
+
             return
 
         except Exception as e:
