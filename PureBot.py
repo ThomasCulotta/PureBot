@@ -1,5 +1,4 @@
 import pymongo
-import datetime
 import importlib
 import json
 import re
@@ -69,10 +68,8 @@ class PureBot:
         # Any code after this will be executed after a KeyboardInterrupt
 
     def SendMessage(self, type, user, response):
-        timestamp = datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')
-
         if response == None:
-            ptf(f"{timestamp} | Response \"None\" of type [{type}] was NOT sent to [{user}]: {response}\n")
+            ptf(f"Response \"None\" of type [{type}] was NOT sent to [{user}]: {response}\n", time=True)
             return
 
         if (type == "PRIVMSG"):
@@ -80,7 +77,7 @@ class PureBot:
         elif (type == "WHISPER"):
             self.ws.send_whisper(user, response)
 
-        ptf(f"{timestamp} | Sent [{type}] to [{user}]: {response}\n")
+        ptf(f"Sent [{type}] to [{user}]: {response}\n", time=True)
         return
 
     def message_handler(self, m):
@@ -97,8 +94,7 @@ class PureBot:
             token = m.message.lower().split(" ")[0]
 
             if (token in self.execute):
-                # TODO: make this repeated log cleaner
-                ptf(f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Received [{m.type}] from [{m.user}]: {m.message}")
+                ptf(f"Received [{m.type}] from [{m.user}]: {m.message}", time=True)
                 ptf(f"With tags: {m.tags}")
                 self.SendMessage(m.type, m.user, self.execute[token](m))
                 return
@@ -123,7 +119,7 @@ class PureBot:
             return
 
         except Exception as e:
-            ptf(f"Error: {e}")
+            ptf(f"Error: {e}", time=True)
 
 if __name__ == "__main__":
     PureBot()

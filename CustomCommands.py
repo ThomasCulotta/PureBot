@@ -1,5 +1,4 @@
 import re
-import datetime
 import json
 import random
 
@@ -54,9 +53,6 @@ class CustomCommands:
             else:
                 return f"[{msg.user}]: Command not added, for some reason."
 
-            #This return is a failure state
-            return None
-
         ##############################################
 
         # snippet start
@@ -94,19 +90,16 @@ class CustomCommands:
             else:
                 return f"[{msg.user}]: Command not removed, for some reason."
 
-            #This return is a failure state
-            return None
-
         ##############################################
 
         #Generic Commands
 
         tokens = msg.message.lower().split(" ")
-        recvLog = f"{datetime.datetime.now().strftime('%m/%d/%Y, %H:%M:%S')} | Received [{msg.type}] from [{msg.user}]: {msg.message}"
+        recvLog = f"Received [{msg.type}] from [{msg.user}]: {msg.message}"
         tagLog = f"With tags: {msg.tags}"
 
         if tokens[0] in self.customCommandList:
-            ptf(recvLog)
+            ptf(recvLog, time=True)
             ptf(tagLog)
 
             response = self.customCommandList[tokens[0]]
@@ -117,12 +110,11 @@ class CustomCommands:
             return response
 
         elif len(tokens) > 1 and (tokens[0] + " [ARG]") in self.customCommandList:
-            ptf(recvLog)
+            ptf(recvLog, time=True)
             ptf(tagLog)
 
             ptfDebug("arg command")
             response = self.customCommandList[(tokens[0] + " [ARG]")].replace("[ARG]", tokens[1])
             return response
 
-        #This return is a failure state
         return None
