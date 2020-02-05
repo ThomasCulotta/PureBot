@@ -49,10 +49,6 @@ quote 123
 **clearboard**
 ```
 ```
-**clearscore USER**
-```
-clearscore BabotzInc
-```
 **stealscore USER**
 ```
 stealscore BabotzInc
