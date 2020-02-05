@@ -6,6 +6,7 @@ import re
 from TwitchWebsocket import TwitchWebsocket
 
 from FlushPrint import ptf, ptfDebug
+from TwitchUtils import CheckPriv
 import botconfig
 import RegGroups as groups
 
@@ -95,7 +96,7 @@ class ScoreCommands:
         # snippet start
         # clearboard
         if msg.message.startswith("clearboard"):
-            if msg.tags['mod'] == '1' or msg.user == "doomzero":
+            if CheckPriv(msg.tags) or msg.user == "doomzero":
                 self.leaderboard_col.remove({})
                 return f"[{msg.user}]: Leaderboard cleared!"
 
@@ -103,7 +104,7 @@ class ScoreCommands:
 
         ##############################################
 
-        # snippet start
+        ## snippet start
         # clearscore USER
         # clearscore BabotzInc
         if msg.message.startswith("clearscore"):

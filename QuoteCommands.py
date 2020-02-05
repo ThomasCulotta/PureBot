@@ -6,6 +6,7 @@ from TwitchWebsocket import TwitchWebsocket
 
 from BotRequests import GetGame
 from FlushPrint import ptf, ptfDebug
+from TwitchUtils import CheckPriv
 import RegGroups as groups
 
 class QuoteCommands:
@@ -82,7 +83,7 @@ class QuoteCommands:
 
             if result == None:
                 return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
-            if msg.tags['mod'] != '1':
+            if not CheckPriv(msg.tags):
                 if result['user'] != msg.user:
                     return f"[{msg.user}]: Regular users can't edit a quote someone else added!"
                 if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
@@ -133,7 +134,7 @@ class QuoteCommands:
 
             if result == None:
                 return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
-            if msg.tags['mod'] != '1':
+            if not CheckPriv(msg.tags):
                 if result['user'] != msg.user:
                     return f"[{msg.user}]: Regular users can't delete a quote someone else added!"
                 if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):

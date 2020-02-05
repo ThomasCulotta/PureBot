@@ -7,6 +7,7 @@ import datetime
 from TwitchWebsocket import TwitchWebsocket
 
 from FlushPrint import ptf, ptfDebug
+from TwitchUtils import CheckPriv
 import RegGroups as groups
 
 # TODO: Move these to a separate file to make regex readable and centralized
@@ -33,7 +34,7 @@ class WhoCommands():
         if msg.message.startswith("who add"):
             regMatch = re.match(f"^who add @{groups.regUserGroup} {groups.regTextGroup}$", msg.message)
 
-            if msg.tags['mod'] != '1':
+            if not CheckPriv(msg.tags):
                 return f"[{msg.user}]: Regular users can't add a who quote!"
 
             if regMatch == None:
@@ -85,7 +86,7 @@ class WhoCommands():
         if msg.message.startswith("who del"):
             regMatch = re.match(f"^who del @{groups.regUserGroup} {groups.regIdOrLastGroup}$", msg.message)
 
-            if msg.tags['mod'] != '1':
+            if not CheckPriv(msg.tags):
                 return f"[{msg.user}]: Regular users can't delete a who quote!"
 
             if regMatch == None:

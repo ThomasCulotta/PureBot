@@ -5,6 +5,7 @@ import threading
 from TwitchWebsocket import TwitchWebsocket
 
 from FlushPrint import ptf, ptfDebug
+from TwitchUtils import CheckPriv
 import RegGroups as groups
 
 # TODO: global SendMessage possibility?
@@ -84,7 +85,7 @@ class PollCommands():
         # snippet start
         # poll end
         if msg.message.startswith("poll end"):
-            if msg.tags['mod'] != '1':
+            if not CheckPriv(msg.tags):
                 return f"[{msg.user}]: Regular users can't end a poll"
 
             if not self.pollRunning:
@@ -98,7 +99,7 @@ class PollCommands():
         # poll 2
         # poll 4 3
         if msg.message.startswith("poll"):
-            if msg.tags['mod'] != '1':
+            if not CheckPriv(msg.tags):
                 return f"[{msg.user}]: Regular users can't start a poll"
 
             if self.pollRunning:

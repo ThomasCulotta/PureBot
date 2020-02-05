@@ -5,6 +5,7 @@ import random
 from TwitchWebsocket import TwitchWebsocket
 
 from FlushPrint import ptf, ptfDebug
+from TwitchUtils import CheckPriv
 import RegGroups as groups
 
 class CustomCommands:
@@ -25,7 +26,7 @@ class CustomCommands:
         # addcommand newcom I'm a new command
         if msg.message.startswith("addcommand"):
 
-            if msg.tags['mod'] != '1' and msg.user != "doomzero":
+            if not CheckPriv(msg.tags) and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't add commands! Please ask a mod to add it for you."
 
             regmatch = re.match(f"^addcommand (.+? \[ARG\]|.+?) {groups.regTextGroup}$", msg.message)
@@ -60,7 +61,7 @@ class CustomCommands:
         # delcommand newcom
         if msg.message.startswith("delcommand"):
 
-            if msg.tags['mod'] != '1' and msg.user != "doomzero":
+            if not CheckPriv(msg.tags) and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't delete commands! Please ask a mod to delete it for you."
 
             regmatch = re.match(f"^delcommand {groups.regTextGroup}$", msg.message)

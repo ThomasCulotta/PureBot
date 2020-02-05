@@ -5,6 +5,7 @@ from TwitchWebsocket import TwitchWebsocket
 
 from BotRequests import GetUserId, GetGame
 from FlushPrint import ptf, ptfDebug
+from TwitchUtils import CheckPriv
 import RegGroups as groups
 
 # TODO: global SendMessage possibility?
@@ -17,7 +18,7 @@ class ShoutoutCommands():
 
     def Execute(self, msg):
         if msg.message.startswith("shoutout"):
-            if msg.tags['mod'] != '1':
+            if not CheckPriv(msg.tags):
                 return f"[{msg.user}]: Regular users can't shoutout"
 
             regMatch = re.match(f"^shoutout @{groups.regUserGroup}$", msg.message)
