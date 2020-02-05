@@ -7,14 +7,31 @@ from FlushPrint import ptf, ptfDebug
 helixEndpoint  = "https://api.twitch.tv/helix"
 krakenEndpoint = "https://api.twitch.tv/kraken"
 
-# TODO: add Client-ID header once made. Required by April 30, 2020
-helixHeader = { "Authorization": "Bearer " + botconfig.oauth.split(':')[1] }
-v5Header = { "Authorization" : "OAuth " + botconfig.oauth.split(':')[1],
+clientId = botconfig.clientId
+appToken = "invalid"
+
+helixHeader = { "Authorization": f"Bearer {appToken}",
+                "Client-ID": clientId }
+v5Header = { "Authorization" : f"OAuth {appToken}",
              "Accept" : "application/vnd.twitchtv.v5+json" }
 
 hostName = botconfig.twitchChannel[1:]
 
+def CheckGetAccessToken():
+    response = requests.get(f"https://id.twitch.tv/oauth2/validate", headers=v5Header)
+    print(response.text)
+    if not response.ok:
+        response = requests.post(f"https://id.twitch.tv/oauth2/token?client_id={clientId}&client_secret={botconfig.clientSecret}&grant_type=client_credentials")
+        data = response.json()
+
+        global appToken
+        appToken= data["access_token"]
+        helixHeader["Authorization"] = f"Bearer {appToken}"
+        v5Header["Authorization"] = f"OAuth {appToken}"
+
 def GetUserId(user=None):
+    CheckGetAccessToken()
+
     if user == None:
         user = hostName
 
@@ -28,23 +45,10 @@ def GetUserId(user=None):
 
     return data[0]["id"]
 
-# Remove when Kraken no longer needed
-def GetUserIdKraken(user=None):
-    if user == None:
-        user = hostName
-
-    loginParam = { "login" : user }
-
-    response = requests.get(f"{krakenEndpoint}/users", params=loginParam, headers=v5Header)
-    data = response.json()["users"]
-
-    if len(data) == 0:
-        return None
-
-    return data[0]["_id"]
-
 # TODO: Currently partially using v5 API. Upgrade to Helix API ASAP
 def GetGame(user=None):
+    CheckGetAccessToken()
+
     if user == None:
         user = hostName
 
@@ -54,7 +58,7 @@ def GetGame(user=None):
     streamData = response.json()
 
     if "game_id" not in streamData:
-        response = requests.get(f"{krakenEndpoint}/channels/{GetUserIdKraken(user)}", headers=v5Header)
+        response = requests.get(f"{krakenEndpoint}/channels/{GetUserId(user)}", headers=v5Header)
         streamData = response.json()
 
         if "game" in streamData:
