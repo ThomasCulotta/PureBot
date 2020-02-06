@@ -105,6 +105,12 @@ class CustomCommands:
 
             response = self.customCommandList[tokens[0]]
 
+            if isinstance(response, dict):
+                if msg.user in response:
+                    response = response[msg.user]
+                else:
+                    response = response["other"]
+
             if isinstance(response, list):
                 return random.choice(response)
 

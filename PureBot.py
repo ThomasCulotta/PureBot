@@ -17,7 +17,6 @@ from ScoreCommands  import ScoreCommands
 from QuoteCommands  import QuoteCommands
 from CustomCommands import CustomCommands
 from ShoutoutCommands import ShoutoutCommands
-from UniqueResponseCommands import UniqueResponseCommands
 
 client = pymongo.MongoClient(f"mongodb://{botconfig.DBusername}:{botconfig.DBpassword}@{botconfig.DBhostIP}/QuoteBotDB")
 
@@ -50,7 +49,6 @@ class PureBot:
             "quote" : QuoteCommands(chan=self.chan, mongoClient=client),
             "dice"  : DiceCommands(),
             "custom" : CustomCommands(),
-            "unique" : UniqueResponseCommands(),
             "shoutout" : ShoutoutCommands(),
         }
 
