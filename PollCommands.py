@@ -126,7 +126,7 @@ class PollCommands():
                 for i in range(numChoices):
                     self.voteCollection[chr(ord("a") + i)] = 0
 
-                optionMsg += f"a-{max(self.voteCollection.keys())}"
+                optionMsg += f"A-{max(self.voteCollection.keys()).upper()}"
 
             self.pollTimeout = int(regMatch.group(1)) * 60
 
