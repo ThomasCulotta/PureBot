@@ -8,6 +8,7 @@ from TwitchWebsocket import TwitchWebsocket
 # Local misc imports
 import botconfig
 from FlushPrint import ptf, ptfDebug
+from TwitchUtils import InitializeUtils, LogReceived, SendMessage
 
 # Command imports
 from WhoCommands    import WhoCommands
@@ -41,10 +42,12 @@ class PureBot:
                                   capability=["membership", "tags", "commands"],
                                   live=True)
 
+        InitializeUtils(self.ws)
+
         # TODO: remove ws param from constructors
         self.commands = {
             "who"   : WhoCommands(chan=self.chan, mongoClient=client),
-            "poll"  : PollCommands(chan=self.chan, socket=self.ws),
+            "poll"  : PollCommands(chan=self.chan),
             "score" : ScoreCommands(chan=self.chan, mongoClient=client),
             "quote" : QuoteCommands(chan=self.chan, mongoClient=client),
             "dice"  : DiceCommands(),
@@ -65,19 +68,6 @@ class PureBot:
         self.ws.start_bot()
         # Any code after this will be executed after a KeyboardInterrupt
 
-    def SendMessage(self, type, user, response):
-        if response == None:
-            ptf(f"Response \"None\" of type [{type}] was NOT sent to [{user}]: {response}\n", time=True)
-            return
-
-        if (type == "PRIVMSG"):
-            self.ws.send_message(response)
-        elif (type == "WHISPER"):
-            self.ws.send_whisper(user, response)
-
-        ptf(f"Sent [{type}] to [{user}]: {response}\n", time=True)
-        return
-
     def message_handler(self, m):
         # Check for valid message with prefix
         # TODO: add ability for multiple prefixes
@@ -92,9 +82,8 @@ class PureBot:
             token = m.message.lower().split(" ")[0]
 
             if (token in self.execute):
-                ptf(f"Received [{m.type}] from [{m.user}]: {m.message}", time=True)
-                ptf(f"With tags: {m.tags}")
-                self.SendMessage(m.type, m.user, self.execute[token](m))
+                LogReceived(m.type, m.user, m.message, m.tags)
+                SendMessage(self.execute[token](m), m.type, m.user)
                 return
 
             ##############################################
@@ -104,17 +93,8 @@ class PureBot:
 
             response = self.commands["custom"].Execute(m)
             if response != None:
-                self.SendMessage(m.type, m.user, response)
+                SendMessage(response, m.type, m.user)
                 return
-
-            # Commands with unique responses for one or more users
-
-            response = self.commands["unique"].Execute(m)
-            if response != None:
-                self.SendMessage(m.type, m.user, response)
-                return
-
-            return
 
         except Exception as e:
             ptf(f"Error: {e}", time=True)

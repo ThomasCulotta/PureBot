@@ -5,15 +5,12 @@ import threading
 from TwitchWebsocket import TwitchWebsocket
 
 from FlushPrint import ptf, ptfDebug
-from TwitchUtils import CheckPriv
+from TwitchUtils import CheckPriv, SendMessage
 import RegGroups as groups
 
-# TODO: global SendMessage possibility?
-
 class PollCommands():
-    def __init__(self, chan, socket):
+    def __init__(self, chan):
         self.chan = chan
-        self.ws = socket
 
         self.voteCollection = {}
         self.voters = []
@@ -41,10 +38,10 @@ class PollCommands():
                 minutes = int(self.pollTimeout / 60)
 
                 minMsg = "minute" if minutes == 1 else "minutes"
-                self.ws.send_message(f"Don't forget to vote! Only {minutes} {minMsg} remaining.")
+                SendMessage(f"Don't forget to vote! Only {minutes} {minMsg} remaining.")
 
             elif self.pollTimeout == 30:
-                self.ws.send_message(f"Last chance to vote! Only 30 seconds left!")
+                SendMessage(f"Last chance to vote! Only 30 seconds left!")
 
         self.EndPoll()
         return
@@ -77,7 +74,7 @@ class PollCommands():
         self.pollTimeout = 0
 
         self.pollLock.release()
-        self.ws.send_message(response)
+        SendMessage(response)
         return
 
     def Execute(self, msg):
@@ -89,7 +86,7 @@ class PollCommands():
                 return f"[{msg.user}]: Regular users can't end a poll"
 
             if not self.pollRunning:
-                return "No poll active."
+                return f"[{msg.user}]: No poll active."
 
             self.EndPoll()
             return
@@ -103,7 +100,7 @@ class PollCommands():
                 return f"[{msg.user}]: Regular users can't start a poll"
 
             if self.pollRunning:
-                return "Poll already active."
+                return f"[{msg.user}]: Poll already active."
 
             self.pollThread = threading.Thread(target=self.PollAsync)
 
