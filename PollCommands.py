@@ -47,33 +47,30 @@ class PollCommands():
         return
 
     def EndPoll(self):
-        self.pollLock.acquire()
+        with self.pollLock:
+            if not self.pollRunning:
+                return
 
-        if not self.pollRunning:
-            self.pollLock.release()
-            return
+            self.pollRunning = False
 
-        self.pollRunning = False
-
-        if len(self.voters) == 0:
-            response = "No one voted for the poll. :("
-        else:
-            winner = max(self.voteCollection, key=self.voteCollection.get)
-            percent = round(self.voteCollection[winner] / len(self.voters) * 100)
-            response = f"Poll ended with {len(self.voters)} votes. "
-
-            if self.voteCollection.keys() == {"y", "n"}:
-                response += "VoteYea " if winner == "y" else "VoteNay "
+            if len(self.voters) == 0:
+                response = "No one voted for the poll. :("
             else:
-                response += f"Option {winner.upper()} "
+                winner = max(self.voteCollection, key=self.voteCollection.get)
+                percent = round(self.voteCollection[winner] / len(self.voters) * 100)
+                response = f"Poll ended with {len(self.voters)} votes. "
 
-            response += f"wins with {percent}% of the vote."
+                if self.voteCollection.keys() == {"y", "n"}:
+                    response += "VoteYea " if winner == "y" else "VoteNay "
+                else:
+                    response += f"Option {winner.upper()} "
 
-        self.voteCollection = {}
-        self.voters = []
-        self.pollTimeout = 0
+                response += f"wins with {percent}% of the vote."
 
-        self.pollLock.release()
+            self.voteCollection = {}
+            self.voters = []
+            self.pollTimeout = 0
+
         SendMessage(response)
         return
 

@@ -8,7 +8,7 @@ from TwitchWebsocket import TwitchWebsocket
 # Local misc imports
 import botconfig
 from FlushPrint import ptf, ptfDebug
-from TwitchUtils import InitializeUtils, LogReceived, SendMessage
+from TwitchUtils import *
 
 # Command imports
 from WhoCommands    import WhoCommands
@@ -44,7 +44,6 @@ class PureBot:
 
         InitializeUtils(self.ws)
 
-        # TODO: remove ws param from constructors
         self.commands = {
             "who"   : WhoCommands(chan=self.chan, mongoClient=client),
             "poll"  : PollCommands(chan=self.chan),
@@ -70,7 +69,6 @@ class PureBot:
 
     def message_handler(self, m):
         # Check for valid message with prefix
-        # TODO: add ability for multiple prefixes
         if (m.message is None or
            (m.type != "PRIVMSG" and m.type != "WHISPER") or
            (not m.message.startswith(self.prefix))):
