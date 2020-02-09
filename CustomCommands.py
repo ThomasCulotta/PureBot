@@ -14,24 +14,23 @@ class CustomCommands:
             self.customCommandList = json.load(file)
 
             self.activeCommands = {
-                "addcommand",
-                "delcommand",
+                "addcom",
+                "delcom",
             }
 
     def Execute(self, msg):
         ptfDebug("Beginning Custom Command")
 
         # snippet start
-        # addcommand COMMAND TEXT
-        # addcommand newcom I'm a new command
-        if msg.message.startswith("addcommand"):
-
+        # addcom COMMAND TEXT
+        # addcom newcom I'm a new command
+        if msg.message.startswith("addcom"):
             if not CheckPriv(msg.tags) and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't add commands! Please ask a mod to add it for you."
 
-            regmatch = re.match(f"^addcommand (.+? \[ARG\]|.+?) {groups.regTextGroup}$", msg.message)
+            regmatch = re.match(f"^addcom (.+? \[ARG\]|.+?) {groups.regTextGroup}$", msg.message)
             if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is: addcommand TEXT TEXT"
+                return f"[{msg.user}]: The syntax for that command is: addcom TEXT TEXT"
             newCommand = regmatch.group(1).lower()
             newCommandText = regmatch.group(2)
 
@@ -57,16 +56,16 @@ class CustomCommands:
         ##############################################
 
         # snippet start
-        # delcommand COMMAND
-        # delcommand newcom
-        if msg.message.startswith("delcommand"):
+        # delcom COMMAND
+        # delcom newcom
+        if msg.message.startswith("delcom"):
 
             if not CheckPriv(msg.tags) and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't delete commands! Please ask a mod to delete it for you."
 
-            regmatch = re.match(f"^delcommand {groups.regTextGroup}$", msg.message)
+            regmatch = re.match(f"^delcom {groups.regTextGroup}$", msg.message)
             if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is delcommand TEXT"
+                return f"[{msg.user}]: The syntax for that command is: delcom TEXT"
             command = regmatch.group(1).lower()
 
             with open('CustomCommands.json', 'r') as file:
