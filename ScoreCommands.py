@@ -19,7 +19,6 @@ class ScoreCommands:
         self.leaderboard_col.create_index([("user", pymongo.ASCENDING)])
 
         #Set expiration timer on collection documents
-        self.leaderboard_col.drop_index([("createdAt", pymongo.ASCENDING)])
         self.leaderboard_col.create_index([("createdAt", pymongo.ASCENDING)], expireAfterSeconds=botconfig.scoreLifespan)
         ptfDebug(f"leaderboard_col_name: {leaderboard_col_name}")
 
