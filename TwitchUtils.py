@@ -26,7 +26,7 @@ def LogReceived(type, user, message, tags):
     ptf(f"With tags: {tags}")
 
     token = message.lower().split(" ")[0]
-    RecordUsage(token, msg.user)
+    RecordUsage(token, user)
 
 # Send a message to twitch chat and log
 def SendMessage(response, type="PRIVMSG", user=None):
