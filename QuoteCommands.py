@@ -53,6 +53,8 @@ class QuoteCommands:
                 gameName = "[Unknown Game]"
 
             quoteText = regmatch.group(1)
+            quoteText.strip("\"")
+
             ptfDebug(quoteText)
             quoteObj = {
                 "id": quoteID,
@@ -76,6 +78,7 @@ class QuoteCommands:
 
             quoteID = int(regmatch.group(1))
             newQuote = regmatch.group(2)
+            newQuote.strip("\"")
             ptfDebug(newQuote)
 
             result = None
