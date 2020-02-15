@@ -127,6 +127,7 @@ class WhoCommands():
         # snippet start
         # who (@USER) (ID)
         # who
+        # who 14
         # who @BabotzInc
         # who @BabotzInc 14
         if msg.message.startswith("who"):
@@ -138,11 +139,14 @@ class WhoCommands():
                 quoteId = None
 
                 if regMatch == None:
-                    regMatch = re.match(f"^who$", msg.message)
+                    regMatch = re.match(f"^who {groups.regNumGroup}$", msg.message)
                     userName = msg.user
 
                     if regMatch == None:
+                        regMatch = re.match(f"^who$", msg.message)
                         return f"[{msg.user}]: The syntax for that command is: who (@USER) (ID)"
+                    else:
+                        quoteId = regMatch.group(1)
                 else:
                     userName = regMatch.group(1).lower()
             else:
