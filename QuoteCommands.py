@@ -42,8 +42,9 @@ class QuoteCommands:
                 {'$inc': {'value':1}},
                 upsert=True
             )
+
             if result == None:
-                return f"[{msg.user}]: Mistakes have been made. quoteID: [{quoteID}]"
+                return f"[{msg.user}]: Unable to get new quote id from {counterName}"
 
             quoteID = result['value']
 
