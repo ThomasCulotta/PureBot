@@ -89,6 +89,9 @@ def StoreUsageAsync():
 # Initialize util fields
 def InitializeUtils(socket):
     global ws
+    global statsLock
+    global statsThread
+
     ws = socket
 
     with open('UsageStats.json', 'a') as file:
