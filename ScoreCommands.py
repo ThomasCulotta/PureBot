@@ -38,7 +38,7 @@ class ScoreCommands:
         # snippet start
         # purecount
         if msg.message.startswith("purecount"):
-            tempscore = random.randint(0,100)
+            tempscore = random.randint(0,101)
             ptfDebug("tempscore: " + str(tempscore))
             result = None;
             result = self.leaderboard_col.find_one({"user": msg.user})
