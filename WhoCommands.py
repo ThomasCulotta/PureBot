@@ -144,7 +144,9 @@ class WhoCommands():
 
                     if regMatch == None:
                         regMatch = re.match(f"^who$", msg.message)
-                        return f"[{msg.user}]: The syntax for that command is: who (@USER) (ID)"
+
+                        if regMatch == None:
+                            return f"[{msg.user}]: The syntax for that command is: who (@USER) (ID)"
                     else:
                         quoteId = regMatch.group(1)
                 else:
