@@ -76,7 +76,7 @@ def StoreUsageAsync():
 
         with open('UsageStats.json', 'w') as file:
             with statsLock:
-                for key, value in statsDict:
+                for key in statsDict:
                     if key in statsJson:
                         statsJson[key] += statsDict[key]
                     else:
@@ -84,7 +84,7 @@ def StoreUsageAsync():
 
                 statsDict = {}
 
-            json.dump(statsJson, file)
+            json.dump(statsJson, file, indent=4, sort_keys=True)
 
 # Initialize util fields
 def InitializeUtils(socket):
@@ -94,8 +94,9 @@ def InitializeUtils(socket):
 
     ws = socket
 
-    with open('UsageStats.json', 'a') as file:
+    with open('UsageStats.json', 'a+') as file:
         try:
+            file.seek(0)
             json.load(file)
         except:
             file.truncate(0)
