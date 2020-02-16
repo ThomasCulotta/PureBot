@@ -95,7 +95,11 @@ def InitializeUtils(socket):
     ws = socket
 
     with open('UsageStats.json', 'a') as file:
-        pass
+        try:
+            json.load(file)
+        except:
+            file.truncate(0)
+            file.write("{}\n")
 
     statsLock = threading.Lock()
     statsThread = threading.Thread(target=StoreUsageAsync)
