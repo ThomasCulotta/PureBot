@@ -1,4 +1,4 @@
-regNumGroup = "(\d+?)"
-regUserGroup = "(\w+?)"
-regTextGroup = "(.+?)"
-regIdOrLastGroup = "(\d+?|last)"
+num = "(\d+?)"
+user = "(\w+?)"
+text = "(.+?)"
+idOrLast = "(\d+?|last)"

@@ -1,7 +1,4 @@
 import pymongo
-import importlib
-import json
-import re
 
 from TwitchWebsocket import TwitchWebsocket
 

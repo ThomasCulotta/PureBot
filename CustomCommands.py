@@ -2,8 +2,6 @@ import re
 import json
 import random
 
-from TwitchWebsocket import TwitchWebsocket
-
 from FlushPrint import ptf, ptfDebug
 from TwitchUtils import CheckPriv, LogReceived
 import RegGroups as groups
@@ -28,7 +26,7 @@ class CustomCommands:
             if not CheckPriv(msg.tags) and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't add commands! Please ask a mod to add it for you."
 
-            regmatch = re.match(f"^addcom (.+? \[ARG\]|.+?) {groups.regTextGroup}$", msg.message)
+            regmatch = re.match(f"^addcom (.+? \[ARG\]|.+?) {groups.text}$", msg.message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: addcom TEXT TEXT"
             newCommand = regmatch.group(1).lower()
@@ -63,7 +61,7 @@ class CustomCommands:
             if not CheckPriv(msg.tags) and msg.user != "doomzero":
                 return f"[{msg.user}]: Regular users can't delete commands! Please ask a mod to delete it for you."
 
-            regmatch = re.match(f"^delcom {groups.regTextGroup}$", msg.message)
+            regmatch = re.match(f"^delcom {groups.text}$", msg.message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: delcom TEXT"
             command = regmatch.group(1).lower()

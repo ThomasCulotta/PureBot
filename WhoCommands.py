@@ -2,16 +2,10 @@ import re
 import json
 import random
 import pymongo
-import datetime
-
-from TwitchWebsocket import TwitchWebsocket
 
 from FlushPrint import ptf, ptfDebug
 from TwitchUtils import CheckPriv
 import RegGroups as groups
-
-# TODO: Move these to a separate file to make regex readable and centralized
-# no need to duplicate these patterns each time and increase chances of typos
 
 class WhoCommands():
     def __init__(self, chan, mongoClient):
@@ -32,7 +26,7 @@ class WhoCommands():
         # who add @USER TEXT
         # who add @BabotzInc Hello I'm a Babotz quote
         if msg.message.startswith("who add"):
-            regMatch = re.match(f"^who add @{groups.regUserGroup} {groups.regTextGroup}$", msg.message)
+            regMatch = re.match(f"^who add @{groups.user} {groups.text}$", msg.message)
 
             if not CheckPriv(msg.tags):
                 return f"[{msg.user}]: Regular users can't add a who quote!"
@@ -84,7 +78,7 @@ class WhoCommands():
         # who del @USER ID
         # who del @BabotzInc 12
         if msg.message.startswith("who del"):
-            regMatch = re.match(f"^who del @{groups.regUserGroup} {groups.regIdOrLastGroup}$", msg.message)
+            regMatch = re.match(f"^who del @{groups.user} {groups.idOrLast}$", msg.message)
 
             if not CheckPriv(msg.tags):
                 return f"[{msg.user}]: Regular users can't delete a who quote!"
@@ -131,15 +125,15 @@ class WhoCommands():
         # who @BabotzInc
         # who @BabotzInc 14
         if msg.message.startswith("who"):
-            regMatch = re.match(f"^who @{groups.regUserGroup} {groups.regNumGroup}$", msg.message)
+            regMatch = re.match(f"^who @{groups.user} {groups.num}$", msg.message)
 
             # TODO: clean this up
             if regMatch == None:
-                regMatch = re.match(f"^who @{groups.regUserGroup}$", msg.message)
+                regMatch = re.match(f"^who @{groups.user}$", msg.message)
                 quoteId = None
 
                 if regMatch == None:
-                    regMatch = re.match(f"^who {groups.regNumGroup}$", msg.message)
+                    regMatch = re.match(f"^who {groups.num}$", msg.message)
                     userName = msg.user
 
                     if regMatch == None:

@@ -2,8 +2,6 @@ import re
 import time
 import threading
 
-from TwitchWebsocket import TwitchWebsocket
-
 from FlushPrint import ptf, ptfDebug
 from TwitchUtils import CheckPriv, SendMessage
 import RegGroups as groups
@@ -101,11 +99,11 @@ class PollCommands():
 
             self.pollThread = threading.Thread(target=self.PollAsync)
 
-            regMatch = re.match(f"^poll {groups.regNumGroup} {groups.regNumGroup}$", msg.message)
+            regMatch = re.match(f"^poll {groups.num} {groups.num}$", msg.message)
             optionMsg = "Vote "
 
             if regMatch == None:
-                regMatch = re.match(f"^poll {groups.regNumGroup}$", msg.message)
+                regMatch = re.match(f"^poll {groups.num}$", msg.message)
 
                 if regMatch == None:
                     return f"[{msg.user}]: The syntax for that command is: poll NUM_MINUTES (NUM_CHOICES)"
@@ -141,7 +139,7 @@ class PollCommands():
         # vote LETTER
         # vote y
         if msg.message.startswith("vote"):
-            regMatch = re.match(f"^vote {groups.regTextGroup}$", msg.message)
+            regMatch = re.match(f"^vote {groups.text}$", msg.message)
 
             if not self.pollRunning:
                 return f"[{msg.user}]: Nothing to vote for."

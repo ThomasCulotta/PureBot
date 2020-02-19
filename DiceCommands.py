@@ -1,9 +1,6 @@
 import re
 import random
 
-from TwitchWebsocket import TwitchWebsocket
-
-from BotRequests import GetUserId, GetGame
 from FlushPrint import ptf, ptfDebug
 import RegGroups as groups
 
@@ -20,7 +17,7 @@ class DiceCommands():
         # roll 1d20
         # roll 7d100
         if msg.message.startswith("roll"):
-            regMatch = re.match(f"^roll {groups.regNumGroup}d{groups.regNumGroup}$", msg.message)
+            regMatch = re.match(f"^roll {groups.num}d{groups.num}$", msg.message)
 
             if regMatch == None:
                 return f"[{msg.user}]: The syntax for that command is: roll NUMdNUM (roll 1d20)"

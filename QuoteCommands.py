@@ -2,8 +2,6 @@ import re
 import pymongo
 import datetime
 
-from TwitchWebsocket import TwitchWebsocket
-
 from BotRequests import GetGame
 from FlushPrint import ptf, ptfDebug
 from TwitchUtils import CheckPriv
@@ -31,7 +29,7 @@ class QuoteCommands:
         # quote add TEXT
         # quote add Hi, I'm a PureSushi quote
         if msg.message.startswith("quote add"):
-            regmatch = re.match(f"^quote add {groups.regTextGroup}$", msg.message)
+            regmatch = re.match(f"^quote add {groups.text}$", msg.message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: quote add TEXT"
 
@@ -73,7 +71,7 @@ class QuoteCommands:
         # quote change ID TEXT
         # quote change 12 Hi, I'm a better PureSushi quote
         if msg.message.startswith("quote change"):
-            regmatch = re.match(f"^quote change {groups.regNumGroup} {groups.regTextGroup}$", msg.message)
+            regmatch = re.match(f"^quote change {groups.num} {groups.text}$", msg.message)
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: quote change NUMBER TEXT"
 
@@ -107,7 +105,7 @@ class QuoteCommands:
         # quote del 123
         # quote del last
         if msg.message.startswith("quote del"):
-            regmatch = re.match(f"^quote del {groups.regIdOrLastGroup}$", msg.message)
+            regmatch = re.match(f"^quote del {groups.idOrLast}$", msg.message)
 
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: quote del NUMBER"
@@ -161,7 +159,7 @@ class QuoteCommands:
         # quote
         # quote 123
         if msg.message.startswith("quote"):
-            regmatch = re.match(f"^quote {groups.regNumGroup}$", msg.message)
+            regmatch = re.match(f"^quote {groups.num}$", msg.message)
 
             quoteID = None
             if regmatch == None:

@@ -3,8 +3,6 @@ import pymongo
 import datetime
 import re
 
-from TwitchWebsocket import TwitchWebsocket
-
 from FlushPrint import ptf, ptfDebug
 from TwitchUtils import CheckPriv
 import botconfig
@@ -108,7 +106,7 @@ class ScoreCommands:
         # clearscore BabotzInc
         if msg.message.startswith("clearscore"):
 
-            regmatch = re.match(rf"^clearscore {groups.regUserGroup}$", msg.message)
+            regmatch = re.match(rf"^clearscore {groups.user}$", msg.message)
             #for the Reset Another's Score reward command
             if msg.tags['custom-reward-id'] == "490b67dd-a8d3-494f-b605-3626358acd5c":
                 #if reward and no syntax
@@ -139,7 +137,7 @@ class ScoreCommands:
         # stealscore USER
         # stealscore BabotzInc
         if msg.message.startswith("stealscore"):
-            regmatch = re.match(rf"^stealscore {groups.regUserGroup}$", msg.message)
+            regmatch = re.match(rf"^stealscore {groups.user}$", msg.message)
             if regmatch == None:
                 ptfDebug(f"message: [{msg.message}]")
                 return f"[{msg.user}]: The syntax for that command is stealscore NAME"
@@ -182,7 +180,7 @@ class ScoreCommands:
         # swapscore USER
         # swapscore BabotzInc
         if msg.message.startswith("swapscore"):
-            regmatch = re.match(rf"^swapscore {groups.regUserGroup}$", msg.message)
+            regmatch = re.match(rf"^swapscore {groups.user}$", msg.message)
             if regmatch == None:
                 ptfDebug(f"message: [{msg.message}]")
                 return f"[{msg.user}]: The syntax for that command is swapscore NAME"
