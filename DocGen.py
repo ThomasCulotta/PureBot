@@ -4,9 +4,9 @@ import json
 
 botDir = os.path.dirname(os.path.realpath(__file__))
 docFile = open(os.path.join(botDir, "Commands_PureSushi.md"), "w")
-docFile.write("# PureSushi Channel Commands\n\n")
 customCommandsFile = None
-uniqueResponseFile = None
+
+docFile.write("# PureSushi Channel Commands\n\n")
 
 for root, dirs, files in os.walk(botDir):
     for file in files:
@@ -27,34 +27,32 @@ for root, dirs, files in os.walk(botDir):
 
                         line = file.readline().lstrip()
                         newLine = ""
-                        while len(line) > 0 and line[0] == "#":
+                        while len(line) > 0 and line[0] == "#" and not line.startswith("# remarks"):
                             docFile.write(newLine + line[2:])
                             line = file.readline().lstrip()
                             newLine = "\n"
 
                         docFile.write("```\n")
 
+                        if line.startswith("# remarks"):
+                            docFile.write(f"### Remarks\n")
+                            line = file.readline().lstrip()
+                            docFile.write(line[2:] + "\n")
+
                     line = file.readline()
 
         elif file == "CustomCommands.json":
             customCommandsFile = os.path.join(root, file)
 
-        elif file == "UniqueResponseCommands.json":
-            uniqueResponseFile = os.path.join(root, file)
-
 docFile.write("\n")
 docFile.write(f"---\n## Other Commands\n\n")
 
-def WriteCommands(commandFile):
-    if commandFile != None:
-        with open(commandFile, "r") as file:
-            commandJson = json.load(file)
+if customCommandsFile != None:
+    with open(customCommandsFile, "r") as file:
+        commandJson = json.load(file)
 
-        for command in commandJson:
-            docFile.write("```\n" + command + "\n```\n")
-
-WriteCommands(customCommandsFile)
-WriteCommands(uniqueResponseFile)
+    for command in commandJson:
+        docFile.write("```\n" + command + "\n```\n")
 
 docFile.write("\n")
 docFile.close()

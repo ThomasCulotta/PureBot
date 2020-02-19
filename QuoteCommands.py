@@ -28,6 +28,8 @@ class QuoteCommands:
         # snippet start
         # quote add TEXT
         # quote add Hi, I'm a PureSushi quote
+        # remarks
+        # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
         if msg.message.startswith("quote add"):
             regmatch = re.match(f"^quote add {groups.text}$", msg.message)
             if regmatch == None:
@@ -70,6 +72,8 @@ class QuoteCommands:
         # snippet start
         # quote change ID TEXT
         # quote change 12 Hi, I'm a better PureSushi quote
+        # remarks
+        # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
         if msg.message.startswith("quote change"):
             regmatch = re.match(f"^quote change {groups.num} {groups.text}$", msg.message)
             if regmatch == None:

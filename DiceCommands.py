@@ -16,6 +16,8 @@ class DiceCommands():
         # roll NUMdNUM
         # roll 1d20
         # roll 7d100
+        # remarks
+        # Between 1 and 10 dice may be rolled. Dice options are d2 to d100.
         if msg.message.startswith("roll"):
             regMatch = re.match(f"^roll {groups.num}d{groups.num}$", msg.message)
 

@@ -90,6 +90,8 @@ class PollCommands():
         # poll NUM_MINUTES (NUM_OPTIONS)
         # poll 2
         # poll 4 3
+        # remarks
+        # A Yes/No poll is started when NUM_OPTIONS is not provided. NUM_OPTIONS may be 2-10 and will start a poll with A, B, C, etc.
         if msg.message.startswith("poll"):
             if not CheckPriv(msg.tags):
                 return f"[{msg.user}]: Regular users can't start a poll"
@@ -115,8 +117,8 @@ class PollCommands():
             else:
                 numChoices = int(regMatch.group(2))
 
-                if numChoices > 10:
-                    return f"[{msg.user}]: Max number of voting options is 10."
+                if numChoices < 2 or numChoices > 10:
+                    return f"[{msg.user}]: Number of voting options must be between 2 and 10."
 
                 for i in range(numChoices):
                     self.voteCollection[chr(ord("a") + i)] = 0

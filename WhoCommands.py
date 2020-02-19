@@ -25,6 +25,8 @@ class WhoCommands():
         # snippet start
         # who add @USER TEXT
         # who add @BabotzInc Hello I'm a Babotz quote
+        # remarks
+        # @ing the user is required. Type @ and use Twitch's username autocomplete to ensure the correct username is given.
         if msg.message.startswith("who add"):
             regMatch = re.match(f"^who add @{groups.user} {groups.text}$", msg.message)
 
@@ -77,6 +79,8 @@ class WhoCommands():
         # snippet start
         # who del @USER ID
         # who del @BabotzInc 12
+        # remarks
+        # @ing the user is required. Type @ and use Twitch's username autocomplete to ensure the correct username is given.
         if msg.message.startswith("who del"):
             regMatch = re.match(f"^who del @{groups.user} {groups.idOrLast}$", msg.message)
 
@@ -124,6 +128,8 @@ class WhoCommands():
         # who 14
         # who @BabotzInc
         # who @BabotzInc 14
+        # remarks
+        # When no username is given, this command defaults to your own quotes.
         if msg.message.startswith("who"):
             regMatch = re.match(f"^who @{groups.user} {groups.num}$", msg.message)
 

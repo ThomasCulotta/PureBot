@@ -104,6 +104,8 @@ class ScoreCommands:
         ## snippet start
         # clearscore USER
         # clearscore BabotzInc
+        # remarks
+        # This command requires you to spend sushi rolls.
         if msg.message.startswith("clearscore"):
 
             regmatch = re.match(rf"^clearscore {groups.user}$", msg.message)
@@ -136,6 +138,8 @@ class ScoreCommands:
         # snippet start
         # stealscore USER
         # stealscore BabotzInc
+        # remarks
+        # This command requires you to spend sushi rolls.
         if msg.message.startswith("stealscore"):
             regmatch = re.match(rf"^stealscore {groups.user}$", msg.message)
             if regmatch == None:
@@ -179,6 +183,8 @@ class ScoreCommands:
         # snippet start
         # swapscore USER
         # swapscore BabotzInc
+        # remarks
+        # This command requires you to spend sushi rolls.
         if msg.message.startswith("swapscore"):
             regmatch = re.match(rf"^swapscore {groups.user}$", msg.message)
             if regmatch == None:
