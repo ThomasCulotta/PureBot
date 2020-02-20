@@ -23,19 +23,22 @@ for root, dirs, files in os.walk(botDir):
                             title = None
 
                         line = file.readline().strip()
-                        docFile.write(f"### {line[2:]}\n```\n")
+                        docFile.write(f"### {line[2:]}\n")
+
+                        examples = "```\n"
 
                         line = file.readline().lstrip()
                         newLine = ""
                         while len(line) > 0 and line[0] == "#" and not line.startswith("# remarks"):
-                            docFile.write(newLine + line[2:])
+                            examples += newLine + line[2:]
                             line = file.readline().lstrip()
                             newLine = "\n"
 
-                        docFile.write("```\n")
+                        if len(examples) > 4:
+                            docFile.write(examples + "```\n")
 
                         if line.startswith("# remarks"):
-                            docFile.write(f"**Remarks**\n")
+                            docFile.write(f"**Remarks**\n\n")
                             line = file.readline().lstrip()
                             docFile.write(line[2:] + "\n")
 
