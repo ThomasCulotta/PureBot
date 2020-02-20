@@ -23,7 +23,7 @@ for root, dirs, files in os.walk(botDir):
                             title = None
 
                         line = file.readline().strip()
-                        docFile.write(f"**{line[2:]}**\n```\n")
+                        docFile.write(f"### {line[2:]}\n```\n")
 
                         line = file.readline().lstrip()
                         newLine = ""
@@ -35,7 +35,7 @@ for root, dirs, files in os.walk(botDir):
                         docFile.write("```\n")
 
                         if line.startswith("# remarks"):
-                            docFile.write(f"### Remarks\n")
+                            docFile.write(f"**Remarks**\n")
                             line = file.readline().lstrip()
                             docFile.write(line[2:] + "\n")
 
