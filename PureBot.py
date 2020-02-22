@@ -11,6 +11,7 @@ from TwitchUtils import *
 from WhoCommands    import WhoCommands
 from PollCommands   import PollCommands
 from DiceCommands   import DiceCommands
+from TimeCommands   import TimeCommands
 from ScoreCommands  import ScoreCommands
 from QuoteCommands  import QuoteCommands
 from CustomCommands import CustomCommands
@@ -47,6 +48,7 @@ class PureBot:
             "score" : ScoreCommands(chan=self.chan, mongoClient=client),
             "quote" : QuoteCommands(chan=self.chan, mongoClient=client),
             "dice"  : DiceCommands(),
+            "time"  : TimeCommands(),
             "custom" : CustomCommands(),
             "shoutout" : ShoutoutCommands(),
         }
