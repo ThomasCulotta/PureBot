@@ -55,7 +55,10 @@ def GetGame(user=None):
     loginParam = { "user_login" : user }
 
     response = requests.get(f"{helixEndpoint}/streams", params=loginParam, headers=helixHeader)
-    streamData = response.json()["data"][0]
+    streamData = response.json()["data"]
+
+    if len(streamData) > 0:
+        streamData = streamData[0]
 
     if "game_id" not in streamData:
         response = requests.get(f"{krakenEndpoint}/channels/{GetUserId(user)}", headers=v5Header)
