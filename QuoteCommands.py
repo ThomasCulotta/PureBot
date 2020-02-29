@@ -17,6 +17,7 @@ class QuoteCommands:
         ptfDebug(f"quote_col_name: {quote_col_name}")
 
         self.counter_col = mongoClient.QuoteBotDB['counters']
+        self.counterName = self.chan[1:] + "Counter"
 
         self.activeCommands = {
             "quote",
@@ -35,16 +36,15 @@ class QuoteCommands:
             if regmatch == None:
                 return f"[{msg.user}]: The syntax for that command is: quote add TEXT"
 
-            counterName = self.chan[1:] + "Counter"
             result = None
             result = self.counter_col.find_one_and_update(
-                {"name": counterName},
+                {"name": self.counterName},
                 {'$inc': {'value':1}},
                 upsert=True
             )
 
             if result == None:
-                return f"[{msg.user}]: Unable to get new quote id from {counterName}"
+                return f"[{msg.user}]: Unable to get new quote id from {self.counterName}"
 
             quoteID = result['value']
 
@@ -115,13 +115,12 @@ class QuoteCommands:
                 return f"[{msg.user}]: The syntax for that command is: quote del NUMBER"
 
             deleteFlag = False
-            counterName = self.chan[1:] + "Counter"
 
             result = None
-            result = self.counter_col.find_one({"name": counterName})
+            result = self.counter_col.find_one({"name": self.counterName})
 
             if result == None:
-                ptfDebug(f"Counter not found for {counterName}")
+                ptfDebug(f"Counter not found for {self.counterName}")
                 return f"[{msg.user}]: Database error. Unable to delete quote"
 
             lastquoteID = int(result['value']) - 1
@@ -150,7 +149,7 @@ class QuoteCommands:
 
             if deleteFlag:
                 self.quote_col.delete_one({"id":quoteID})
-                self.counter_col.update_one({"name": counterName}, {'$inc': {'value':-1}})
+                self.counter_col.update_one({"name": self.counterName}, {'$inc': {'value':-1}})
             else:
                 self.quote_col.delete_one({"id":quoteID})
 
@@ -163,7 +162,7 @@ class QuoteCommands:
         # quote
         # quote 123
         if msg.message.startswith("quote"):
-            regmatch = re.match(f"^quote {groups.num}$", msg.message)
+            regmatch = re.match(f"^quote {groups.idOrLast}$", msg.message)
 
             quoteID = None
             if regmatch == None:
@@ -171,7 +170,10 @@ class QuoteCommands:
                 for item in results:
                     result = item
             else:
-                quoteID = int(regmatch.group(1))
+                if regmatch.group(1) == "last":
+                    quoteID = self.counter_col.find_one({"name": self.counterName})['value'] - 1
+                else: 
+                    quoteID = int(regmatch.group(1))
                 result = self.quote_col.find_one({"id":quoteID})
 
             if result == None:
