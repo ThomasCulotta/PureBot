@@ -164,6 +164,7 @@ class QuoteCommands:
         if msg.message.startswith("quote"):
             regmatch = re.match(f"^quote {groups.text}$", msg.message)
 
+            result = None
             quoteID = None
             if regmatch == None:
                 results = self.quote_col.aggregate([{ "$sample": { "size": 1 }}])
