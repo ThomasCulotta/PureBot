@@ -163,7 +163,7 @@ class QuoteCommands:
         # quote
         # quote 123
         if msg.message.startswith("quote"):
-            regmatch = re.match(f"^quote {groups.num}$", msg.message)
+            regmatch = re.match(f"^quote {groups.text}$", msg.message)
 
             quoteID = None
             if regmatch == None:
@@ -171,8 +171,16 @@ class QuoteCommands:
                 for item in results:
                     result = item
             else:
-                quoteID = int(regmatch.group(1))
-                result = self.quote_col.find_one({"id":quoteID})
+                quoteArg = regmatch.group(1)
+                if quoteArg.isnumeric():
+                    quoteID = int(quoteArg)
+                    result = self.quote_col.find_one({"id":quoteID})
+                else:
+                    results = self.quote_col.aggregate([
+                        {"$match" : {"text" : {"$regex" : quoteArg, "$options" : "i"}}},
+                        {"$sample" : {"size" : 1}}])
+                    for item in results:
+                        result = item
 
             if result == None:
                 if quoteID == None:
