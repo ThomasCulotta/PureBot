@@ -24,6 +24,7 @@ class ScoreCommands:
             "purecount",
             "pureboard",
             "curseboard",
+            "cursedboard",
             "clearboard",
             "clearscore",
             "stealscore",
@@ -75,7 +76,7 @@ class ScoreCommands:
 
         # snippet start
         # curseboard
-        if msg.message.startswith("pureboard") or msg.message.startswith("curseboard"):
+        if msg.message.startswith("pureboard") or msg.message.startswith("curseboard") or msg.message.startswith("cursedboard"):
             result = self.leaderboard_col.find().sort([("score", sort_order)]).limit(5)
 
             resMessage = ""
