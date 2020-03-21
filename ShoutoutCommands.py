@@ -13,6 +13,12 @@ class ShoutoutCommands():
         }
 
     def Execute(self, msg):
+        # snippet start
+        # shoutout (@)USER
+        # shoutout PureSushi
+        # shoutout @PureSushi
+        # remarks
+        # Mod Only. Promotes the given user's channel.
         if msg.message.startswith("shoutout"):
             if not CheckPriv(msg.tags):
                 return f"[{msg.user}]: Regular users can't shoutout"

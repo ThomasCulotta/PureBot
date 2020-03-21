@@ -15,6 +15,7 @@ from TimeCommands   import TimeCommands
 from ScoreCommands  import ScoreCommands
 from QuoteCommands  import QuoteCommands
 from CustomCommands import CustomCommands
+from VoteBanCommands import VoteBanCommands
 from ShoutoutCommands import ShoutoutCommands
 
 client = pymongo.MongoClient(f"mongodb://{botconfig.DBusername}:{botconfig.DBpassword}@{botconfig.DBhostIP}/QuoteBotDB")
@@ -50,6 +51,7 @@ class PureBot:
             "dice"  : DiceCommands(),
             "time"  : TimeCommands(),
             "custom" : CustomCommands(),
+            "voteban" : VoteBanCommands(),
             "shoutout" : ShoutoutCommands(),
         }
 
