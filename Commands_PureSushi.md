@@ -12,6 +12,19 @@ addcom newcom I'm a new command
 delcom newcom
 ```
 ---
+## ShoutoutCommands
+
+### shoutout (@)USER
+```
+shoutout PureSushi
+
+shoutout @PureSushi
+```
+**Remarks**
+
+Mod Only. Promotes the given user's channel.
+
+---
 ## QuoteCommands
 
 ### quote add TEXT
@@ -64,6 +77,19 @@ swapscore BabotzInc
 **Remarks**
 
 This command requires you to spend sushi rolls.
+
+---
+## VoteBanCommands
+
+### voteban (@)USER
+```
+voteban BabotzInc
+
+voteban @BabotzInc
+```
+**Remarks**
+
+This is a joke command.
 
 ---
 ## DiceCommands
