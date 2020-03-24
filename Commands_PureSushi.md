@@ -62,22 +62,6 @@ quote 123
 ### pureboard
 ### curseboard
 ### clearboard
-### stealscore USER
-```
-stealscore BabotzInc
-```
-**Remarks**
-
-This command requires you to spend sushi rolls.
-
-### swapscore USER
-```
-swapscore BabotzInc
-```
-**Remarks**
-
-This command requires you to spend sushi rolls.
-
 ---
 ## VoteBanCommands
 
