@@ -58,10 +58,17 @@ class PureBot:
         # Maps all active command strings caught by imported command modules to their respective Execute function
         self.execute = {}
 
+        # Maps all active channel points custom reward ids caught by imported command modules to their respective RedeemReward function
+        self.redeem = {}
+
         for cmd in self.commands.values():
             if hasattr(cmd, "activeCommands"):
                 for activeCommand in cmd.activeCommands:
                     self.execute[activeCommand] = cmd.Execute
+
+            # TODO: Evaluate if this would be a better layout for commands (separate mapped functions). Already leaning toward yes
+            if hasattr(cmd, "activeRewards"):
+                self.redeem = {**self.redeem, **cmd.activeRewards}
 
         ptf("Bot Started!")
 
@@ -69,31 +76,40 @@ class PureBot:
         # Any code after this will be executed after a KeyboardInterrupt
 
     def message_handler(self, m):
-        # Check for valid message with prefix
-        if (m.message is None or
-           (m.type != "PRIVMSG" and m.type != "WHISPER") or
-           (not m.message.startswith(self.prefix))):
+        # Check for proper message type
+        if (m.type != "PRIVMSG" and
+            m.type != "WHISPER"):
+            return
+
+        # Check for valid message with prefix and valid rewards
+        validReward = "custom-reward-id" in m.tags
+        validCommand = m.message != None and m.message.startswith(self.prefix)
+
+        if (not validReward and
+            not validCommand):
             return
 
         try:
-            # Retrieve first word without prefix
-            m.message = m.message[1:]
-            token = m.message.lower().split(" ")[0]
-
-            if (token in self.execute):
+            if validReward:
                 LogReceived(m.type, m.user, m.message, m.tags)
-                SendMessage(self.execute[token](m), m.type, m.user)
-                return
+                SendMessage(self.redeem[m.tags["custom-reward-id"]](m), m.type, m.user)
 
-            ##############################################
+            if validCommand:
+                # Retrieve first word without prefix
+                m.message = m.message[1:]
+                token = m.message.lower().split(" ")[0]
 
-            # Simple response commands
-            # Note that we don't get this far unless the message does not match other commands
+                if (token in self.execute):
+                    LogReceived(m.type, m.user, m.message, m.tags)
+                    SendMessage(self.execute[token](m), m.type, m.user)
+                    return
 
-            response = self.commands["custom"].Execute(m)
-            if response != None:
-                SendMessage(response, m.type, m.user)
-                return
+                # Simple response commands
+                # Note that we don't get this far unless the message does not match other commands
+                response = self.commands["custom"].Execute(m)
+                if response != None:
+                    SendMessage(response, m.type, m.user)
+                    return
 
         except Exception as e:
             ptf(f"Error: {e}", time=True)
