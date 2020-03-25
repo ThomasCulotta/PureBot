@@ -41,7 +41,7 @@ class PureBot:
                                   capability=["membership", "tags", "commands"],
                                   live=True)
 
-        InitializeUtils(self.ws)
+        InitializeUtils(self.ws, self.chan, client)
 
         self.commands = {
             "who"   : WhoCommands(chan=self.chan, mongoClient=client),

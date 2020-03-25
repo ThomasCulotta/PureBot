@@ -4,7 +4,7 @@ import datetime
 import re
 
 from FlushPrint import ptf, ptfDebug
-from TwitchUtils import CheckPriv
+import TwitchUtils as util
 import botconfig
 import RegGroups as groups
 
@@ -37,15 +37,86 @@ class ScoreCommands:
             botconfig.swapScoreId : self.RedeemSwapScore,
         }
 
+        self.rewardStealId = "stealScore"
+        self.rewardSwapId = "swapScore"
+
     def RedeemClearScore(self, msg):
         self.leaderboard_col.remove({"user": msg.user})
         return f"[{msg.user}]: Your score has been cleared!"
 
     def RedeemStealScore(self, msg):
-        pass
+        util.RedeemReward(msg.user, self.rewardStealId)
+        regMatch = re.match(f"^@?{groups.user}$", msg.message)
+
+        if regMatch == None:
+            return f"[{msg.user}]: You've redeemed stealscore. At any time, use the command stealscore USER"
+        else:
+            StealScoreHelper(msg.user, regMatch.group(1))
 
     def RedeemSwapScore(self, msg):
-        pass
+        util.RedeemReward(msg.user, self.rewardSwapId)
+        regMatch = re.match(f"^@?{groups.user}$", msg.message)
+
+        if regMatch == None:
+            return f"[{msg.user}]: You've redeemed swapscore. At any time, use the command swapscore USER"
+        else:
+            SwapScoreHelper(msg.user, regMatch.group(1))
+
+    def StealScoreHelper(self, user, targUser):
+        targResult = self.leaderboard_col.find_one({"user": targUser})
+
+        if targResult == None:
+            return f"[{msg.user}]: That user does not have a score!"
+
+        if not util.CheckRemoveReward(user, self.rewardStealId):
+            return f"[{msg.user}]: This command requires spending sushi rolls"
+
+        ptfDebug(f"targResult: {targResult}")
+        targScore = targResult['score']
+
+        # Give the target a new score
+        newScore = random.randint(-1,101)
+        self.leaderboard_col.update_one({"user": targUser}, { "$set": {"score": newScore, "createdAt": datetime.datetime.utcnow()}})
+
+        userResult = self.leaderboard_col.find_one({"user": user})
+        ptfDebug(f"UserResult: {userResult}")
+
+        # Set the user's score to the target's old score
+        if userResult == None:
+            self.leaderboard_col.insert_one({"user": user, "score": targScore, "createdAt": datetime.datetime.utcnow()})
+        else:
+            self.leaderboard_col.update_one({"user": user}, { "$set": {"score": targScore, "createdAt": datetime.datetime.utcnow()}})
+
+        return f"[{msg.user}]: You have stolen {targUser}'s score and given them a new one! Your pure count is {targScore}/100, and theirs is {newScore}/100"
+
+    def SwapScoreHelper(self, user, targetUser):
+        targResult = self.leaderboard_col.find_one({"user": targUser})
+
+        if targResult == None:
+            return f"[{msg.user}]: That user does not have a score!"
+
+        if not util.CheckRemoveReward(user, self.rewardSwapId):
+            return f"[{msg.user}]: This command requires spending sushi rolls"
+
+        ptfDebug(f"targResult: {targResult}")
+        targScore = targResult['score']
+
+        userResult = self.leaderboard_col.find_one({"user": user})
+        ptfDebug(f"UserResult: {userResult}")
+
+        if userResult == None:
+            newScore = random.randint(-1,101)
+            self.leaderboard_col.insert_one({"user": user, "score": targScore, "createdAt": datetime.datetime.utcnow()})
+            self.leaderboard_col.update_one({"user": targUser}, { "$set": {"score": newScore, "createdAt": datetime.datetime.utcnow()}})
+
+            return f"[{msg.user}]: You have taken {targUser}'s score and given them a new one! Your pure count is {targScore}/100, and theirs is {newScore}/100"
+
+        else:
+            userScore = userResult['score']
+            self.leaderboard_col.update_one({"user": user}, { "$set": {"score": targScore, "createdAt": datetime.datetime.utcnow()}})
+            self.leaderboard_col.update_one({"user": targUser}, { "$set": {"score": userScore, "createdAt": datetime.datetime.utcnow()}})
+
+            return f"[{msg.user}]: You have swapped {targUser}'s score with your own! Your pure count is {targScore}/100, and theirs is {userScore}/100"
 
     def Execute(self, msg):
         ptfDebug("Beginning purecount Command")
@@ -110,7 +181,7 @@ class ScoreCommands:
         # snippet start
         # clearboard
         if msg.message.startswith("clearboard"):
-            if CheckPriv(msg.tags) or msg.user == "doomzero":
+            if util.CheckPriv(msg.tags):
                 self.leaderboard_col.remove({})
                 return f"[{msg.user}]: Leaderboard cleared!"
 
@@ -124,42 +195,13 @@ class ScoreCommands:
         # remarks
         # This command requires you to spend sushi rolls.
         if msg.message.startswith("stealscore"):
-            regmatch = re.match(rf"^stealscore {groups.user}$", msg.message)
+            regmatch = re.match(f"^stealscore {groups.user}$", msg.message)
+
             if regmatch == None:
                 ptfDebug(f"message: [{msg.message}]")
-                return f"[{msg.user}]: The syntax for that command is stealscore NAME"
+                return f"[{msg.user}]: The syntax for that command is stealscore USER"
 
-            if msg.tags['custom-reward-id'] != "14986982-3669-4e26-a3c4-bf34025e005d":
-               return f"[{msg.user}]: That command requires spending Sushi Rolls on the \"doomtest1\" custom reward!"
-
-            # if msg.user != "doomzero":
-            #     return f"[{msg.user}]: That command is in testing, sorry. Only DoomZero can use it right now."
-
-            targUser = regmatch[1].lower()
-            msgUser = msg.user.lower()
-
-            targResult = self.leaderboard_col.find_one({"user": targUser})
-            if targResult == None:
-                return f"[{msg.user}]: That user does not have a score!"
-
-            ptfDebug(f"targResult: {targResult}")
-            targScore = targResult['score']
-
-            userResult = self.leaderboard_col.find_one({"user": msgUser})
-            ptfDebug(f"UserResult: {userResult}")
-
-            #reset the target's score
-            newScore = random.randint(0,100)
-            self.leaderboard_col.update_one({"user": targUser}, { "$set": {"score": newScore, "createdAt": datetime.datetime.utcnow()}})
-
-            #set the user's score to the target's old score
-            userScore = userResult['score']
-            if userScore == None:
-                self.leaderboard_col.insert_one({"user": msgUser, "score": targScore, "createdAt": datetime.datetime.utcnow()})
-            else:
-                self.leaderboard_col.update_one({"user": msgUser}, { "$set": {"score": targScore, "createdAt": datetime.datetime.utcnow()}})
-
-            return f"[{msg.user}]: You have stolen {targUser}'s score, and theirs has been reset! Your pure count is {str(targScore)}/100, and theirs is {str(newScore)}/100"
+            return self.StealScoreHelper(msg.user, regmatch.group(1).lower())
 
         ##############################################
 
@@ -169,40 +211,10 @@ class ScoreCommands:
         # remarks
         # This command requires you to spend sushi rolls.
         if msg.message.startswith("swapscore"):
-            regmatch = re.match(rf"^swapscore {groups.user}$", msg.message)
+            regmatch = re.match(f"^swapscore {groups.user}$", msg.message)
+
             if regmatch == None:
                 ptfDebug(f"message: [{msg.message}]")
-                return f"[{msg.user}]: The syntax for that command is swapscore NAME"
+                return f"[{msg.user}]: The syntax for that command is swapscore USER"
 
-            if msg.tags['custom-reward-id'] != "14986982-3669-4e26-a3c4-bf34025e005d":
-                return f"[{msg.user}]: That command requires spending Sushi Rolls on the \"doomtest3\" custom reward!"
-
-            # if msg.user != "doomzero":
-            #     return f"[{msg.user}]: That command is in testing, sorry. Only DoomZero can use it right now."
-
-            targUser = regmatch[1].lower()
-            msgUser = msg.user.lower()
-
-            targResult = self.leaderboard_col.find_one({"user": targUser})
-            if targResult == None:
-                return f"[{msg.user}]: That user does not have a score!"
-
-            ptfDebug(f"targResult: {targResult}")
-            targScore = targResult['score']
-
-            userResult = self.leaderboard_col.find_one({"user": msgUser})
-            ptfDebug(f"UserResult: {userResult}")
-            userScore = userResult['score']
-
-            if userScore == None:
-                newScore = random.randint(0,100)
-                self.leaderboard_col.insert_one({"user": msgUser, "score": targScore, "createdAt": datetime.datetime.utcnow()})
-                self.leaderboard_col.update_one({"user": targUser}, { "$set": {"score": newScore, "createdAt": datetime.datetime.utcnow()}})
-
-                return f"[{msg.user}]: You have taken {targUser}'s score, and theirs has been reset! Your pure count is {str(targScore)}/100, and theirs is {str(newScore)}/100"
-
-            else:
-                self.leaderboard_col.update_one({"user": msgUser}, { "$set": {"score": targScore, "createdAt": datetime.datetime.utcnow()}})
-                self.leaderboard_col.update_one({"user": targUser}, { "$set": {"score": userScore, "createdAt": datetime.datetime.utcnow()}})
-
-                return f"[{msg.user}]: You have swapped {targUser}'s score with your own! Your pure count is {str(targScore)}/100, and theirs is {str(userScore)}/100"
+            return self.SwapScoreHelper(msg.user, regmatch.group(1).lower())

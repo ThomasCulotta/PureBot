@@ -9,6 +9,7 @@ ws = None
 statsDict = {}
 statsLock = None
 statsThread = None
+colRewards = None
 
 # True if user is a mod or the broadcaster
 def CheckPriv(tags):
@@ -19,6 +20,59 @@ def CheckPriv(tags):
 def CheckDev(user):
     return (user == "babotzinc" or
             user == "doomzero")
+
+# Record that the given user has redeemed the given reward
+def RedeemReward(user, rewardId):
+    result = colRewards.find_one({"user": msg.user})
+
+    rewards = {}
+    if result == None:
+        rewards[rewardId] = 1
+        userObj = {
+            "user" : user,
+            "rewards" : json.dumps(rewards)
+        }
+        colRewards.insert_one(userObj)
+    else:
+        rewards = json.loads(result['rewards'])
+
+        if rewardId in rewards:
+            rewards[rewardId] += 1
+        else:
+            rewards[rewardId] = 1
+
+        colRewards.update_one(
+            {"user": userName},
+            {"$set": {"rewards": json.dumps(rewards)}}
+        )
+
+# Return true if the given user has redeemed the given reward and decrement
+def CheckRemoveReward(user, rewardId):
+    result = colRewards.find_one({"user": msg.user})
+
+    if result == None:
+        return False
+
+    rewards = json.loads(result['rewards'])
+
+    if rewardId in rewards:
+        if rewards[rewardId] == 1:
+            del rewards[rewardId]
+        else:
+            rewards[rewardId] -= 1
+
+        if len(rewards) == 0:
+            colRewards.delete_one({"user":userName})
+        else:
+            colRewards.update_one(
+                {"user": userName},
+                {"$set": {"rewards": json.dumps(rewards)}}
+            )
+
+        return True
+
+    return False
+
 
 # Log info for an incoming message
 def LogReceived(type, user, message, tags):
@@ -87,12 +141,15 @@ def StoreUsageAsync():
             json.dump(statsJson, file, indent=4, sort_keys=True)
 
 # Initialize util fields
-def InitializeUtils(socket):
+def InitializeUtils(socket, chan, mongoClient):
     global ws
     global statsLock
     global statsThread
+    global colRewards
 
     ws = socket
+    colRewards = mongoClient.QuoteBotDB[chan[1:] + "Rewards"]
+    colRewards.create_index([("user", pymongo.ASCENDING)])
 
     with open('UsageStats.json', 'a+') as file:
         try:
