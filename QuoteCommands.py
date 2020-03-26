@@ -23,144 +23,26 @@ class QuoteCommands:
             "quote" : self.ExecuteQuote,
         }
 
+        self.quoteSubCommands = {
+            "add" : self.ExecuteQuoteAdd,
+            "del" : self.ExecuteQuoteDel,
+            "change" : self.ExecuteQuoteChange,
+        }
+
+    # snippet start
+    # quote (ID)
+    # quote
+    # quote 123
     def ExecuteQuote(self, msg):
         ptfDebug("Beginning Quote Command")
+        try:
+            subCommand = msg.message.lower().split()[1]
+        except IndexError:
+            subCommand = None
 
-        # snippet start
-        # quote add TEXT
-        # quote add Hi, I'm a PureSushi quote
-        # remarks
-        # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
-        if msg.message.startswith("quote add"):
-            regmatch = re.match(f"^quote add {groups.text}$", msg.message)
-            if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is: quote add TEXT"
+        if subCommand in self.quoteSubCommands:
+            return self.quoteSubCommands[subCommand](msg)
 
-            result = None
-            result = self.counter_col.find_one_and_update(
-                {"name": self.counterName},
-                {'$inc': {'value':1}},
-                upsert=True
-            )
-
-            if result == None:
-                return f"[{msg.user}]: Unable to get new quote id from {self.counterName}"
-
-            quoteID = result['value']
-
-            gameName = GetGame()
-
-            if gameName == None:
-                gameName = "[Unknown Game]"
-
-            quoteText = regmatch.group(1)
-            quoteText.strip("\"")
-
-            ptfDebug(quoteText)
-            quoteObj = {
-                "id": quoteID,
-                "user": msg.user,
-                "text": quoteText,
-                "game": gameName,
-                "date": datetime.datetime.now()
-            }
-            self.quote_col.insert_one(quoteObj)
-            return f"[{msg.user}]: Your quote has been added with id {quoteID}!"
-
-        ##############################################
-
-        # snippet start
-        # quote change ID TEXT
-        # quote change 12 Hi, I'm a better PureSushi quote
-        # remarks
-        # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
-        if msg.message.startswith("quote change"):
-            regmatch = re.match(f"^quote change {groups.num} {groups.text}$", msg.message)
-            if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is: quote change NUMBER TEXT"
-
-            quoteID = int(regmatch.group(1))
-            newQuote = regmatch.group(2)
-            newQuote.strip("\"")
-            ptfDebug(newQuote)
-
-            result = None
-            result = self.quote_col.find_one({"id":quoteID})
-
-            if result == None:
-                return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
-            if not util.CheckPriv(msg.tags):
-                if result['user'] != msg.user:
-                    return f"[{msg.user}]: Regular users can't edit a quote someone else added!"
-                if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
-                    return f"[{msg.user}]: Regular users can't edit a quote except on the day it was added!"
-
-            self.quote_col.update_one(
-                {"id": quoteID},
-                {'$set': {'text': newQuote}}
-            )
-
-            return f"[{msg.user}]: Updated quote #{quoteID}!"
-
-        ##############################################
-
-        # snippet start
-        # quote del ID
-        # quote del 123
-        # quote del last
-        if msg.message.startswith("quote del"):
-            regmatch = re.match(f"^quote del {groups.idOrLast}$", msg.message)
-
-            if regmatch == None:
-                return f"[{msg.user}]: The syntax for that command is: quote del NUMBER"
-
-            deleteFlag = False
-
-            result = None
-            result = self.counter_col.find_one({"name": self.counterName})
-
-            if result == None:
-                ptfDebug(f"Counter not found for {self.counterName}")
-                return f"[{msg.user}]: Database error. Unable to delete quote"
-
-            lastquoteID = int(result['value']) - 1
-
-            if regmatch.group(1) == "last":
-                deleteFlag = True
-                quoteID = lastquoteID
-            else:
-                quoteID = int(regmatch.group(1))
-
-                if quoteID == lastquoteID:
-                    deleteFlag = True
-
-            result = None
-            result = self.quote_col.find_one({"id":quoteID})
-
-            if result == None:
-                return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
-            if not util.CheckPriv(msg.tags):
-                if result['user'] != msg.user:
-                    return f"[{msg.user}]: Regular users can't delete a quote someone else added!"
-                if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
-                    return f"[{msg.user}]: Regular users can't delete a quote except on the day it was added!"
-
-            ptfDebug(f"Deleting quoteID: {quoteID}")
-
-            if deleteFlag:
-                self.quote_col.delete_one({"id":quoteID})
-                self.counter_col.update_one({"name": self.counterName}, {'$inc': {'value':-1}})
-            else:
-                self.quote_col.delete_one({"id":quoteID})
-
-            return f"[{msg.user}]: Deleted quote #{quoteID}!"
-
-        ##############################################
-
-        # snippet start
-        # quote (ID)
-        # quote
-        # quote 123
         regmatch = re.match(f"^quote {groups.text}$", msg.message)
 
         result = None
@@ -195,3 +77,128 @@ class QuoteCommands:
             formattedDate = result['date'].strftime("%x")
             quoteID = result['id']
             return f"[{quoteID}]: \"{result['text']}\" - {result['game']} on {formattedDate}"
+
+    # snippet start
+    # quote add TEXT
+    # quote add Hi, I'm a PureSushi quote
+    # remarks
+    # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
+    def ExecuteQuoteAdd(self, msg):
+        regmatch = re.match(f"^quote add {groups.text}$", msg.message)
+        if regmatch == None:
+            return f"[{msg.user}]: The syntax for that command is: quote add TEXT"
+
+        result = None
+        result = self.counter_col.find_one_and_update(
+            {"name": self.counterName},
+            {'$inc': {'value':1}},
+            upsert=True
+        )
+
+        if result == None:
+            return f"[{msg.user}]: Unable to get new quote id from {self.counterName}"
+
+        quoteID = result['value']
+
+        gameName = GetGame()
+
+        if gameName == None:
+            gameName = "[Unknown Game]"
+
+        quoteText = regmatch.group(1)
+        quoteText.strip("\"")
+
+        ptfDebug(quoteText)
+        quoteObj = {
+            "id": quoteID,
+            "user": msg.user,
+            "text": quoteText,
+            "game": gameName,
+            "date": datetime.datetime.now()
+        }
+        self.quote_col.insert_one(quoteObj)
+        return f"[{msg.user}]: Your quote has been added with id {quoteID}!"
+
+    # snippet start
+    # quote del ID
+    # quote del 123
+    # quote del last
+    def ExecuteQuoteDel(self, msg):
+        regmatch = re.match(f"^quote del {groups.idOrLast}$", msg.message)
+
+        if regmatch == None:
+            return f"[{msg.user}]: The syntax for that command is: quote del NUMBER"
+
+        deleteFlag = False
+
+        result = None
+        result = self.counter_col.find_one({"name": self.counterName})
+
+        if result == None:
+            ptfDebug(f"Counter not found for {self.counterName}")
+            return f"[{msg.user}]: Database error. Unable to delete quote"
+
+        lastquoteID = int(result['value']) - 1
+
+        if regmatch.group(1) == "last":
+            deleteFlag = True
+            quoteID = lastquoteID
+        else:
+            quoteID = int(regmatch.group(1))
+
+            if quoteID == lastquoteID:
+                deleteFlag = True
+
+        result = None
+        result = self.quote_col.find_one({"id":quoteID})
+
+        if result == None:
+            return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
+        if not util.CheckPriv(msg.tags):
+            if result['user'] != msg.user:
+                return f"[{msg.user}]: Regular users can't delete a quote someone else added!"
+            if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
+                return f"[{msg.user}]: Regular users can't delete a quote except on the day it was added!"
+
+        ptfDebug(f"Deleting quoteID: {quoteID}")
+
+        if deleteFlag:
+            self.quote_col.delete_one({"id":quoteID})
+            self.counter_col.update_one({"name": self.counterName}, {'$inc': {'value':-1}})
+        else:
+            self.quote_col.delete_one({"id":quoteID})
+
+        return f"[{msg.user}]: Deleted quote #{quoteID}!"
+
+    # snippet start
+    # quote change ID TEXT
+    # quote change 12 Hi, I'm a better PureSushi quote
+    # remarks
+    # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
+    def ExecuteQuoteChange(self, msg):
+        regmatch = re.match(f"^quote change {groups.num} {groups.text}$", msg.message)
+        if regmatch == None:
+            return f"[{msg.user}]: The syntax for that command is: quote change NUMBER TEXT"
+
+        quoteID = int(regmatch.group(1))
+        newQuote = regmatch.group(2)
+        newQuote.strip("\"")
+        ptfDebug(newQuote)
+
+        result = None
+        result = self.quote_col.find_one({"id":quoteID})
+
+        if result == None:
+            return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
+        if not util.CheckPriv(msg.tags):
+            if result['user'] != msg.user:
+                return f"[{msg.user}]: Regular users can't edit a quote someone else added!"
+            if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
+                return f"[{msg.user}]: Regular users can't edit a quote except on the day it was added!"
+
+        self.quote_col.update_one(
+            {"id": quoteID},
+            {'$set': {'text': newQuote}}
+        )
+
+        return f"[{msg.user}]: Updated quote #{quoteID}!"

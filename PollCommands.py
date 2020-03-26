@@ -22,6 +22,10 @@ class PollCommands():
             "vote" : self.ExecuteVote,
         }
 
+        self.pollSubCommands = {
+            "end" : self.ExecutePollEnd,
+        }
+
     def PollAsync(self):
         while self.pollTimeout >= 30:
             time.sleep(30)
@@ -72,25 +76,21 @@ class PollCommands():
         util.SendMessage(response)
         return
 
+    # snippet start
+    # poll NUM_MINUTES (NUM_OPTIONS)
+    # poll 2
+    # poll 4 3
+    # remarks
+    # A Yes/No poll is started when NUM_OPTIONS is not provided. NUM_OPTIONS may be 2-10 and will start a poll with A, B, C, etc.
     def ExecutePoll(self, msg):
-        # snippet start
-        # poll end
-        if msg.message.startswith("poll end"):
-            if not util.CheckPriv(msg.tags):
-                return f"[{msg.user}]: Regular users can't end a poll"
+        try:
+            subCommand = msg.message.lower().split()[1]
+        except IndexError:
+            subCommand = None
 
-            if not self.pollRunning:
-                return f"[{msg.user}]: No poll active."
+        if subCommand in self.pollSubCommands:
+            return self.pollSubCommands[subCommand](msg)
 
-            self.EndPoll()
-            return
-
-        # snippet start
-        # poll NUM_MINUTES (NUM_OPTIONS)
-        # poll 2
-        # poll 4 3
-        # remarks
-        # A Yes/No poll is started when NUM_OPTIONS is not provided. NUM_OPTIONS may be 2-10 and will start a poll with A, B, C, etc.
         if not util.CheckPriv(msg.tags):
             return f"[{msg.user}]: Regular users can't start a poll"
 
@@ -134,6 +134,18 @@ class PollCommands():
         self.pollRunning = True
         self.pollThread.start()
         return f"Poll running for {minutes} {minMsg}. {optionMsg}"
+
+    # snippet start
+    # poll end
+    def ExecutePollEnd(self, msg):
+        if not util.CheckPriv(msg.tags):
+            return f"[{msg.user}]: Regular users can't end a poll"
+
+        if not self.pollRunning:
+            return f"[{msg.user}]: No poll active."
+
+        self.EndPoll()
+        return
 
     # snippet start
     # vote LETTER
