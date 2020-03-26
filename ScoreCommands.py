@@ -4,8 +4,8 @@ import datetime
 import re
 
 from FlushPrint import ptf, ptfDebug
-import TwitchUtils as util
 import botconfig
+import TwitchUtils as util
 import RegGroups as groups
 
 class ScoreCommands:
@@ -21,14 +21,13 @@ class ScoreCommands:
         ptfDebug(f"leaderboard_col_name: {leaderboard_col_name}")
 
         self.activeCommands = {
-            "purecount",
-            "pureboard",
-            "curseboard",
-            "cursedboard",
-            "clearboard",
-            "clearscore",
-            "stealscore",
-            "swapscore",
+            "purecount" : self.ExecutePureCount,
+            "pureboard" : self.ExecutePureBoard,
+            "curseboard" : self.ExecuteCurseBoard,
+            "cursedboard" : self.ExecuteCurseBoard,
+            "clearboard" : self.ExecuteClearBoard,
+            "stealscore" : self.ExecuteStealScore,
+            "swapscore" : self.ExecuteSwapScore,
         }
 
         self.activeRewards = {
@@ -118,103 +117,94 @@ class ScoreCommands:
 
             return f"[{msg.user}]: You have swapped {targUser}'s score with your own! Your pure count is {targScore}/100, and theirs is {userScore}/100"
 
-    def Execute(self, msg):
-        ptfDebug("Beginning purecount Command")
+    # snippet start
+    # purecount
+    def ExecutePureCount(self, msg):
+        tempscore = random.randint(-1,101)
+        ptfDebug("tempscore: " + str(tempscore))
+        result = None;
+        result = self.leaderboard_col.find_one({"user": msg.user})
 
-        # snippet start
-        # purecount
-        if msg.message.startswith("purecount"):
-            tempscore = random.randint(-1,101)
-            ptfDebug("tempscore: " + str(tempscore))
-            result = None;
-            result = self.leaderboard_col.find_one({"user": msg.user})
+        if result == None:
+            score = tempscore
+            userObj = {
+                "user": msg.user,
+                "score": tempscore,
+                "createdAt": datetime.datetime.utcnow()
+            }
+            self.leaderboard_col.insert_one(userObj)
+        else:
+            ptfDebug(result)
+            score = result['score']
 
-            if result == None:
-                score = tempscore
-                userObj = {
-                    "user": msg.user,
-                    "score": tempscore,
-                    "createdAt": datetime.datetime.utcnow()
-                }
-                self.leaderboard_col.insert_one(userObj)
-            else:
-                ptfDebug(result)
-                score = result['score']
+        resMessage = f"[{msg.user}] Your pure count is: {str(score)}/100"
 
-            resMessage = f"[{msg.user}] Your pure count is: {str(score)}/100"
+        if score == 69:
+            resMessage += " 😎"
+        elif score >= 75:
+            resMessage += " 😇"
+        elif score <= 25:
+            resMessage += " 😈"
 
-            if score == 69:
-                resMessage += " 😎"
-            elif score >= 75:
-                resMessage += " 😇"
-            elif score <= 25:
-                resMessage += " 😈"
+        return resMessage
 
-            return resMessage
+    # Handles pureboard and curseboard based on the sort order
+    def BoardHelper(self, user, sort_order):
+        result = self.leaderboard_col.find().sort([("score", sort_order)]).limit(5)
 
-        ##############################################
+        resMessage = ""
+        for x in result:
+            resMessage += x['user'] + ": " + str(x['score']) + ", "
 
-        # snippet start
-        # pureboard
-        sort_order = 1
+        if resMessage == "":
+            return f"[{user}]: Nobody has a pure count yet!"
 
-        if msg.message.startswith("pureboard"):
-            sort_order = -1
+        resMessage = resMessage[:-2]
+        return resMessage
 
-        # snippet start
-        # curseboard
-        if msg.message.startswith("pureboard") or msg.message.startswith("curseboard") or msg.message.startswith("cursedboard"):
-            result = self.leaderboard_col.find().sort([("score", sort_order)]).limit(5)
+    # snippet start
+    # pureboard
+    def ExecutePureBoard(self, msg):
+        return self.BoardHelper(msg.user, -1)
 
-            resMessage = ""
-            for x in result:
-                resMessage += x['user'] + ": " + str(x['score']) + ", "
+    # snippet start
+    # curseboard
+    def ExecuteCurseBoard(self, msg):
+        return self.BoardHelper(msg.user, 1)
 
-            if resMessage == "":
-                return f"[{msg.user}]: Nobody has a pure count yet!"
+    # snippet start
+    # clearboard
+    # remarks
+    # Mod Only. Clears leaderboard.
+    def ExecuteClearBoard(self, msg):
+        if util.CheckPriv(msg.tags):
+            self.leaderboard_col.remove({})
+            return f"[{msg.user}]: Leaderboard cleared!"
 
-            resMessage = resMessage[:-2]
-            return resMessage
+        return f"[{msg.user}]: That command is mods-only!"
 
-        ##############################################
+    ## snippet start
+    # stealscore USER
+    # stealscore BabotzInc
+    # remarks
+    # This command requires you to spend sushi rolls.
+    def ExecuteStealScore(self, msg):
+        regmatch = re.match(f"^stealscore {groups.user}$", msg.message)
 
-        # snippet start
-        # clearboard
-        if msg.message.startswith("clearboard"):
-            if util.CheckPriv(msg.tags):
-                self.leaderboard_col.remove({})
-                return f"[{msg.user}]: Leaderboard cleared!"
+        if regmatch == None:
+            return f"[{msg.user}]: The syntax for that command is stealscore USER"
 
-            return f"[{msg.user}]: That command is mods-only!"
+        return self.StealScoreHelper(msg.user, regmatch.group(1).lower())
 
-        ##############################################
+    ## snippet start
+    # swapscore USER
+    # swapscore BabotzInc
+    # remarks
+    # This command requires you to spend sushi rolls.
+    def ExecuteSwapScore(self, msg):
+        regmatch = re.match(f"^swapscore {groups.user}$", msg.message)
 
-        ## snippet start
-        # stealscore USER
-        # stealscore BabotzInc
-        # remarks
-        # This command requires you to spend sushi rolls.
-        if msg.message.startswith("stealscore"):
-            regmatch = re.match(f"^stealscore {groups.user}$", msg.message)
+        if regmatch == None:
+            return f"[{msg.user}]: The syntax for that command is swapscore USER"
 
-            if regmatch == None:
-                ptfDebug(f"message: [{msg.message}]")
-                return f"[{msg.user}]: The syntax for that command is stealscore USER"
-
-            return self.StealScoreHelper(msg.user, regmatch.group(1).lower())
-
-        ##############################################
-
-        ## snippet start
-        # swapscore USER
-        # swapscore BabotzInc
-        # remarks
-        # This command requires you to spend sushi rolls.
-        if msg.message.startswith("swapscore"):
-            regmatch = re.match(f"^swapscore {groups.user}$", msg.message)
-
-            if regmatch == None:
-                ptfDebug(f"message: [{msg.message}]")
-                return f"[{msg.user}]: The syntax for that command is swapscore USER"
-
-            return self.SwapScoreHelper(msg.user, regmatch.group(1).lower())
+        return self.SwapScoreHelper(msg.user, regmatch.group(1).lower())

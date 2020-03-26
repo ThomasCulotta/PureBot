@@ -4,7 +4,7 @@ import datetime
 
 from BotRequests import GetGame
 from FlushPrint import ptf, ptfDebug
-from TwitchUtils import CheckPriv
+import TwitchUtils as util
 import RegGroups as groups
 
 class QuoteCommands:
@@ -20,10 +20,10 @@ class QuoteCommands:
         self.counterName = self.chan[1:] + "Counter"
 
         self.activeCommands = {
-            "quote",
+            "quote" : self.ExecuteQuote,
         }
 
-    def Execute(self,msg):
+    def ExecuteQuote(self, msg):
         ptfDebug("Beginning Quote Command")
 
         # snippet start
@@ -89,7 +89,7 @@ class QuoteCommands:
 
             if result == None:
                 return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
-            if not CheckPriv(msg.tags):
+            if not util.CheckPriv(msg.tags):
                 if result['user'] != msg.user:
                     return f"[{msg.user}]: Regular users can't edit a quote someone else added!"
                 if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
@@ -139,7 +139,7 @@ class QuoteCommands:
 
             if result == None:
                 return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
-            if not CheckPriv(msg.tags):
+            if not util.CheckPriv(msg.tags):
                 if result['user'] != msg.user:
                     return f"[{msg.user}]: Regular users can't delete a quote someone else added!"
                 if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
@@ -161,38 +161,37 @@ class QuoteCommands:
         # quote (ID)
         # quote
         # quote 123
-        if msg.message.startswith("quote"):
-            regmatch = re.match(f"^quote {groups.text}$", msg.message)
+        regmatch = re.match(f"^quote {groups.text}$", msg.message)
 
-            result = None
-            quoteID = None
-            if regmatch == None:
-                results = self.quote_col.aggregate([{ "$sample": { "size": 1 }}])
+        result = None
+        quoteID = None
+        if regmatch == None:
+            results = self.quote_col.aggregate([{ "$sample": { "size": 1 }}])
+            for item in results:
+                result = item
+        else:
+            quoteArg = regmatch.group(1)
+
+            if quoteArg.isnumeric():
+                quoteID = int(quoteArg)
+            elif quoteArg == "last":
+                quoteID = self.counter_col.find_one({"name": self.counterName})['value'] - 1
+
+            if quoteID:
+                result = self.quote_col.find_one({"id":quoteID})
+            else:
+                results = self.quote_col.aggregate([
+                    {"$match" : {"text" : {"$regex" : quoteArg, "$options" : "i"}}},
+                    {"$sample" : {"size" : 1}}])
                 for item in results:
                     result = item
-            else:
-                quoteArg = regmatch.group(1)
 
-                if quoteArg.isnumeric():
-                    quoteID = int(quoteArg)
-                elif quoteArg == "last":
-                    quoteID = self.counter_col.find_one({"name": self.counterName})['value'] - 1
+        if result == None:
+            if quoteID == None:
+                return f"[{msg.user}]: No quotes found"
 
-                if quoteID:
-                    result = self.quote_col.find_one({"id":quoteID})
-                else:
-                    results = self.quote_col.aggregate([
-                        {"$match" : {"text" : {"$regex" : quoteArg, "$options" : "i"}}},
-                        {"$sample" : {"size" : 1}}])
-                    for item in results:
-                        result = item
-
-            if result == None:
-                if quoteID == None:
-                    return f"[{msg.user}]: No quotes found"
-
-                return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
-            else:
-                formattedDate = result['date'].strftime("%x")
-                quoteID = result['id']
-                return f"[{quoteID}]: \"{result['text']}\" - {result['game']} on {formattedDate}"
+            return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
+        else:
+            formattedDate = result['date'].strftime("%x")
+            quoteID = result['id']
+            return f"[{quoteID}]: \"{result['text']}\" - {result['game']} on {formattedDate}"

@@ -4,13 +4,13 @@ import random
 import threading
 
 from FlushPrint import ptf, ptfDebug
-from TwitchUtils import SendMessage
+import TwitchUtils as util
 import RegGroups as groups
 
 class VoteBanCommands():
     def __init__(self):
         self.activeCommands = {
-            "voteban",
+            "voteban" : self.ExecuteVoteBan,
         }
 
         self.beginResponses = [
@@ -23,27 +23,27 @@ class VoteBanCommands():
         self.banThread = None
 
     def VoteBanAsync(self, user):
-        SendMessage(random.choice(self.beginResponses).format(user))
+        util.SendMessage(random.choice(self.beginResponses).format(user))
         time.sleep(1.800)
-        SendMessage(f"{user} will be banned in 3...")
+        util.SendMessage(f"{user} will be banned in 3...")
         time.sleep(0.680)
-        SendMessage("2...")
+        util.SendMessage("2...")
         time.sleep(0.880)
-        SendMessage("1...")
+        util.SendMessage("1...")
         time.sleep(1.080)
-        SendMessage(f"/me {user} is cute and important and cannot be banned from this chat GivePLZ <3")
+        util.SendMessage(f"/me {user} is cute and important and cannot be banned from this chat GivePLZ <3")
 
         self.threadRunning = False
         return
 
     # TODO: integrate optional @ for user RegGroup
-    def Execute(self, msg):
-        # snippet start
-        # voteban (@)USER
-        # voteban BabotzInc
-        # voteban @BabotzInc
-        # remarks
-        # This is a joke command.
+    # snippet start
+    # voteban (@)USER
+    # voteban BabotzInc
+    # voteban @BabotzInc
+    # remarks
+    # This is a joke command.
+    def ExecuteVoteBan(self, msg):
         regMatch = re.match(f"^voteban @?{groups.user}$", msg.message)
 
         if regMatch == None:

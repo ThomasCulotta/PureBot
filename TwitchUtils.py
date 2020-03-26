@@ -1,5 +1,6 @@
 import json
 import time
+import pymongo
 import threading
 
 from TwitchWebsocket import TwitchWebsocket

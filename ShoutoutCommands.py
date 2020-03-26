@@ -3,24 +3,24 @@ import random
 
 from BotRequests import GetUserId, GetGame
 from FlushPrint import ptf, ptfDebug
-from TwitchUtils import CheckPriv
+import TwitchUtils as util
 import RegGroups as groups
 
 class ShoutoutCommands():
     def __init__(self):
         self.activeCommands = {
-            "shoutout",
+            "shoutout" : self.ExecuteShoutout,
         }
 
-    def Execute(self, msg):
-        # snippet start
-        # shoutout (@)USER
-        # shoutout PureSushi
-        # shoutout @PureSushi
-        # remarks
-        # Mod Only. Promotes the given user's channel.
+    # snippet start
+    # shoutout (@)USER
+    # shoutout PureSushi
+    # shoutout @PureSushi
+    # remarks
+    # Mod Only. Promotes the given user's channel.
+    def ExecuteShoutout(self, msg):
         if msg.message.startswith("shoutout"):
-            if not CheckPriv(msg.tags):
+            if not util.CheckPriv(msg.tags):
                 return f"[{msg.user}]: Regular users can't shoutout"
 
             regMatch = re.match(f"^shoutout @{groups.user}$", msg.message)

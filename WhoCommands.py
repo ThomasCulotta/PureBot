@@ -4,7 +4,7 @@ import random
 import pymongo
 
 from FlushPrint import ptf, ptfDebug
-from TwitchUtils import CheckPriv
+import TwitchUtils as util
 import RegGroups as groups
 
 class WhoCommands():
@@ -17,20 +17,19 @@ class WhoCommands():
         ptfDebug(f"colNameWho: {colNameWho}")
 
         self.activeCommands = {
-            "who",
+            "who" : self.ExecuteWho,
         }
 
-    def Execute(self, msg):
-
+    def ExecuteWho(self, msg):
         # snippet start
         # who add @USER TEXT
         # who add @BabotzInc Hello I'm a Babotz quote
         # remarks
-        # @ing the user is required. Type @ and use Twitch's username autocomplete to ensure the correct username is given.
+        # @ing the user is required. Type @ and use Twitch's username picker/autocomplete to ensure the correct username is given.
         if msg.message.startswith("who add"):
             regMatch = re.match(f"^who add @{groups.user} {groups.text}$", msg.message)
 
-            if not CheckPriv(msg.tags):
+            if not util.CheckPriv(msg.tags):
                 return f"[{msg.user}]: Regular users can't add a who quote!"
 
             if regMatch == None:
@@ -80,11 +79,11 @@ class WhoCommands():
         # who del @USER ID
         # who del @BabotzInc 12
         # remarks
-        # @ing the user is required. Type @ and use Twitch's username autocomplete to ensure the correct username is given.
+        # @ing the user is required. Type @ and use Twitch's username picker/autocomplete to ensure the correct username is given.
         if msg.message.startswith("who del"):
             regMatch = re.match(f"^who del @{groups.user} {groups.idOrLast}$", msg.message)
 
-            if not CheckPriv(msg.tags):
+            if not util.CheckPriv(msg.tags):
                 return f"[{msg.user}]: Regular users can't delete a who quote!"
 
             if regMatch == None:
@@ -130,44 +129,43 @@ class WhoCommands():
         # who @BabotzInc 14
         # remarks
         # When no username is given, this command defaults to your own quotes.
-        if msg.message.startswith("who"):
-            regMatch = re.match(f"^who @{groups.user} {groups.num}$", msg.message)
+        regMatch = re.match(f"^who @{groups.user} {groups.num}$", msg.message)
 
-            # TODO: clean this up
+        # TODO: clean this up
+        if regMatch == None:
+            regMatch = re.match(f"^who @{groups.user}$", msg.message)
+            quoteId = None
+
             if regMatch == None:
-                regMatch = re.match(f"^who @{groups.user}$", msg.message)
-                quoteId = None
+                regMatch = re.match(f"^who {groups.num}$", msg.message)
+                userName = msg.user
 
                 if regMatch == None:
-                    regMatch = re.match(f"^who {groups.num}$", msg.message)
-                    userName = msg.user
+                    regMatch = re.match(f"^who$", msg.message)
 
                     if regMatch == None:
-                        regMatch = re.match(f"^who$", msg.message)
-
-                        if regMatch == None:
-                            return f"[{msg.user}]: The syntax for that command is: who (@USER) (ID)"
-                    else:
-                        quoteId = regMatch.group(1)
+                        return f"[{msg.user}]: The syntax for that command is: who (@USER) (ID)"
                 else:
-                    userName = regMatch.group(1).lower()
+                    quoteId = regMatch.group(1)
             else:
                 userName = regMatch.group(1).lower()
-                quoteId = regMatch.group(2)
+        else:
+            userName = regMatch.group(1).lower()
+            quoteId = regMatch.group(2)
 
 
-            result = self.colWho.find_one({"user":userName})
+        result = self.colWho.find_one({"user":userName})
 
-            if result == None:
-                return f"[{msg.user}]: No quotes from {userName}"
+        if result == None:
+            return f"[{msg.user}]: No quotes from {userName}"
 
-            quoteBank = json.loads(result['quotes'])
+        quoteBank = json.loads(result['quotes'])
 
-            if quoteId == None:
-                quoteId, quote = random.choice(list(quoteBank.items()))
-            elif quoteId in quoteBank:
-                quote = quoteBank[quoteId]
-            else:
-                return f"[{msg.user}]: No quote from {userName} with id {quoteId}"
+        if quoteId == None:
+            quoteId, quote = random.choice(list(quoteBank.items()))
+        elif quoteId in quoteBank:
+            quote = quoteBank[quoteId]
+        else:
+            return f"[{msg.user}]: No quote from {userName} with id {quoteId}"
 
-            return f"[{userName} {quoteId}]: {quote}"
+        return f"[{userName} {quoteId}]: {quote}"

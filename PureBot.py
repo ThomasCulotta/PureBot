@@ -63,10 +63,8 @@ class PureBot:
 
         for cmd in self.commands.values():
             if hasattr(cmd, "activeCommands"):
-                for activeCommand in cmd.activeCommands:
-                    self.execute[activeCommand] = cmd.Execute
+                self.execute = {**self.execute, **cmd.activeCommands}
 
-            # TODO: Evaluate if this would be a better layout for commands (separate mapped functions). Already leaning toward yes
             if hasattr(cmd, "activeRewards"):
                 self.redeem = {**self.redeem, **cmd.activeRewards}
 

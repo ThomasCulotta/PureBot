@@ -6,21 +6,22 @@ from FlushPrint import ptf, ptfDebug
 class TimeCommands():
     def __init__(self):
         self.activeCommands = {
-            "uptime",
+            "uptime" : self.ExecuteUptime,
         }
 
-    def Execute(self, msg):
-        if msg.message.startswith("uptime"):
-            startTimeStr = GetStartTime()
+    # snippet start
+    # uptime
+    def ExecuteUptime(self, msg):
+        startTimeStr = GetStartTime()
 
-            if startTimeStr == None:
-                return f"[{msg.user}]: Uptime is unavailable."
+        if startTimeStr == None:
+            return f"[{msg.user}]: Uptime is unavailable."
 
-            startTime = datetime.datetime.fromisoformat(startTimeStr)
-            currentTime = datetime.datetime.utcnow()
-            seconds = (currentTime - startTime).total_seconds()
+        startTime = datetime.datetime.fromisoformat(startTimeStr)
+        currentTime = datetime.datetime.utcnow()
+        seconds = (currentTime - startTime).total_seconds()
 
-            hours, seconds = divmod(seconds, 3600)
-            minutes, seconds = divmod(seconds, 60)
+        hours, seconds = divmod(seconds, 3600)
+        minutes, seconds = divmod(seconds, 60)
 
-            return f"Stream uptime: {int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds"
+        return f"Stream uptime: {int(hours)} hours, {int(minutes)} minutes, {int(seconds)} seconds"

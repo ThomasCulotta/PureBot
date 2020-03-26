@@ -83,9 +83,12 @@ def GetStartTime():
     loginParam = { "user_login" : hostName }
 
     response = requests.get(f"{helixEndpoint}/streams", params=loginParam, headers=helixHeader)
-    streamData = response.json()["data"][0]
+    streamData = response.json()["data"]
 
-    if "started_at" in streamData:
-        return streamData["started_at"][:-1]
+    if len(streamData) > 0:
+        streamData = streamData[0]
+
+        if "started_at" in streamData:
+            return streamData["started_at"][:-1]
 
     return None
