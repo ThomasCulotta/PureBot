@@ -26,11 +26,11 @@ class WhoCommands():
         }
 
     # snippet start
-    # who (@USER) (ID)
+    # who (USER) (ID)
     # who
     # who 14
     # who @BabotzInc
-    # who @BabotzInc 14
+    # who BabotzInc 14
     # remarks
     # When no username is given, this command defaults to your own quotes.
     def ExecuteWho(self, msg):
@@ -42,11 +42,11 @@ class WhoCommands():
         if subCommand in self.whoSubCommands:
             return self.whoSubCommands[subCommand](msg)
 
-        regMatch = re.match(f"^who @{groups.user} {groups.num}$", msg.message)
+        regMatch = re.match(f"^who {groups.user} {groups.num}$", msg.message)
 
         # TODO: clean this up
         if regMatch == None:
-            regMatch = re.match(f"^who @{groups.user}$", msg.message)
+            regMatch = re.match(f"^who {groups.user}$", msg.message)
             quoteId = None
 
             if regMatch == None:
@@ -57,7 +57,7 @@ class WhoCommands():
                     regMatch = re.match(f"^who$", msg.message)
 
                     if regMatch == None:
-                        return f"[{msg.user}]: The syntax for that command is: who (@USER) (ID)"
+                        return f"[{msg.user}]: The syntax for that command is: who (USER) (ID)"
                 else:
                     quoteId = regMatch.group(1)
             else:
@@ -84,21 +84,24 @@ class WhoCommands():
         return f"[{userName} {quoteId}]: {quote}"
 
     # snippet start
-    # who add @USER TEXT
+    # who add USER TEXT
     # who add @BabotzInc Hello I'm a Babotz quote
     # remarks
-    # @ing the user is required. Type @ and use Twitch's username picker/autocomplete to ensure the correct username is given.
+    # @ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
     def ExecuteWhoAdd(self, msg):
-        regMatch = re.match(f"^who add @{groups.user} {groups.text}$", msg.message)
+        regMatch = re.match(f"^who add {groups.user} {groups.text}$", msg.message)
 
         if not util.CheckPriv(msg.tags):
             return f"[{msg.user}]: Regular users can't add a who quote!"
 
         if regMatch == None:
-            return f"[{msg.user}]: The syntax for that command is: who add @USER TEXT"
+            return f"[{msg.user}]: The syntax for that command is: who add USER TEXT"
 
         userName = regMatch.group(1).lower()
         quote = regMatch.group(2)
+
+        if GetUserId(user) == None:
+            return f"[{msg.user}]: {user} is not an existing username."
 
         result = self.colWho.find_one(
             {"user": userName}
@@ -136,21 +139,24 @@ class WhoCommands():
         return f"[{msg.user}]: Your quote for user {userName} has been added with id {quoteId}!"
 
     # snippet start
-    # who del @USER ID
+    # who del USER ID
     # who del @BabotzInc 12
     # remarks
-    # @ing the user is required. Type @ and use Twitch's username picker/autocomplete to ensure the correct username is given.
+    # @ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
     def ExecuteWhoDel(self, msg):
-        regMatch = re.match(f"^who del @{groups.user} {groups.idOrLast}$", msg.message)
+        regMatch = re.match(f"^who del {groups.user} {groups.idOrLast}$", msg.message)
 
         if not util.CheckPriv(msg.tags):
             return f"[{msg.user}]: Regular users can't delete a who quote!"
 
         if regMatch == None:
-            return f"[{msg.user}]: The syntax for that command is: who del @USER NUMBER"
+            return f"[{msg.user}]: The syntax for that command is: who del USER NUMBER"
 
         userName = regMatch.group(1).lower()
         quoteId = regMatch.group(2)
+
+        if GetUserId(user) == None:
+            return f"[{msg.user}]: {user} is not an existing username."
 
         result = self.colWho.find_one({"user":userName})
 

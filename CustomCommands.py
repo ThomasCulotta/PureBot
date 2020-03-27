@@ -86,7 +86,7 @@ class CustomCommands:
     def Execute(self, msg):
         ptfDebug("Beginning Custom Command")
 
-        tokens = msg.message.lower().split(" ")
+        tokens = msg.message.lower().split()
 
         if tokens[0] in self.customCommandList:
             util.LogReceived(msg.type, msg.user, msg.message, msg.tags)

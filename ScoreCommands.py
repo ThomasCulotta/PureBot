@@ -45,7 +45,7 @@ class ScoreCommands:
 
     def RedeemStealScore(self, msg):
         util.RedeemReward(msg.user, self.rewardStealId)
-        regMatch = re.match(f"^@?{groups.user}$", msg.message)
+        regMatch = re.match(f"^{groups.user}$", msg.message)
 
         if regMatch == None:
             return f"[{msg.user}]: You've redeemed stealscore. At any time, use the command stealscore USER"
@@ -54,7 +54,7 @@ class ScoreCommands:
 
     def RedeemSwapScore(self, msg):
         util.RedeemReward(msg.user, self.rewardSwapId)
-        regMatch = re.match(f"^@?{groups.user}$", msg.message)
+        regMatch = re.match(f"^{groups.user}$", msg.message)
 
         if regMatch == None:
             return f"[{msg.user}]: You've redeemed swapscore. At any time, use the command swapscore USER"

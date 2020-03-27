@@ -36,15 +36,14 @@ class VoteBanCommands():
         self.threadRunning = False
         return
 
-    # TODO: integrate optional @ for user RegGroup
     # snippet start
-    # voteban (@)USER
+    # voteban USER
     # voteban BabotzInc
     # voteban @BabotzInc
     # remarks
     # This is a joke command.
     def ExecuteVoteBan(self, msg):
-        regMatch = re.match(f"^voteban @?{groups.user}$", msg.message)
+        regMatch = re.match(f"^voteban {groups.user}$", msg.message)
 
         if regMatch == None:
             return f"[{msg.user}]: The syntax for that command is: voteban USER"

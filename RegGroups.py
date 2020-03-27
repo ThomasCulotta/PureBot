@@ -1,4 +1,4 @@
 num = "(\d+?)"
-user = "(\w+?)"
+user = "@?(\w+?)"
 text = "(.+?)"
 idOrLast = "(\d+?|last)"

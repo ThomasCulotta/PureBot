@@ -81,7 +81,7 @@ class PureBot:
 
         # Check for valid message with prefix and valid rewards
         validReward = "custom-reward-id" in m.tags
-        validCommand = m.message != None and m.message.startswith(self.prefix)
+        validCommand = m.message != None and m.message[0] == self.prefix
 
         if (not validReward and
             not validCommand):
@@ -95,7 +95,7 @@ class PureBot:
             if validCommand:
                 # Retrieve first word without prefix
                 m.message = m.message[1:]
-                token = m.message.lower().split(" ")[0]
+                token = m.message.lower().split()[0]
 
                 if (token in self.execute):
                     LogReceived(m.type, m.user, m.message, m.tags)
