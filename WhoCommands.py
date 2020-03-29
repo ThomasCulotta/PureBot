@@ -101,7 +101,7 @@ class WhoCommands():
         userName = regMatch.group(1).lower()
         quote = regMatch.group(2)
 
-        if GetUserId(user) == None:
+        if GetUserId(userName) == None:
             return f"[{msg.user}]: {user} is not an existing username."
 
         result = self.colWho.find_one(
