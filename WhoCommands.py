@@ -4,6 +4,7 @@ import random
 import pymongo
 
 from FlushPrint import ptf, ptfDebug
+from BotRequests import GetUserId
 import TwitchUtils as util
 import RegGroups as groups
 
