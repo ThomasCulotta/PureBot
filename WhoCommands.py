@@ -26,6 +26,16 @@ class WhoCommands():
             "del" : self.ExecuteWhoDel,
         }
 
+        # Ordered list of patterns to match against for who command
+        self.whoRegex = [
+            re.compile(f"^who {groups.user} {groups.num}"),
+            re.compile(f"^who {groups.num}"),
+            re.compile(f"^who {groups.user}"),
+        ]
+
+        self.whoAddRegex = re.compile(f"^who add {groups.user} {groups.text}$")
+        self.whoDelRegex = re.compile(f"^who del {groups.user} {groups.idOrLast}")
+
     # snippet start
     # who (USER) (ID)
     # who
@@ -43,30 +53,18 @@ class WhoCommands():
         if subCommand in self.whoSubCommands:
             return self.whoSubCommands[subCommand](msg)
 
-        regMatch = re.match(f"^who {groups.user} {groups.num}$", msg.message)
+        # Get the first valid match from whoRegex list
+        regMatch = next((exp.match(msg.message) for exp in self.whoRegex if exp.match(msg.message) != None), None)
 
-        # TODO: clean this up
-        if regMatch == None:
-            regMatch = re.match(f"^who {groups.user}$", msg.message)
+        try:
+            quoteId = regMatch.group("num0")
+        except IndexError:
             quoteId = None
 
-            if regMatch == None:
-                regMatch = re.match(f"^who {groups.num}$", msg.message)
-                userName = msg.user
-
-                if regMatch == None:
-                    regMatch = re.match(f"^who$", msg.message)
-
-                    if regMatch == None:
-                        return f"[{msg.user}]: The syntax for that command is: who (USER) (ID)"
-                else:
-                    quoteId = regMatch.group(1)
-            else:
-                userName = regMatch.group(1).lower()
-        else:
-            userName = regMatch.group(1).lower()
-            quoteId = regMatch.group(2)
-
+        try:
+            userName = regMatch.group("user")
+        except IndexError:
+            userName = msg.user
 
         result = self.colWho.find_one({"user":userName})
 
@@ -90,16 +88,16 @@ class WhoCommands():
     # remarks
     # @ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
     def ExecuteWhoAdd(self, msg):
-        regMatch = re.match(f"^who add {groups.user} {groups.text}$", msg.message)
-
         if not util.CheckPriv(msg.tags):
             return f"[{msg.user}]: Regular users can't add a who quote!"
+
+        regMatch = self.whoAddRegex.match(msg.message)
 
         if regMatch == None:
             return f"[{msg.user}]: The syntax for that command is: who add USER TEXT"
 
-        userName = regMatch.group(1).lower()
-        quote = regMatch.group(2)
+        userName = regMatch.group("user").lower()
+        quote = regMatch.group("text")
 
         if GetUserId(userName) == None:
             return f"[{msg.user}]: {user} is not an existing username."
@@ -108,12 +106,12 @@ class WhoCommands():
             {"user": userName}
         )
 
-        newCol = False
-        quoteBank = {}
         if result == None:
             newCol = True
             quoteId = 1
+            quoteBank = {}
         else:
+            newCol = False
             quoteId = result['counter']
             quoteBank = json.loads(result['quotes'])
 
@@ -121,18 +119,18 @@ class WhoCommands():
         ptfDebug(f"{userName} : {quote}")
 
         if newCol:
-            userObj = {
-                "user": userName,
-                "quotes": json.dumps(quoteBank),
-                "counter": int(quoteId)+1,
-            }
-            self.colWho.insert_one(userObj)
+            self.colWho.insert_one( {
+                    "user": userName,
+                    "quotes": json.dumps(quoteBank),
+                    "counter": int(quoteId)+1,
+                }
+            )
         else:
             self.colWho.update_one(
                 {"user": userName},
                 {"$set": {
-                    "quotes": json.dumps(quoteBank),
-                    "counter": int(quoteId)+1
+                        "quotes": json.dumps(quoteBank),
+                        "counter": int(quoteId)+1
                     }
                 }
             )
@@ -145,16 +143,16 @@ class WhoCommands():
     # remarks
     # @ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
     def ExecuteWhoDel(self, msg):
-        regMatch = re.match(f"^who del {groups.user} {groups.idOrLast}$", msg.message)
-
         if not util.CheckPriv(msg.tags):
             return f"[{msg.user}]: Regular users can't delete a who quote!"
+
+        regMatch = self.whoDelRegex.match(msg.message)
 
         if regMatch == None:
             return f"[{msg.user}]: The syntax for that command is: who del USER NUMBER"
 
-        userName = regMatch.group(1).lower()
-        quoteId = regMatch.group(2)
+        userName = regMatch.group("user").lower()
+        quoteId = regMatch.group("idOrLast")
 
         if GetUserId(user) == None:
             return f"[{msg.user}]: {user} is not an existing username."
