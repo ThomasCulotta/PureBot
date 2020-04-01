@@ -10,6 +10,8 @@ class DiceCommands():
             "roll" : self.ExecuteRoll,
         }
 
+        self.rollRegex = re.compile(f"^roll {groups.num}d{groups.num1}")
+
     # snippet start
     # roll NUMdNUM
     # roll 1d20
@@ -17,13 +19,13 @@ class DiceCommands():
     # remarks
     # Between 1 and 10 dice may be rolled. Dice options are d2 to d100.
     def ExecuteRoll(self, msg):
-        regMatch = re.match(f"^roll {groups.num}d{groups.num}$", msg.message)
+        regMatch = self.rollRegex.match(msg.message)
 
         if regMatch == None:
             return f"[{msg.user}]: The syntax for that command is: roll NUMdNUM (roll 1d20)"
 
-        num = int(regMatch.group(1))
-        die = int(regMatch.group(2))
+        num = int(regMatch.group("num0"))
+        die = int(regMatch.group("num1"))
 
         if (num < 1 or
             num > 10):

@@ -22,6 +22,8 @@ class VoteBanCommands():
         self.threadRunning = False
         self.banThread = None
 
+        self.voteBanRegex = re.compile(f"^voteban {groups.user}")
+
     def VoteBanAsync(self, user):
         util.SendMessage(random.choice(self.beginResponses).format(user))
         time.sleep(1.800)
@@ -43,15 +45,15 @@ class VoteBanCommands():
     # remarks
     # This is a joke command.
     def ExecuteVoteBan(self, msg):
-        regMatch = re.match(f"^voteban {groups.user}$", msg.message)
+        if self.threadRunning:
+            return f"[{msg.user}]: Busy banning someone else."
+
+        regMatch = self.voteBanRegex.match(msg.message)
 
         if regMatch == None:
             return f"[{msg.user}]: The syntax for that command is: voteban USER"
 
-        if self.threadRunning:
-            return f"[{msg.user}]: Busy banning someone else."
-
-        user = regMatch.group(1)
+        user = regMatch.group("user")
 
         self.threadRunning = True
         self.banThread = threading.Thread(target=self.VoteBanAsync, args=[user])

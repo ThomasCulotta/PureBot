@@ -29,10 +29,22 @@ class QuoteCommands:
             "change" : self.ExecuteQuoteChange,
         }
 
+        self.quoteRegex = [
+            re.compile(f"^quote {groups.idOrLast}"),
+            re.compile(f"^quote {groups.text}$"),
+        ]
+
+        self.quoteAddRegex = re.compile(f"^quote add {groups.text}$")
+        self.quoteDelRegex = re.compile(f"^quote del {groups.idOrLast}")
+        self.quoteChangeRegex = re.compile(f"^quote change {groups.num} {groups.text}$")
+
     # snippet start
-    # quote (ID)
+    # quote (ID/TEXT)
     # quote
     # quote 123
+    # quote hello
+    # remarks
+    # When "quote TEXT" is used, a random quote with the given text in it is returned.
     def ExecuteQuote(self, msg):
         ptfDebug("Beginning Quote Command")
         try:
@@ -43,7 +55,8 @@ class QuoteCommands:
         if subCommand in self.quoteSubCommands:
             return self.quoteSubCommands[subCommand](msg)
 
-        regmatch = re.match(f"^quote {groups.text}$", msg.message)
+        # Get the first valid match from whoRegex list
+        regmatch = next((exp.match(msg.message) for exp in self.quoteRegex if exp.match(msg.message) != None), None)
 
         result = None
         quoteID = None
@@ -52,19 +65,26 @@ class QuoteCommands:
             for item in results:
                 result = item
         else:
-            quoteArg = regmatch.group(1)
+            try:
+                quoteArg = regmatch.group("idOrLast")
+            except IndexError:
+                quoteArg = None
 
-            if quoteArg.isnumeric():
-                quoteID = int(quoteArg)
-            elif quoteArg == "last":
-                quoteID = self.counter_col.find_one({"name": self.counterName})['value'] - 1
+            if quoteArg != None:
+                if quoteArg.isnumeric():
+                    quoteID = int(quoteArg)
+                else:
+                    quoteID = self.counter_col.find_one({"name": self.counterName})['value'] - 1
 
-            if quoteID:
-                result = self.quote_col.find_one({"id":quoteID})
+                if quoteID:
+                    result = self.quote_col.find_one({"id":quoteID})
             else:
+                quoteArg = regmatch.group("text")
+
                 results = self.quote_col.aggregate([
                     {"$match" : {"text" : {"$regex" : quoteArg, "$options" : "i"}}},
                     {"$sample" : {"size" : 1}}])
+
                 for item in results:
                     result = item
 
@@ -84,11 +104,11 @@ class QuoteCommands:
     # remarks
     # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
     def ExecuteQuoteAdd(self, msg):
-        regmatch = re.match(f"^quote add {groups.text}$", msg.message)
+        regmatch = self.quoteAddRegex.match(msg.message)
+
         if regmatch == None:
             return f"[{msg.user}]: The syntax for that command is: quote add TEXT"
 
-        result = None
         result = self.counter_col.find_one_and_update(
             {"name": self.counterName},
             {'$inc': {'value':1}},
@@ -105,8 +125,8 @@ class QuoteCommands:
         if gameName == None:
             gameName = "[Unknown Game]"
 
-        quoteText = regmatch.group(1)
-        quoteText.strip("\"")
+        quoteText = regmatch.group("text")
+        quoteText.strip("\"'")
 
         ptfDebug(quoteText)
         quoteObj = {
@@ -116,6 +136,7 @@ class QuoteCommands:
             "game": gameName,
             "date": datetime.datetime.now()
         }
+
         self.quote_col.insert_one(quoteObj)
         return f"[{msg.user}]: Your quote has been added with id {quoteID}!"
 
@@ -124,14 +145,13 @@ class QuoteCommands:
     # quote del 123
     # quote del last
     def ExecuteQuoteDel(self, msg):
-        regmatch = re.match(f"^quote del {groups.idOrLast}$", msg.message)
+        regmatch = self.quoteDelRegex.match(msg.message)
 
         if regmatch == None:
             return f"[{msg.user}]: The syntax for that command is: quote del NUMBER"
 
         deleteFlag = False
 
-        result = None
         result = self.counter_col.find_one({"name": self.counterName})
 
         if result == None:
@@ -140,33 +160,34 @@ class QuoteCommands:
 
         lastquoteID = int(result['value']) - 1
 
-        if regmatch.group(1) == "last":
+        quoteIdOrLast = regmatch.group("idOrLast")
+        if quoteIdOrLast.lower() == "last":
             deleteFlag = True
             quoteID = lastquoteID
         else:
-            quoteID = int(regmatch.group(1))
+            quoteID = int(quoteIdOrLast)
 
             if quoteID == lastquoteID:
                 deleteFlag = True
 
-        result = None
         result = self.quote_col.find_one({"id":quoteID})
 
         if result == None:
             return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
+
         if not util.CheckPriv(msg.tags):
             if result['user'] != msg.user:
                 return f"[{msg.user}]: Regular users can't delete a quote someone else added!"
+
             if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
                 return f"[{msg.user}]: Regular users can't delete a quote except on the day it was added!"
 
         ptfDebug(f"Deleting quoteID: {quoteID}")
 
+        self.quote_col.delete_one({"id":quoteID})
+
         if deleteFlag:
-            self.quote_col.delete_one({"id":quoteID})
             self.counter_col.update_one({"name": self.counterName}, {'$inc': {'value':-1}})
-        else:
-            self.quote_col.delete_one({"id":quoteID})
 
         return f"[{msg.user}]: Deleted quote #{quoteID}!"
 
@@ -176,23 +197,25 @@ class QuoteCommands:
     # remarks
     # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
     def ExecuteQuoteChange(self, msg):
-        regmatch = re.match(f"^quote change {groups.num} {groups.text}$", msg.message)
+        regmatch = self.quoteChangeRegex.match(msg.message)
+
         if regmatch == None:
             return f"[{msg.user}]: The syntax for that command is: quote change NUMBER TEXT"
 
-        quoteID = int(regmatch.group(1))
-        newQuote = regmatch.group(2)
-        newQuote.strip("\"")
+        quoteID = int(regmatch.group("num0"))
+        newQuote = regmatch.group("text")
+        newQuote.strip("\"'")
         ptfDebug(newQuote)
 
-        result = None
         result = self.quote_col.find_one({"id":quoteID})
 
         if result == None:
             return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
+
         if not util.CheckPriv(msg.tags):
             if result['user'] != msg.user:
                 return f"[{msg.user}]: Regular users can't edit a quote someone else added!"
+
             if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
                 return f"[{msg.user}]: Regular users can't edit a quote except on the day it was added!"
 

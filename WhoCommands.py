@@ -58,12 +58,12 @@ class WhoCommands():
 
         try:
             quoteId = regMatch.group("num0")
-        except IndexError:
+        except (IndexError, AttributeError):
             quoteId = None
 
         try:
             userName = regMatch.group("user")
-        except IndexError:
+        except (IndexError, AttributeError):
             userName = msg.user
 
         result = self.colWho.find_one({"user":userName})
@@ -154,8 +154,8 @@ class WhoCommands():
         userName = regMatch.group("user").lower()
         quoteId = regMatch.group("idOrLast")
 
-        if GetUserId(user) == None:
-            return f"[{msg.user}]: {user} is not an existing username."
+        if GetUserId(userName) == None:
+            return f"[{msg.user}]: {userName} is not an existing username."
 
         result = self.colWho.find_one({"user":userName})
 
@@ -165,7 +165,7 @@ class WhoCommands():
         quoteBank = json.loads(result['quotes'])
         deletedQuote = None
 
-        if quoteId == "last":
+        if quoteId.lower() == "last":
             deletedId, deletedQuote = quoteBank.sort_by_key().pop_back()##################
         else:
             deletedQuote = quoteBank.pop(quoteId, None)

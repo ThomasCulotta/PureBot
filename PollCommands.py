@@ -26,6 +26,13 @@ class PollCommands():
             "end" : self.ExecutePollEnd,
         }
 
+        self.pollRegex = [
+            re.compile(f"^poll {groups.num} {groups.num1}"),
+            re.compile(f"^poll {groups.num}"),
+        ]
+
+        self.voteRegex = re.compile(f"^vote {groups.text}$")
+
     def PollAsync(self):
         while self.pollTimeout >= 30:
             time.sleep(30)
@@ -99,21 +106,21 @@ class PollCommands():
 
         self.pollThread = threading.Thread(target=self.PollAsync)
 
-        regMatch = re.match(f"^poll {groups.num} {groups.num}$", msg.message)
-        optionMsg = "Vote "
+        # Get the first valid match from pollRegex list
+        regMatch = next((exp.match(msg.message) for exp in self.pollRegex if exp.match(msg.message) != None), None)
 
         if regMatch == None:
-            regMatch = re.match(f"^poll {groups.num}$", msg.message)
+            return f"[{msg.user}]: The syntax for that command is: poll NUM_MINUTES (NUM_CHOICES)"
 
-            if regMatch == None:
-                return f"[{msg.user}]: The syntax for that command is: poll NUM_MINUTES (NUM_CHOICES)"
+        optionMsg = "Vote "
 
-            self.voteCollection["y"] = 0
-            self.voteCollection["n"] = 0
+        self.pollTimeout = int(regMatch.group("num0")) * 60
 
-            optionMsg += "Y/N"
-        else:
-            numChoices = int(regMatch.group(2))
+        if self.pollTimeout <= 0:
+            self.pollTimeout == 60
+
+        try:
+            numChoices = int(regMatch.group("num1"))
 
             if numChoices < 2 or numChoices > 10:
                 return f"[{msg.user}]: Number of voting options must be between 2 and 10."
@@ -122,11 +129,11 @@ class PollCommands():
                 self.voteCollection[chr(ord("a") + i)] = 0
 
             optionMsg += f"A-{max(self.voteCollection.keys()).upper()}"
+        except IndexError:
+            self.voteCollection["y"] = 0
+            self.voteCollection["n"] = 0
 
-        self.pollTimeout = int(regMatch.group(1)) * 60
-
-        if self.pollTimeout <= 0:
-            self.pollTimeout == 60
+            optionMsg += "Y/N"
 
         minutes = int(self.pollTimeout / 60)
         minMsg = "minute" if minutes == 1 else "minutes"
@@ -151,18 +158,18 @@ class PollCommands():
     # vote LETTER
     # vote y
     def ExecuteVote(self, msg):
-        regMatch = re.match(f"^vote {groups.text}$", msg.message)
-
         if not self.pollRunning:
             return f"[{msg.user}]: Nothing to vote for."
-
-        if regMatch == None:
-            return f"[{msg.user}]: The syntax for that command is: vote LETTER"
 
         if msg.user in self.voters:
             return f"[{msg.user}]: You already voted in this poll."
 
-        vote = regMatch.group(1)[0].lower()
+        regMatch = self.voteRegex.match(msg.message)
+
+        if regMatch == None:
+            return f"[{msg.user}]: The syntax for that command is: vote LETTER"
+
+        vote = regMatch.group("text")[0].lower()
 
         if vote not in self.voteCollection:
             return f"[{msg.user}]: {vote} is not a valid option for this poll."

@@ -12,6 +12,8 @@ class ShoutoutCommands():
             "shoutout" : self.ExecuteShoutout,
         }
 
+        self.shoutoutRegex = re.compile(f"^shoutout {groups.user}")
+
     # snippet start
     # shoutout USER
     # shoutout PureSushi
@@ -22,12 +24,12 @@ class ShoutoutCommands():
         if not util.CheckPriv(msg.tags):
             return f"[{msg.user}]: Regular users can't shoutout"
 
-        regMatch = re.match(f"^shoutout {groups.user}$", msg.message)
+        regMatch = self.shoutoutRegex.match(msg.message)
 
         if regMatch == None:
             return f"[{msg.user}]: The syntax for that command is: shoutout USER"
 
-        user = regMatch.group(1)
+        user = regMatch.group("user")
 
         if GetUserId(user) == None:
             return f"[{msg.user}]: {user} is not an existing username."

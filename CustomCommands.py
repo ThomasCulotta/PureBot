@@ -11,10 +11,13 @@ class CustomCommands:
         with open('CustomCommands.json', 'r') as file:
             self.customCommandList = json.load(file)
 
-            self.activeCommands = {
-                "addcom" : self.ExecuteAddCom,
-                "delcom" : self.ExecuteDelCom,
-            }
+        self.activeCommands = {
+            "addcom" : self.ExecuteAddCom,
+            "delcom" : self.ExecuteDelCom,
+        }
+
+        self.addComRegex = re.compile(f"^addcom (.+? \[ARG\]|.+?) {groups.text}$")
+        self.delComRegex = re.compile(f"^delcom {groups.text}$")
 
     # snippet start
     # addcom COMMAND TEXT
@@ -23,11 +26,13 @@ class CustomCommands:
         if not util.CheckPriv(msg.tags) and not util.CheckDev():
             return f"[{msg.user}]: Regular users can't add commands! Please ask a mod to add it for you."
 
-        regmatch = re.match(f"^addcom (.+? \[ARG\]|.+?) {groups.text}$", msg.message)
+        regmatch = self.addComRegex.match(msg.message)
+
         if regmatch == None:
             return f"[{msg.user}]: The syntax for that command is: addcom TEXT TEXT"
+
         newCommand = regmatch.group(1).lower()
-        newCommandText = regmatch.group(2)
+        newCommandText = regmatch.group("text")
 
         with open('CustomCommands.json', 'r') as file:
             self.customCommandList = json.load(file)
@@ -55,10 +60,12 @@ class CustomCommands:
         if not util.CheckPriv(msg.tags) and not util.CheckDev():
             return f"[{msg.user}]: Regular users can't delete commands! Please ask a mod to delete it for you."
 
-        regmatch = re.match(f"^delcom {groups.text}$", msg.message)
+        regmatch = self.delComRegex.match(msg.message)
+
         if regmatch == None:
             return f"[{msg.user}]: The syntax for that command is: delcom TEXT"
-        command = regmatch.group(1).lower()
+
+        command = regmatch.group("text").lower()
 
         with open('CustomCommands.json', 'r') as file:
             self.customCommandList = json.load(file)

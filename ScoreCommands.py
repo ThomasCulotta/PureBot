@@ -39,27 +39,31 @@ class ScoreCommands:
         self.rewardStealId = "stealScore"
         self.rewardSwapId = "swapScore"
 
+        self.redeemStealSwapScoreRegex = re.compile(f"^{groups.user}")
+        self.stealScoreRegex = re.compile(f"^stealscore {groups.user}")
+        self.swapScoreRegex = re.compile(f"^swapscore {groups.user}")
+
     def RedeemClearScore(self, msg):
         self.leaderboard_col.remove({"user": msg.user})
         return f"[{msg.user}]: Your score has been cleared!"
 
     def RedeemStealScore(self, msg):
         util.RedeemReward(msg.user, self.rewardStealId)
-        regMatch = re.match(f"^{groups.user}$", msg.message)
+        regMatch = self.redeemStealSwapScoreRegex.match(msg.message)
 
         if regMatch == None:
             return f"[{msg.user}]: You've redeemed stealscore. At any time, use the command stealscore USER"
-        else:
-            StealScoreHelper(msg.user, regMatch.group(1))
+
+        return self.StealScoreHelper(msg.user, regMatch.group("user"))
 
     def RedeemSwapScore(self, msg):
         util.RedeemReward(msg.user, self.rewardSwapId)
-        regMatch = re.match(f"^{groups.user}$", msg.message)
+        regMatch = self.redeemStealSwapScoreRegex.match(msg.message)
 
         if regMatch == None:
             return f"[{msg.user}]: You've redeemed swapscore. At any time, use the command swapscore USER"
-        else:
-            SwapScoreHelper(msg.user, regMatch.group(1))
+
+        return self.SwapScoreHelper(msg.user, regMatch.group("user"))
 
     def StealScoreHelper(self, user, targUser):
         targResult = self.leaderboard_col.find_one({"user": targUser})
@@ -122,7 +126,7 @@ class ScoreCommands:
     def ExecutePureCount(self, msg):
         tempscore = random.randint(-1,101)
         ptfDebug("tempscore: " + str(tempscore))
-        result = None;
+
         result = self.leaderboard_col.find_one({"user": msg.user})
 
         if result == None:
@@ -189,7 +193,7 @@ class ScoreCommands:
     # remarks
     # This command requires you to spend sushi rolls.
     def ExecuteStealScore(self, msg):
-        regmatch = re.match(f"^stealscore {groups.user}$", msg.message)
+        regmatch = self.stealScoreRegex.match(msg.message)
 
         if regmatch == None:
             return f"[{msg.user}]: The syntax for that command is stealscore USER"
@@ -202,7 +206,7 @@ class ScoreCommands:
     # remarks
     # This command requires you to spend sushi rolls.
     def ExecuteSwapScore(self, msg):
-        regmatch = re.match(f"^swapscore {groups.user}$", msg.message)
+        regmatch = self.swapScoreRegex.match(msg.message)
 
         if regmatch == None:
             return f"[{msg.user}]: The syntax for that command is swapscore USER"
