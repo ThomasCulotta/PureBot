@@ -62,7 +62,7 @@ class WhoCommands():
             quoteId = None
 
         try:
-            userName = regMatch.group("user")
+            userName = regMatch.group("user").lower()
         except (IndexError, AttributeError):
             userName = msg.user
 

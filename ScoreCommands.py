@@ -66,13 +66,14 @@ class ScoreCommands:
         return self.SwapScoreHelper(msg.user, regMatch.group("user"))
 
     def StealScoreHelper(self, user, targUser):
+        targUser = targUser.lower()
         targResult = self.leaderboard_col.find_one({"user": targUser})
 
         if targResult == None:
-            return f"[{msg.user}]: That user does not have a score!"
+            return f"[{user}]: That user does not have a score!"
 
         if not util.CheckRemoveReward(user, self.rewardStealId):
-            return f"[{msg.user}]: This command requires spending sushi rolls"
+            return f"[{user}]: This command requires spending sushi rolls"
 
         ptfDebug(f"targResult: {targResult}")
         targScore = targResult['score']
@@ -90,16 +91,17 @@ class ScoreCommands:
         else:
             self.leaderboard_col.update_one({"user": user}, { "$set": {"score": targScore, "createdAt": datetime.datetime.utcnow()}})
 
-        return f"[{msg.user}]: You have stolen {targUser}'s score and given them a new one! Your pure count is {targScore}/100, and theirs is {newScore}/100"
+        return f"[{user}]: You have stolen {targUser}'s score and given them a new one! Your pure count is {targScore}/100, and theirs is {newScore}/100"
 
     def SwapScoreHelper(self, user, targetUser):
+        targetUser = targetUser.lower()
         targResult = self.leaderboard_col.find_one({"user": targUser})
 
         if targResult == None:
-            return f"[{msg.user}]: That user does not have a score!"
+            return f"[{user}]: That user does not have a score!"
 
         if not util.CheckRemoveReward(user, self.rewardSwapId):
-            return f"[{msg.user}]: This command requires spending sushi rolls"
+            return f"[{user}]: This command requires spending sushi rolls"
 
         ptfDebug(f"targResult: {targResult}")
         targScore = targResult['score']
@@ -112,14 +114,14 @@ class ScoreCommands:
             self.leaderboard_col.insert_one({"user": user, "score": targScore, "createdAt": datetime.datetime.utcnow()})
             self.leaderboard_col.update_one({"user": targUser}, { "$set": {"score": newScore, "createdAt": datetime.datetime.utcnow()}})
 
-            return f"[{msg.user}]: You have taken {targUser}'s score and given them a new one! Your pure count is {targScore}/100, and theirs is {newScore}/100"
+            return f"[{user}]: You have taken {targUser}'s score and given them a new one! Your pure count is {targScore}/100, and theirs is {newScore}/100"
 
         else:
             userScore = userResult['score']
             self.leaderboard_col.update_one({"user": user}, { "$set": {"score": targScore, "createdAt": datetime.datetime.utcnow()}})
             self.leaderboard_col.update_one({"user": targUser}, { "$set": {"score": userScore, "createdAt": datetime.datetime.utcnow()}})
 
-            return f"[{msg.user}]: You have swapped {targUser}'s score with your own! Your pure count is {targScore}/100, and theirs is {userScore}/100"
+            return f"[{user}]: You have swapped {targUser}'s score with your own! Your pure count is {targScore}/100, and theirs is {userScore}/100"
 
     # snippet start
     # purecount
