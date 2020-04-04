@@ -2,7 +2,8 @@ import json
 import requests
 
 import botconfig
-from FlushPrint import ptf, ptfDebug
+
+from Utilities.FlushPrint import ptf, ptfDebug
 
 helixEndpoint  = "https://api.twitch.tv/helix"
 krakenEndpoint = "https://api.twitch.tv/kraken"

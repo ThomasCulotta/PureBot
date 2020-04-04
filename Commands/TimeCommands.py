@@ -1,7 +1,7 @@
 import datetime
 
-from BotRequests import GetStartTime
-from FlushPrint import ptf, ptfDebug
+from Utilities.BotRequests import GetStartTime
+from Utilities.FlushPrint import ptf, ptfDebug
 
 class TimeCommands():
     def __init__(self):

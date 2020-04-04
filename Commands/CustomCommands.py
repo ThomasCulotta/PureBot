@@ -2,13 +2,15 @@ import re
 import json
 import random
 
-from FlushPrint import ptf, ptfDebug
-import TwitchUtils as util
-import RegGroups as groups
+from Utilities.FlushPrint import ptf, ptfDebug
+import Utilities.TwitchUtils as util
+import Utilities.RegGroups as groups
 
 class CustomCommands:
     def __init__(self):
-        with open('CustomCommands.json', 'r') as file:
+        self.commandFile = "Commands/CustomCommands.json"
+
+        with open(self.commandFile, 'r') as file:
             self.customCommandList = json.load(file)
 
         self.activeCommands = {
@@ -34,7 +36,7 @@ class CustomCommands:
         newCommand = regmatch.group(1).lower()
         newCommandText = regmatch.group("text")
 
-        with open('CustomCommands.json', 'r') as file:
+        with open(self.commandFile, 'r') as file:
             self.customCommandList = json.load(file)
 
         if newCommand in self.customCommandList:
@@ -42,10 +44,10 @@ class CustomCommands:
 
         self.customCommandList[newCommand] = newCommandText
 
-        with open('CustomCommands.json', 'w') as outfile:
+        with open(self.commandFile, 'w') as outfile:
             json.dump(self.customCommandList, outfile, indent = 2)
 
-        with open('CustomCommands.json', 'r') as file:
+        with open(self.commandFile, 'r') as file:
             self.customCommandList = json.load(file)
 
         if newCommand in self.customCommandList:
@@ -67,7 +69,7 @@ class CustomCommands:
 
         command = regmatch.group("text").lower()
 
-        with open('CustomCommands.json', 'r') as file:
+        with open(self.commandFile, 'r') as file:
             self.customCommandList = json.load(file)
 
         if command not in self.customCommandList:
@@ -76,11 +78,11 @@ class CustomCommands:
         self.customCommandList.pop(command)
 
         #write changes to file
-        with open('CustomCommands.json', 'w') as outfile:
+        with open(self.commandFile, 'w') as outfile:
             json.dump(self.customCommandList, outfile, indent = 2)
 
         #reload file's contents
-        with open('CustomCommands.json', 'r') as file:
+        with open(self.commandFile, 'r') as file:
             self.customCommandList = json.load(file)
 
         #test if the command has been removed

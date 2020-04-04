@@ -3,10 +3,11 @@ import pymongo
 import datetime
 import re
 
-from FlushPrint import ptf, ptfDebug
 import botconfig
-import TwitchUtils as util
-import RegGroups as groups
+
+from Utilities.FlushPrint import ptf, ptfDebug
+import Utilities.TwitchUtils as util
+import Utilities.RegGroups as groups
 
 class ScoreCommands:
     def __init__(self, chan, mongoClient):

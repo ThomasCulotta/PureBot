@@ -4,7 +4,7 @@ import pymongo
 import threading
 
 from TwitchWebsocket import TwitchWebsocket
-from FlushPrint import ptf
+from .FlushPrint import ptf
 
 ws = None
 statsDict = {}

@@ -1,8 +1,8 @@
 import re
 import random
 
-from FlushPrint import ptf, ptfDebug
-import RegGroups as groups
+from Utilities.FlushPrint import ptf, ptfDebug
+import Utilities.RegGroups as groups
 
 class DiceCommands():
     def __init__(self):

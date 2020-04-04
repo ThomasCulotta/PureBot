@@ -1,10 +1,10 @@
 import re
 import random
 
-from BotRequests import GetUserId, GetGame
-from FlushPrint import ptf, ptfDebug
-import TwitchUtils as util
-import RegGroups as groups
+from Utilities.BotRequests import GetUserId, GetGame
+from Utilities.FlushPrint import ptf, ptfDebug
+import Utilities.TwitchUtils as util
+import Utilities.RegGroups as groups
 
 class ShoutoutCommands():
     def __init__(self):

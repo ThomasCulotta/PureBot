@@ -2,10 +2,10 @@ import re
 import pymongo
 import datetime
 
-from BotRequests import GetGame
-from FlushPrint import ptf, ptfDebug
-import TwitchUtils as util
-import RegGroups as groups
+from Utilities.BotRequests import GetGame
+from Utilities.FlushPrint import ptf, ptfDebug
+import Utilities.TwitchUtils as util
+import Utilities.RegGroups as groups
 
 class QuoteCommands:
     def __init__(self, chan, mongoClient):

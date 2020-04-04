@@ -2,9 +2,9 @@ import re
 import time
 import threading
 
-from FlushPrint import ptf, ptfDebug
-import TwitchUtils as util
-import RegGroups as groups
+from Utilities.FlushPrint import ptf, ptfDebug
+import Utilities.TwitchUtils as util
+import Utilities.RegGroups as groups
 
 class PollCommands():
     def __init__(self, chan):

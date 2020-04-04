@@ -2,21 +2,12 @@ import pymongo
 
 from TwitchWebsocket import TwitchWebsocket
 
-# Local misc imports
 import botconfig
-from FlushPrint import ptf, ptfDebug
-from TwitchUtils import *
 
-# Command imports
-from WhoCommands    import WhoCommands
-from PollCommands   import PollCommands
-from DiceCommands   import DiceCommands
-from TimeCommands   import TimeCommands
-from ScoreCommands  import ScoreCommands
-from QuoteCommands  import QuoteCommands
-from CustomCommands import CustomCommands
-from VoteBanCommands import VoteBanCommands
-from ShoutoutCommands import ShoutoutCommands
+from Utilities.FlushPrint import ptf, ptfDebug
+import Utilities.TwitchUtils as util
+
+from Commands import *
 
 client = pymongo.MongoClient(f"mongodb://{botconfig.DBusername}:{botconfig.DBpassword}@{botconfig.DBhostIP}/QuoteBotDB")
 
@@ -41,18 +32,18 @@ class PureBot:
                                   capability=["membership", "tags", "commands"],
                                   live=True)
 
-        InitializeUtils(self.ws, self.chan, client)
+        util.InitializeUtils(self.ws, self.chan, client)
 
         self.commands = {
-            "who"   : WhoCommands(chan=self.chan, mongoClient=client),
-            "poll"  : PollCommands(chan=self.chan),
-            "score" : ScoreCommands(chan=self.chan, mongoClient=client),
-            "quote" : QuoteCommands(chan=self.chan, mongoClient=client),
-            "dice"  : DiceCommands(),
-            "time"  : TimeCommands(),
-            "custom" : CustomCommands(),
-            "voteban" : VoteBanCommands(),
-            "shoutout" : ShoutoutCommands(),
+            "who"   : WhoCommands.WhoCommands(chan=self.chan, mongoClient=client),
+            "poll"  : PollCommands.PollCommands(chan=self.chan),
+            "score" : ScoreCommands.ScoreCommands(chan=self.chan, mongoClient=client),
+            "quote" : QuoteCommands.QuoteCommands(chan=self.chan, mongoClient=client),
+            "dice"  : DiceCommands.DiceCommands(),
+            "time"  : TimeCommands.TimeCommands(),
+            "custom" : CustomCommands.CustomCommands(),
+            "voteban" : VoteBanCommands.VoteBanCommands(),
+            "shoutout" : ShoutoutCommands.ShoutoutCommands(),
         }
 
         # Maps all active command strings caught by imported command modules to their respective Execute function
@@ -89,8 +80,8 @@ class PureBot:
 
         try:
             if validReward:
-                LogReceived(m.type, m.user, m.message, m.tags)
-                SendMessage(self.redeem[m.tags["custom-reward-id"]](m), m.type, m.user)
+                util.LogReceived(m.type, m.user, m.message, m.tags)
+                util.SendMessage(self.redeem[m.tags["custom-reward-id"]](m), m.type, m.user)
 
             if validCommand:
                 # Retrieve first word without prefix
@@ -98,15 +89,15 @@ class PureBot:
                 token = m.message.lower().split()[0]
 
                 if (token in self.execute):
-                    LogReceived(m.type, m.user, m.message, m.tags)
-                    SendMessage(self.execute[token](m), m.type, m.user)
+                    util.LogReceived(m.type, m.user, m.message, m.tags)
+                    util.SendMessage(self.execute[token](m), m.type, m.user)
                     return
 
                 # Simple response commands
                 # Note that we don't get this far unless the message does not match other commands
                 response = self.commands["custom"].Execute(m)
                 if response != None:
-                    SendMessage(response, m.type, m.user)
+                    util.SendMessage(response, m.type, m.user)
                     return
 
         except Exception as e:

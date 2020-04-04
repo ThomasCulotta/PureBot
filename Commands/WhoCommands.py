@@ -3,10 +3,10 @@ import json
 import random
 import pymongo
 
-from FlushPrint import ptf, ptfDebug
-from BotRequests import GetUserId
-import TwitchUtils as util
-import RegGroups as groups
+from Utilities.FlushPrint import ptf, ptfDebug
+from Utilities.BotRequests import GetUserId
+import Utilities.TwitchUtils as util
+import Utilities.RegGroups as groups
 
 class WhoCommands():
     def __init__(self, chan, mongoClient):
