@@ -14,7 +14,7 @@ delcom newcom
 ---
 ## ShoutoutCommands
 
-### shoutout (@)USER
+### shoutout USER
 ```
 shoutout PureSushi
 
@@ -27,12 +27,18 @@ Mod Only. Promotes the given user's channel.
 ---
 ## QuoteCommands
 
-### quote (ID)
+### quote (ID/TEXT)
 ```
 quote
 
 quote 123
+
+quote hello
 ```
+**Remarks**
+
+When "quote TEXT" is used, a random quote with the given text in it is returned.
+
 ### quote add TEXT
 ```
 quote add Hi, I'm a PureSushi quote
@@ -73,7 +79,7 @@ Mod Only. Clears leaderboard.
 ---
 ## VoteBanCommands
 
-### voteban (@)USER
+### voteban USER
 ```
 voteban BabotzInc
 
@@ -117,7 +123,7 @@ vote y
 ---
 ## WhoCommands
 
-### who (@USER) (ID)
+### who (USER) (ID)
 ```
 who
 
@@ -125,27 +131,27 @@ who 14
 
 who @BabotzInc
 
-who @BabotzInc 14
+who BabotzInc 14
 ```
 **Remarks**
 
 When no username is given, this command defaults to your own quotes.
 
-### who add @USER TEXT
+### who add USER TEXT
 ```
 who add @BabotzInc Hello I'm a Babotz quote
 ```
 **Remarks**
 
-@ing the user is required. Type @ and use Twitch's username picker/autocomplete to ensure the correct username is given.
+@ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
 
-### who del @USER ID
+### who del USER ID
 ```
 who del @BabotzInc 12
 ```
 **Remarks**
 
-@ing the user is required. Type @ and use Twitch's username picker/autocomplete to ensure the correct username is given.
+@ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
 
 
 ---
