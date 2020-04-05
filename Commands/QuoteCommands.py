@@ -104,7 +104,7 @@ class QuoteCommands:
     # remarks
     # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
     def ExecuteQuoteAdd(self, msg):
-        if not CheckPrivSub(msg.tags):
+        if not util.CheckPrivSub(msg.tags):
             return f"[{msg.user}]: Only mods and subs can add a quote"
 
         regmatch = self.quoteAddRegex.match(msg.message)
