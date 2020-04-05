@@ -25,8 +25,8 @@ class CustomCommands:
     # addcom COMMAND TEXT
     # addcom newcom I'm a new command
     def ExecuteAddCom(self, msg):
-        if not util.CheckPriv(msg.tags) and not util.CheckDev():
-            return f"[{msg.user}]: Regular users can't add commands! Please ask a mod to add it for you."
+        if not util.CheckPrivMod(msg.tags) and not util.CheckDev():
+            return f"[{msg.user}]: Only mods can add commands"
 
         regmatch = self.addComRegex.match(msg.message)
 
@@ -59,8 +59,8 @@ class CustomCommands:
     # delcom COMMAND
     # delcom newcom
     def ExecuteDelCom(self, msg):
-        if not util.CheckPriv(msg.tags) and not util.CheckDev():
-            return f"[{msg.user}]: Regular users can't delete commands! Please ask a mod to delete it for you."
+        if not util.CheckPrivMod(msg.tags) and not util.CheckDev():
+            return f"[{msg.user}]: Only mods can delete commands"
 
         regmatch = self.delComRegex.match(msg.message)
 

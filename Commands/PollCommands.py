@@ -98,8 +98,8 @@ class PollCommands():
         if subCommand in self.pollSubCommands:
             return self.pollSubCommands[subCommand](msg)
 
-        if not util.CheckPriv(msg.tags):
-            return f"[{msg.user}]: Regular users can't start a poll"
+        if not util.CheckPrivMod(msg.tags):
+            return f"[{msg.user}]: Only mods can start a poll"
 
         if self.pollRunning:
             return f"[{msg.user}]: Poll already active."
@@ -145,8 +145,8 @@ class PollCommands():
     # snippet start
     # poll end
     def ExecutePollEnd(self, msg):
-        if not util.CheckPriv(msg.tags):
-            return f"[{msg.user}]: Regular users can't end a poll"
+        if not util.CheckPrivMod(msg.tags):
+            return f"[{msg.user}]: Only mods can end a poll"
 
         if not self.pollRunning:
             return f"[{msg.user}]: No poll active."

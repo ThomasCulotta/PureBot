@@ -21,8 +21,8 @@ class ShoutoutCommands():
     # remarks
     # Mod Only. Promotes the given user's channel.
     def ExecuteShoutout(self, msg):
-        if not util.CheckPriv(msg.tags):
-            return f"[{msg.user}]: Regular users can't shoutout"
+        if not util.CheckPrivMod(msg.tags):
+            return f"[{msg.user}]: Only mods can shoutout"
 
         regMatch = self.shoutoutRegex.match(msg.message)
 

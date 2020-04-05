@@ -13,9 +13,14 @@ statsThread = None
 colRewards = None
 
 # True if user is a mod or the broadcaster
-def CheckPriv(tags):
+def CheckPrivMod(tags):
     return (tags["mod"] == "1" or
             tags["user-id"] == tags["room-id"])
+
+# True if user is a sub, mod, or the broadcaster
+def CheckPrivSub(tags):
+    return (CheckPrivMod(tags) or
+            tags["subscriber"] == "1")
 
 # True if user is a dev
 def CheckDev(user):

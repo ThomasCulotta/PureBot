@@ -184,11 +184,11 @@ class ScoreCommands:
     # remarks
     # Mod Only. Clears leaderboard.
     def ExecuteClearBoard(self, msg):
-        if util.CheckPriv(msg.tags):
+        if util.CheckPrivMod(msg.tags):
             self.leaderboard_col.remove({})
             return f"[{msg.user}]: Leaderboard cleared!"
 
-        return f"[{msg.user}]: That command is mods-only!"
+        return f"[{msg.user}]: Only mods can clear leaderboards"
 
     ## snippet start
     # stealscore USER

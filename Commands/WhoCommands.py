@@ -88,8 +88,8 @@ class WhoCommands():
     # remarks
     # @ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
     def ExecuteWhoAdd(self, msg):
-        if not util.CheckPriv(msg.tags):
-            return f"[{msg.user}]: Regular users can't add a who quote!"
+        if not util.CheckPrivSub(msg.tags):
+            return f"[{msg.user}]: Only mods and subs can add a who quote"
 
         regMatch = self.whoAddRegex.match(msg.message)
 
@@ -143,8 +143,8 @@ class WhoCommands():
     # remarks
     # @ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
     def ExecuteWhoDel(self, msg):
-        if not util.CheckPriv(msg.tags):
-            return f"[{msg.user}]: Regular users can't delete a who quote!"
+        if not util.CheckPrivMod(msg.tags):
+            return f"[{msg.user}]: Only mods can delete a who quote"
 
         regMatch = self.whoDelRegex.match(msg.message)
 

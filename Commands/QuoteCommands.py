@@ -104,6 +104,9 @@ class QuoteCommands:
     # remarks
     # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
     def ExecuteQuoteAdd(self, msg):
+        if not CheckPrivSub(msg.tags):
+            return f"[{msg.user}]: Only mods and subs can add a quote"
+
         regmatch = self.quoteAddRegex.match(msg.message)
 
         if regmatch == None:
@@ -175,12 +178,12 @@ class QuoteCommands:
         if result == None:
             return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
 
-        if not util.CheckPriv(msg.tags):
+        if not util.CheckPrivMod(msg.tags):
             if result['user'] != msg.user:
-                return f"[{msg.user}]: Regular users can't delete a quote someone else added!"
+                return f"[{msg.user}]: Only mods can delete a quote someone else added"
 
             if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
-                return f"[{msg.user}]: Regular users can't delete a quote except on the day it was added!"
+                return f"[{msg.user}]: Only mods can delete a quote on a different day than it was added"
 
         ptfDebug(f"Deleting quoteID: {quoteID}")
 
@@ -212,12 +215,12 @@ class QuoteCommands:
         if result == None:
             return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
 
-        if not util.CheckPriv(msg.tags):
+        if not util.CheckPrivMod(msg.tags):
             if result['user'] != msg.user:
-                return f"[{msg.user}]: Regular users can't edit a quote someone else added!"
+                return f"[{msg.user}]: Only mods can edit a quote someone else added"
 
             if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
-                return f"[{msg.user}]: Regular users can't edit a quote except on the day it was added!"
+                return f"[{msg.user}]: Only mods can edit a quote on a different day than it was added"
 
         self.quote_col.update_one(
             {"id": quoteID},
