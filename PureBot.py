@@ -66,10 +66,10 @@ class PureBot:
                 self.redeem = {**self.redeem, **cmd.activeRewards}
 
             if hasattr(cmd, "activeOnBroadcasterJoinEvents"):
-                self.onBroadcasterJoin = {**self.onBroadcasterJoin, **cmd.activeOnBroadcasterJoinEvents}
+                self.onBroadcasterJoin = {*self.onBroadcasterJoin, *cmd.activeOnBroadcasterJoinEvents}
 
             if hasattr(cmd, "activeOnUserJoinEvents"):
-                self.onUserJoin = {**self.onUserJoin, **cmd.activeOnUserJoinEvents}
+                self.onUserJoin = {*self.onUserJoin, *cmd.activeOnUserJoinEvents}
 
         ptf("Bot Started!")
 
@@ -86,8 +86,8 @@ class PureBot:
             return
 
         # Check for valid message with prefix and valid rewards
-        validReward = "custom-reward-id" in m.tags
-        validCommand = m.message != None and m.message[0] == self.prefix
+        validReward = not joining and "custom-reward-id" in m.tags
+        validCommand = not joining and m.message != None and m.message[0] == self.prefix
 
         if (not validReward and
             not validCommand and
