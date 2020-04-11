@@ -26,7 +26,7 @@ class ShoutoutCommands():
             self.ExecuteOnUserJoinShoutout
         }
 
-       self.shoutoutRegex = re.compile(f"^shoutout {groups.user}")
+        self.shoutoutRegex = re.compile(f"^shoutout {groups.user}")
 
     def ShoutoutHelper(self, user, msgUser):
         if GetUserId(user) == None:
