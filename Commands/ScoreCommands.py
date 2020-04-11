@@ -11,9 +11,7 @@ import Utilities.RegGroups as groups
 
 class ScoreCommands:
     def __init__(self, chan, mongoClient):
-        self.chan = chan
-
-        leaderboard_col_name = self.chan[1:] + "LB"
+        leaderboard_col_name = chan + "LB"
         self.leaderboard_col = mongoClient.QuoteBotDB[leaderboard_col_name]
         self.leaderboard_col.create_index([("user", pymongo.ASCENDING)])
 

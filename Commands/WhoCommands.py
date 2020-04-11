@@ -10,9 +10,7 @@ import Utilities.RegGroups as groups
 
 class WhoCommands():
     def __init__(self, chan, mongoClient):
-        self.chan = chan
-
-        colNameWho = self.chan[1:] + "Who"
+        colNameWho = chan + "Who"
         self.colWho = mongoClient.QuoteBotDB[colNameWho]
         self.colWho.create_index([("user", pymongo.ASCENDING)])
         ptfDebug(f"colNameWho: {colNameWho}")

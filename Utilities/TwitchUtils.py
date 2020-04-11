@@ -97,10 +97,10 @@ def SendMessage(response, type="PRIVMSG", user=None):
         ptf(f"No [{type}] message sent{userStr}\n", time=True)
         return
 
-    if (type == "PRIVMSG"):
-        ws.send_message(response)
-    elif (type == "WHISPER"):
+    if type == "WHISPER":
         ws.send_whisper(user, response)
+    else:
+        ws.send_message(response)
 
     ptf(f"Sent [{type}]{userStr}: {response}\n", time=True)
 
@@ -154,7 +154,7 @@ def InitializeUtils(socket, chan, mongoClient):
     global colRewards
 
     ws = socket
-    colRewards = mongoClient.QuoteBotDB[chan[1:] + "Rewards"]
+    colRewards = mongoClient.QuoteBotDB[chan + "Rewards"]
     colRewards.create_index([("user", pymongo.ASCENDING)])
 
     with open('UsageStats.json', 'a+') as file:

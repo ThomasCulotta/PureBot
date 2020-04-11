@@ -1,4 +1,5 @@
 import re
+import json
 import random
 
 from Utilities.BotRequests import GetUserId, GetGame
@@ -8,11 +9,39 @@ import Utilities.RegGroups as groups
 
 class ShoutoutCommands():
     def __init__(self):
+        self.autoShoutoutFile = "Commands/AutoShoutoutUsers.json"
+
+        with open(self.autoShoutoutFile, 'r') as file:
+            self.autoShoutoutUsers = json.load(file)
+
         self.activeCommands = {
             "shoutout" : self.ExecuteShoutout,
         }
 
-        self.shoutoutRegex = re.compile(f"^shoutout {groups.user}")
+        self.activeOnBroadcasterJoinEvents = {
+            self.ExecuteOnBroadcasterJoinShoutout
+        }
+
+        self.activeOnUserJoinEvents = {
+            self.ExecuteOnUserJoinShoutout
+        }
+
+       self.shoutoutRegex = re.compile(f"^shoutout {groups.user}")
+
+    def ShoutoutHelper(self, user, msgUser):
+        if GetUserId(user) == None:
+            return f"[{msgUser}]: {user} is not an existing username."
+
+        game = GetGame(user)
+        emote = random.choice(["OhMyDog", "PogChamp", ":D", ])
+        response = f"Follow @{user} over at twitch.tv/{user} ! "
+
+        if game == None:
+            response += f"{emote}"
+        else:
+            response += f"<3 Was last seen playing \"{game}\" {emote}"
+
+        return response
 
     # snippet start
     # shoutout USER
@@ -29,18 +58,18 @@ class ShoutoutCommands():
         if regMatch == None:
             return f"[{msg.user}]: The syntax for that command is: shoutout USER"
 
-        user = regMatch.group("user")
+        return ShoutoutHelper(regMatch.group("user"), msg.user)
 
-        if GetUserId(user) == None:
-            return f"[{msg.user}]: {user} is not an existing username."
+    # Event on broadcaster join
+    def ExecuteOnBroadcasterJoinShoutout(self):
+        with open(self.autoShoutoutFile, 'r') as file:
+            self.autoShoutoutUsers = json.load(file)
 
-        game = GetGame(user)
-        emote = random.choice(["OhMyDog", "PogChamp", ":D", ])
-        response = f"Follow @{user} over at twitch.tv/{user} ! "
+    # Event on user join
+    def ExecuteOnUserJoinShoutout(self, user):
+        try:
+            self.autoShoutoutUsers.remove(user)
+        except ValueError:
+            return
 
-        if game == None:
-            response += f"{emote}"
-        else:
-            response += f"<3 Was last seen playing \"{game}\" {emote}"
-
-        return response
+        return ShoutoutHelper(user, "puresushibot")

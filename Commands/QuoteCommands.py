@@ -9,15 +9,13 @@ import Utilities.RegGroups as groups
 
 class QuoteCommands:
     def __init__(self, chan, mongoClient):
-        self.chan = chan
-
-        quote_col_name = self.chan[1:] + "Quotes"
+        quote_col_name = chan + "Quotes"
         self.quote_col = mongoClient.QuoteBotDB[quote_col_name]
         self.quote_col.create_index([("id", pymongo.ASCENDING)])
         ptfDebug(f"quote_col_name: {quote_col_name}")
 
         self.counter_col = mongoClient.QuoteBotDB['counters']
-        self.counterName = self.chan[1:] + "Counter"
+        self.counterName = chan + "Counter"
 
         self.activeCommands = {
             "quote" : self.ExecuteQuote,

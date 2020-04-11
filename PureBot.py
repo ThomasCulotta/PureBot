@@ -25,7 +25,7 @@ class PureBot:
         # sending messages to your callback function. (self.message_handler in this case)
         self.ws = TwitchWebsocket(host=self.host,
                                   port=self.port,
-                                  chan=self.chan,
+                                  chan="#" + self.chan,
                                   nick=self.nick,
                                   auth=self.auth,
                                   callback=self.message_handler,
@@ -36,7 +36,7 @@ class PureBot:
 
         self.commands = {
             "who"   : WhoCommands.WhoCommands(chan=self.chan, mongoClient=client),
-            "poll"  : PollCommands.PollCommands(chan=self.chan),
+            "poll"  : PollCommands.PollCommands(),
             "score" : ScoreCommands.ScoreCommands(chan=self.chan, mongoClient=client),
             "quote" : QuoteCommands.QuoteCommands(chan=self.chan, mongoClient=client),
             "dice"  : DiceCommands.DiceCommands(),
@@ -52,6 +52,12 @@ class PureBot:
         # Maps all active channel points custom reward ids caught by imported command modules to their respective RedeemReward function
         self.redeem = {}
 
+        # Tracks all active events to execute on broadcaster join
+        self.onBroadcasterJoin = {}
+
+        # Tracks all active events to execute on user join
+        self.onUserJoin = {}
+
         for cmd in self.commands.values():
             if hasattr(cmd, "activeCommands"):
                 self.execute = {**self.execute, **cmd.activeCommands}
@@ -59,15 +65,24 @@ class PureBot:
             if hasattr(cmd, "activeRewards"):
                 self.redeem = {**self.redeem, **cmd.activeRewards}
 
+            if hasattr(cmd, "activeOnBroadcasterJoinEvents"):
+                self.onBroadcasterJoin = {**self.onBroadcasterJoin, **cmd.activeOnBroadcasterJoinEvents}
+
+            if hasattr(cmd, "activeOnUserJoinEvents"):
+                self.onUserJoin = {**self.onUserJoin, **cmd.activeOnUserJoinEvents}
+
         ptf("Bot Started!")
 
         self.ws.start_bot()
         # Any code after this will be executed after a KeyboardInterrupt
 
     def message_handler(self, m):
+        joining = m.type == "JOIN"
+
         # Check for proper message type
         if (m.type != "PRIVMSG" and
-            m.type != "WHISPER"):
+            m.type != "WHISPER" and
+            not joining):
             return
 
         # Check for valid message with prefix and valid rewards
@@ -75,10 +90,22 @@ class PureBot:
         validCommand = m.message != None and m.message[0] == self.prefix
 
         if (not validReward and
-            not validCommand):
+            not validCommand and
+            not joining):
             return
 
         try:
+            if joining:
+                util.LogReceived(m.type, m.user, m.message, m.tags)
+                if m.user == self.chan:
+                    for broadcasterJoinEvent in self.onBroadcasterJoin:
+                        broadcasterJoinEvent()
+                else:
+                    for userJoinEvent in self.onUserJoin:
+                        util.SendMessage(userJoinEvent(m.user))
+
+                return
+
             if validReward:
                 util.LogReceived(m.type, m.user, m.message, m.tags)
                 util.SendMessage(self.redeem[m.tags["custom-reward-id"]](m), m.type, m.user)

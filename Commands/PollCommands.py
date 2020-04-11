@@ -7,9 +7,7 @@ import Utilities.TwitchUtils as util
 import Utilities.RegGroups as groups
 
 class PollCommands():
-    def __init__(self, chan):
-        self.chan = chan
-
+    def __init__(self):
         self.voteCollection = {}
         self.voters = []
         self.pollRunning = False
