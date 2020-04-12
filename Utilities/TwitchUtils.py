@@ -48,7 +48,7 @@ def RedeemReward(user, rewardId):
             rewards[rewardId] = 1
 
         colRewards.update_one(
-            {"user": userName},
+            {"user": user},
             {"$set": {"rewards": json.dumps(rewards)}}
         )
 
@@ -68,10 +68,10 @@ def CheckRemoveReward(user, rewardId):
             rewards[rewardId] -= 1
 
         if len(rewards) == 0:
-            colRewards.delete_one({"user":userName})
+            colRewards.delete_one({"user":user})
         else:
             colRewards.update_one(
-                {"user": userName},
+                {"user": user},
                 {"$set": {"rewards": json.dumps(rewards)}}
             )
 
