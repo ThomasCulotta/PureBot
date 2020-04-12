@@ -29,7 +29,7 @@ def CheckDev(user):
 
 # Record that the given user has redeemed the given reward
 def RedeemReward(user, rewardId):
-    result = colRewards.find_one({"user": msg.user})
+    result = colRewards.find_one({"user": user})
 
     rewards = {}
     if result == None:
@@ -54,7 +54,7 @@ def RedeemReward(user, rewardId):
 
 # Return true if the given user has redeemed the given reward and decrement
 def CheckRemoveReward(user, rewardId):
-    result = colRewards.find_one({"user": msg.user})
+    result = colRewards.find_one({"user": user})
 
     if result == None:
         return False
