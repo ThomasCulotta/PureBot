@@ -93,7 +93,7 @@ class ScoreCommands:
         return f"[{user}]: You have stolen {targUser}'s score and given them a new one! Your pure count is {targScore}/100, and theirs is {newScore}/100"
 
     def SwapScoreHelper(self, user, targUser):
-        targetUser = targetUser.lower()
+        targUser = targUser.lower()
         targResult = self.leaderboard_col.find_one({"user": targUser})
 
         if targResult == None:
