@@ -58,7 +58,7 @@ class ShoutoutCommands():
         if regMatch == None:
             return f"[{msg.user}]: The syntax for that command is: shoutout USER"
 
-        return ShoutoutHelper(regMatch.group("user"), msg.user)
+        return self.ShoutoutHelper(regMatch.group("user"), msg.user)
 
     # Event on broadcaster join
     def ExecuteOnBroadcasterJoinShoutout(self):
@@ -72,4 +72,4 @@ class ShoutoutCommands():
         except ValueError:
             return
 
-        return ShoutoutHelper(user, "puresushibot")
+        return self.ShoutoutHelper(user, "puresushibot")
