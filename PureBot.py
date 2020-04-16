@@ -55,8 +55,8 @@ class PureBot:
         # Tracks all active events to execute on broadcaster join
         self.onBroadcasterJoin = {}
 
-        # Tracks all active events to execute on user join
-        self.onUserJoin = {}
+        # Tracks all active events to execute on raid
+        self.onRaid = {}
 
         for cmd in self.commands.values():
             if hasattr(cmd, "activeCommands"):
@@ -68,8 +68,8 @@ class PureBot:
             if hasattr(cmd, "activeOnBroadcasterJoinEvents"):
                 self.onBroadcasterJoin = {*self.onBroadcasterJoin, *cmd.activeOnBroadcasterJoinEvents}
 
-            if hasattr(cmd, "activeOnUserJoinEvents"):
-                self.onUserJoin = {*self.onUserJoin, *cmd.activeOnUserJoinEvents}
+            if hasattr(cmd, "activeOnRaidEvents"):
+                self.onRaid = {*self.onRaid, *cmd.activeOnRaidEvents}
 
         ptf("Bot Started!")
 
@@ -82,10 +82,12 @@ class PureBot:
         # Check for proper message type
         if (m.type != "PRIVMSG" and
             m.type != "WHISPER" and
+            m.type != "USERNOTICE"
             not joining):
             return
 
-        # Check for valid message with prefix and valid rewards
+        # Check for valid message with prefix, valid rewards, and raids
+        raiding = "msg-id" in m.tags and m.tags["msg-id"] == "raid"
         validReward = not joining and "custom-reward-id" in m.tags
         validCommand = not joining and m.message != None and m.message[0] == self.prefix
 
@@ -100,11 +102,13 @@ class PureBot:
                 if m.user == self.chan:
                     for broadcasterJoinEvent in self.onBroadcasterJoin:
                         broadcasterJoinEvent()
-                else:
-                    for userJoinEvent in self.onUserJoin:
-                        util.SendMessage(userJoinEvent(m.user))
 
                 return
+
+            if raiding:
+                util.LogReceived(m.type, m.user, m.message, m.tags)
+                for raidEvent in self.onRaid:
+                    util.SendMessage(raidEvent(m.user))
 
             if validReward:
                 util.LogReceived(m.type, m.user, m.message, m.tags)

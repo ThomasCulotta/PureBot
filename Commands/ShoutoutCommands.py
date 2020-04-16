@@ -22,8 +22,8 @@ class ShoutoutCommands():
             self.ExecuteOnBroadcasterJoinShoutout
         }
 
-        self.activeOnUserJoinEvents = {
-            self.ExecuteOnUserJoinShoutout
+        self.activeOnRaidEvents = {
+            self.ExecuteOnRaidShoutout
         }
 
         self.shoutoutRegex = re.compile(f"^shoutout {groups.user}")
@@ -65,8 +65,8 @@ class ShoutoutCommands():
         with open(self.autoShoutoutFile, 'r') as file:
             self.autoShoutoutUsers = json.load(file)
 
-    # Event on user join
-    def ExecuteOnUserJoinShoutout(self, user):
+    # Event on raid
+    def ExecuteOnRaidShoutout(self, user):
         try:
             self.autoShoutoutUsers.remove(user)
         except ValueError:
