@@ -82,7 +82,7 @@ class PureBot:
         # Check for proper message type
         if (m.type != "PRIVMSG" and
             m.type != "WHISPER" and
-            m.type != "USERNOTICE"
+            m.type != "USERNOTICE" and
             not joining):
             return
 
@@ -98,8 +98,8 @@ class PureBot:
 
         try:
             if joining:
-                util.LogReceived(m.type, m.user, m.message, m.tags)
                 if m.user == self.chan:
+                    util.LogReceived(m.type, m.user, m.message, m.tags)
                     for broadcasterJoinEvent in self.onBroadcasterJoin:
                         broadcasterJoinEvent()
 
