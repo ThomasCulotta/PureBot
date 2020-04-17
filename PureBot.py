@@ -13,38 +13,42 @@ client = pymongo.MongoClient(f"mongodb://{botconfig.DBusername}:{botconfig.DBpas
 
 class PureBot:
     def __init__(self):
-        self.host = "irc.chat.twitch.tv"
-        self.port = 6667
         self.chan = botconfig.twitchChannel
-        self.nick = botconfig.twitchUser
-        self.auth = botconfig.oauth
-
         self.prefix = botconfig.prefix
 
         # Send along all required information, and the bot will start
         # sending messages to your callback function. (self.message_handler in this case)
-        self.ws = TwitchWebsocket(host=self.host,
-                                  port=self.port,
+        self.ws = TwitchWebsocket(host="irc.chat.twitch.tv",
+                                  port=6667,
                                   chan="#" + self.chan,
-                                  nick=self.nick,
-                                  auth=self.auth,
+                                  nick=botconfig.twitchUser,
+                                  auth=botconfig.oauth,
                                   callback=self.message_handler,
                                   capability=["membership", "tags", "commands"],
                                   live=True)
 
         util.InitializeUtils(self.ws, self.chan, client)
 
-        self.commands = {
-            "who"   : WhoCommands.WhoCommands(chan=self.chan, mongoClient=client),
-            "poll"  : PollCommands.PollCommands(),
-            "score" : ScoreCommands.ScoreCommands(chan=self.chan, mongoClient=client),
-            "quote" : QuoteCommands.QuoteCommands(chan=self.chan, mongoClient=client),
-            "dice"  : DiceCommands.DiceCommands(),
-            "time"  : TimeCommands.TimeCommands(),
-            "custom" : CustomCommands.CustomCommands(),
-            "voteban" : VoteBanCommands.VoteBanCommands(),
-            "shoutout" : ShoutoutCommands.ShoutoutCommands(),
-        }
+        self.commands = {}
+
+        if "who" not in botconfig.exclude:
+            self.commands["who"] = WhoCommands.WhoCommands(self.chan, client)
+        if "score" not in botconfig.exclude:
+            self.commands["score"] = ScoreCommands.ScoreCommands(self.chan, client)
+        if "quote" not in botconfig.exclude:
+            self.commands["quote"] = QuoteCommands.QuoteCommands(self.chan, client)
+        if "poll" not in botconfig.exclude:
+            self.commands["poll"] = PollCommands.PollCommands()
+        if "dice" not in botconfig.exclude:
+            self.commands["dice"] = DiceCommands.DiceCommands()
+        if "time" not in botconfig.exclude:
+            self.commands["time"] = TimeCommands.TimeCommands()
+        if "custom" not in botconfig.exclude:
+            self.commands["custom"] = CustomCommands.CustomCommands()
+        if "voteban" not in botconfig.exclude:
+            self.commands["voteban"] = VoteBanCommands.VoteBanCommands()
+        if "shoutout" not in botconfig.exclude:
+            self.commands["shoutout"] = ShoutoutCommands.ShoutoutCommands()
 
         # Maps all active command strings caught by imported command modules to their respective Execute function
         self.execute = {}
