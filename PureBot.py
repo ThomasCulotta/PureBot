@@ -29,26 +29,28 @@ class PureBot:
 
         util.InitializeUtils(self.ws, self.chan, client)
 
+        # List of command names and args required for their constructor
+        args = (self.chan, client)
+        commandNames = {
+            "WhoCommands" : args,
+            "ScoreCommands" : args,
+            "QuoteCommands" : args,
+            "PollCommands" : (),
+            "DiceCommands" : (),
+            "TimeCommands" : (),
+            "CustomCommands" : (),
+            "VoteBanCommands" : (),
+            "ShoutoutCommands" : (),
+        }
+
+        for name in botconfig.exclude:
+            del commandNames[name]
+
         self.commands = {}
 
-        if "who" not in botconfig.exclude:
-            self.commands["who"] = WhoCommands.WhoCommands(self.chan, client)
-        if "score" not in botconfig.exclude:
-            self.commands["score"] = ScoreCommands.ScoreCommands(self.chan, client)
-        if "quote" not in botconfig.exclude:
-            self.commands["quote"] = QuoteCommands.QuoteCommands(self.chan, client)
-        if "poll" not in botconfig.exclude:
-            self.commands["poll"] = PollCommands.PollCommands()
-        if "dice" not in botconfig.exclude:
-            self.commands["dice"] = DiceCommands.DiceCommands()
-        if "time" not in botconfig.exclude:
-            self.commands["time"] = TimeCommands.TimeCommands()
-        if "custom" not in botconfig.exclude:
-            self.commands["custom"] = CustomCommands.CustomCommands()
-        if "voteban" not in botconfig.exclude:
-            self.commands["voteban"] = VoteBanCommands.VoteBanCommands()
-        if "shoutout" not in botconfig.exclude:
-            self.commands["shoutout"] = ShoutoutCommands.ShoutoutCommands()
+        # Dynamically load commands with appropriate args
+        for name, arg in commandNames.items():
+            self.commands[name] = getattr(globals()[name], name)(*arg)
 
         # Maps all active command strings caught by imported command modules to their respective Execute function
         self.execute = {}
@@ -130,7 +132,7 @@ class PureBot:
 
                 # Simple response commands
                 # Note that we don't get this far unless the message does not match other commands
-                response = self.commands["custom"].Execute(m)
+                response = self.commands["CustomCommands"].Execute(m)
                 if response != None:
                     util.SendMessage(response, m.type, m.user)
                     return
