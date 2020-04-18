@@ -16,7 +16,7 @@ helixHeader = { "Authorization": f"Bearer {appToken}",
 v5Header = { "Authorization" : f"OAuth {appToken}",
              "Accept" : "application/vnd.twitchtv.v5+json" }
 
-hostName = botconfig.twitchChannel[1:]
+hostName = botconfig.twitchChannel
 
 def CheckGetAccessToken():
     response = requests.get(f"https://id.twitch.tv/oauth2/validate", headers=v5Header)
