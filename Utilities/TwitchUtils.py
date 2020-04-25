@@ -81,12 +81,13 @@ def CheckRemoveReward(user, rewardId):
 
 
 # Log info for an incoming message
-def LogReceived(type, user, message, tags):
+def LogReceived(type, user, message, tags, recordUsage=False):
     ptf(f"Received [{type}] from [{user}]: {message}", time=True)
     ptf(f"With tags: {tags}")
 
-    token = message.lower().split(" ")[0]
-    RecordUsage(token, user)
+    if (recordUsage)
+        token = message.lower().split(" ")[0]
+        RecordUsage(token, user)
 
 # Send a message to twitch chat and log
 def SendMessage(response, type="PRIVMSG", user=None):

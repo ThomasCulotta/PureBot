@@ -98,7 +98,7 @@ class CustomCommands:
         tokens = msg.message.lower().split()
 
         if tokens[0] in self.customCommandList:
-            util.LogReceived(msg.type, msg.user, msg.message, msg.tags)
+            util.LogReceived(msg.type, msg.user, msg.message, msg.tags, True)
 
             response = self.customCommandList[tokens[0]]
 
@@ -114,7 +114,7 @@ class CustomCommands:
             return response
 
         elif len(tokens) > 1 and (tokens[0] + " [ARG]") in self.customCommandList:
-            util.LogReceived(msg.type, msg.user, msg.message, msg.tags)
+            util.LogReceived(msg.type, msg.user, msg.message, msg.tags, True)
 
             ptfDebug("arg command")
             response = self.customCommandList[(tokens[0] + " [ARG]")].replace("[ARG]", tokens[1])

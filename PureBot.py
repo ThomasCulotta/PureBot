@@ -93,13 +93,14 @@ class PureBot:
             return
 
         # Check for valid message with prefix, valid rewards, and raids
-        raiding = "msg-id" in m.tags and m.tags["msg-id"] == "raid"
-        validReward = not joining and "custom-reward-id" in m.tags
-        validCommand = not joining and m.message != None and m.message[0] == self.prefix
+        raiding = not joining and "msg-id" in m.tags and m.tags["msg-id"] == "raid"
+        validReward = not joining and not raiding and "custom-reward-id" in m.tags
+        validCommand = not joining and not raiding and m.message != None and m.message[0] == self.prefix
 
         if (not validReward and
             not validCommand and
-            not joining):
+            not joining and
+            not raiding):
             return
 
         try:
@@ -112,7 +113,7 @@ class PureBot:
                 return
 
             if raiding:
-                util.LogReceived(m.type, m.user, m.message, m.tags)
+                util.LogReceived(m.type, m.tags["login"], m.message, m.tags)
                 for raidEvent in self.onRaid:
                     util.SendMessage(raidEvent(m.user))
 
@@ -126,7 +127,7 @@ class PureBot:
                 token = m.message.lower().split()[0]
 
                 if (token in self.execute):
-                    util.LogReceived(m.type, m.user, m.message, m.tags)
+                    util.LogReceived(m.type, m.user, m.message, m.tags, True)
                     util.SendMessage(self.execute[token](m), m.type, m.user)
                     return
 
