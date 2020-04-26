@@ -85,7 +85,7 @@ def LogReceived(type, user, message, tags, recordUsage=False):
     ptf(f"Received [{type}] from [{user}]: {message}", time=True)
     ptf(f"With tags: {tags}")
 
-    if (recordUsage)
+    if (recordUsage):
         token = message.lower().split(" ")[0]
         RecordUsage(token, user)
 
