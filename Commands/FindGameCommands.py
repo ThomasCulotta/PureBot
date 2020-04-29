@@ -14,7 +14,6 @@ class FindGameCommands():
 
         self.activeCommands = {
             "findgame" : self.ExecuteFindGame,
-            #"finddev" : self.ExecuteFindDev
         }
 
         self.findGameRegex = re.compile(f"^findgame {groups.text}$")
@@ -58,12 +57,3 @@ class FindGameCommands():
         companyName = next((comp["company"]["name"] for comp in data["involved_companies"] if comp["developer"]), "[Unknown Developer]") if "involved_companies" in data else "[Unknown Developer]"
 
         return f"[{msg.user}]: {foundName} by {companyName} first released on {releaseDate}"
-
-    # snippet start
-    # finddev TEXT
-    # finddev Bungie
-    # finddev Capcom
-    # remarks
-    # Retrieves a random game developed by the given developer
-    def ExecuteFindDev(self, msg):
-        return
