@@ -4,12 +4,14 @@ import random
 import requests
 import datetime
 
+import botconfig
+
 from Utilities.FlushPrint import ptf
 import Utilities.RegGroups as groups
 
 class FindGameCommands():
-    def __init__(self, authKey):
-        self.igdbHeader = { "user-key" : authKey,
+    def __init__(self):
+        self.igdbHeader = { "user-key" : botconfig.igdbAuthKey,
                             "Accept" : "application/json" }
 
         self.activeCommands = {
@@ -17,7 +19,6 @@ class FindGameCommands():
         }
 
         self.findGameRegex = re.compile(f"^findgame {groups.text}$")
-        self.findDevRegex = re.compile(f"^finddev {groups.text}$")
 
     # snippet start
     # findgame TEXT
@@ -47,7 +48,7 @@ class FindGameCommands():
             if len(data) != 0:
                 break
 
-        if len(data) == 0:
+        if not response.ok or len(data) == 0:
             return f"[{msg.user}]: Game not found"
 
         data = random.choice(data)

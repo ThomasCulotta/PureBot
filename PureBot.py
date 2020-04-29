@@ -41,7 +41,8 @@ class PureBot:
             "CustomCommands" : (),
             "VoteBanCommands" : (),
             "ShoutoutCommands" : (),
-            "FindGameCommands" : (botconfig.igdbAuthKey,)
+            "FindGameCommands" : (),
+            "FindSongCommands" : (),
         }
 
         for name in botconfig.exclude:

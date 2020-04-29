@@ -20,7 +20,7 @@ hostName = botconfig.twitchChannel
 
 def CheckGetAccessToken():
     response = requests.get(f"https://id.twitch.tv/oauth2/validate", headers=v5Header)
-    print(response.text)
+
     if not response.ok:
         response = requests.post(f"https://id.twitch.tv/oauth2/token?client_id={clientId}&client_secret={botconfig.clientSecret}&grant_type=client_credentials")
         data = response.json()
@@ -81,6 +81,8 @@ def GetGame(user=None):
     return None
 
 def GetStartTime():
+    CheckGetAccessToken()
+
     loginParam = { "user_login" : hostName }
 
     response = requests.get(f"{helixEndpoint}/streams", params=loginParam, headers=helixHeader)
