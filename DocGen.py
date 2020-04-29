@@ -8,7 +8,8 @@ customCommandsFile = None
 
 docFile.write("# PureSushi Channel Commands\n\n")
 
-for root, dirs, files in os.walk(botDir):
+for root, dirs, files in os.walk(os.path.join(botDir, "Commands")):
+    files.sort()
     for file in files:
         if file.endswith(".py"):
             title = file.rstrip(".py")
@@ -54,7 +55,10 @@ if customCommandsFile != None:
     with open(customCommandsFile, "r") as file:
         commandJson = json.load(file)
 
-    for command in commandJson:
+    commands = list(commandJson)
+    commands.sort()
+
+    for command in commands:
         docFile.write("```\n" + command + "\n```\n")
 
 docFile.write("\n")

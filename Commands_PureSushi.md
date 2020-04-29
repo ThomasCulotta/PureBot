@@ -12,18 +12,45 @@ addcom newcom I'm a new command
 delcom newcom
 ```
 ---
-## ShoutoutCommands
+## DiceCommands
 
-### shoutout USER
+### roll NUMdNUM
 ```
-shoutout PureSushi
+roll 1d20
 
-shoutout @PureSushi
+roll 7d100
 ```
 **Remarks**
 
-Mod Only. Promotes the given user's channel.
+Between 1 and 10 dice may be rolled. Dice options are d2 to d100.
 
+---
+## FindGameCommands
+
+### findgame TEXT
+```
+findgame Halo
+
+findgame Silent Hill
+```
+---
+## PollCommands
+
+### poll NUM_MINUTES (NUM_OPTIONS)
+```
+poll 2
+
+poll 4 3
+```
+**Remarks**
+
+A Yes/No poll is started when NUM_OPTIONS is not provided. NUM_OPTIONS may be 2-10 and will start a poll with A, B, C, etc.
+
+### poll end
+### vote LETTER
+```
+vote y
+```
 ---
 ## QuoteCommands
 
@@ -73,6 +100,19 @@ Only the quote without quotation marks is required. The text will be formatted i
 Mod Only. Clears leaderboard.
 
 ---
+## ShoutoutCommands
+
+### shoutout USER
+```
+shoutout PureSushi
+
+shoutout @PureSushi
+```
+**Remarks**
+
+Mod Only. Promotes the given user's channel.
+
+---
 ## TimeCommands
 
 ### uptime
@@ -89,37 +129,6 @@ voteban @BabotzInc
 
 This is a joke command.
 
----
-## DiceCommands
-
-### roll NUMdNUM
-```
-roll 1d20
-
-roll 7d100
-```
-**Remarks**
-
-Between 1 and 10 dice may be rolled. Dice options are d2 to d100.
-
----
-## PollCommands
-
-### poll NUM_MINUTES (NUM_OPTIONS)
-```
-poll 2
-
-poll 4 3
-```
-**Remarks**
-
-A Yes/No poll is started when NUM_OPTIONS is not provided. NUM_OPTIONS may be 2-10 and will start a poll with A, B, C, etc.
-
-### poll end
-### vote LETTER
-```
-vote y
-```
 ---
 ## WhoCommands
 
@@ -158,7 +167,31 @@ who del @BabotzInc 12
 ## Other Commands
 
 ```
+bonsai
+```
+```
+chateau
+```
+```
+commands
+```
+```
+compilation
+```
+```
 deathcount
+```
+```
+discord
+```
+```
+drive
+```
+```
+fbi
+```
+```
+help
 ```
 ```
 hydrate
@@ -170,10 +203,25 @@ kick
 leonhelp
 ```
 ```
+lewdcount
+```
+```
+list
+```
+```
 lore
 ```
 ```
+movienight
+```
+```
+multi
+```
+```
 puresushi
+```
+```
+sushiwall
 ```
 ```
 thanks
@@ -182,57 +230,18 @@ thanks
 truth
 ```
 ```
+twitter
+```
+```
 what
 ```
 ```
 wrench
 ```
 ```
-lewdcount
-```
-```
-discord
-```
-```
-bonsai
-```
-```
-chateau
-```
-```
-compilation
-```
-```
 youtube
 ```
 ```
-twitter
-```
-```
-multi
-```
-```
-movienight
-```
-```
-list
-```
-```
-welcome [ARG]
-```
-```
-help
-```
-```
-commands
-```
-```
-sushiwall
-```
-```
-fbi
-```
-```
-drive
+zach
 ```
 
