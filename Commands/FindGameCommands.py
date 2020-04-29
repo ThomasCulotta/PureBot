@@ -2,6 +2,7 @@ import re
 import json
 import random
 import requests
+import datetime
 
 from Utilities.FlushPrint import ptf
 import Utilities.RegGroups as groups
@@ -18,7 +19,6 @@ class FindGameCommands():
 
         self.findGameRegex = re.compile(f"^findgame {groups.text}$")
         self.findDevRegex = re.compile(f"^finddev {groups.text}$")
-        self.dateRegex = re.compile("(?P<year>\d{4})-(?P<month>\w{3})-(?P<day>\d{2})")
 
     # snippet start
     # findgame TEXT
@@ -30,20 +30,40 @@ class FindGameCommands():
         if regMatch == None:
             return f"[{msg.user}]: The syntax for that command is: findgame TEXT"
 
-        queryBody = f"fields name, involved_companies.developer, involved_companies.company.name, release_dates.human; where version_parent = null; limit 1; search \"{regMatch.group('text')}\";"
+        bodyBase = f"search \"{regMatch.group('text')}\"; limit 5; fields name, involved_companies.developer, involved_companies.company.name, first_release_date; where version_parent = null & category = 0"
 
-        response = requests.post(f"https://api-v3.igdb.com/games", data=queryBody, headers=self.igdbHeader)
+        # Successive searches for valid dev and date, then just valid date, then anything
+        requestBodies = [
+            f"{bodyBase} & first_release_date != null & involved_companies.developer = true;",
+            f"{bodyBase} & first_release_date != null;",
+            f"{bodyBase};",
+        ]
 
-        ptf(response.text)
-        data = response.json()
+        data = []
+
+        for requestBody in requestBodies:
+            response = requests.post(f"https://api-v3.igdb.com/games", data=requestBody, headers=self.igdbHeader)
+            data = response.json()
+
+            if len(data) != 0:
+                break
 
         if len(data) == 0:
             return f"[{msg.user}]: Game not found"
 
-        data = data[0]
+        data = random.choice(data)
+
         foundName = data["name"]
-        dateMatch = self.dateRegex.match(data["release_dates"][0]["human"]) if "release_dates" in data else None
-        releaseDate = f"{dateMatch.group('month')} {dateMatch.group('day')}, {dateMatch.group('year')}" if dateMatch != None else "[Unknown Date]"
+        releaseDate = datetime.datetime.utcfromtimestamp(data["first_release_date"]).strftime("%B %d, %Y") if "first_release_date" in data else "[Unknown Date]"
         companyName = next((comp["company"]["name"] for comp in data["involved_companies"] if comp["developer"]), "[Unknown Developer]") if "involved_companies" in data else "[Unknown Developer]"
 
         return f"[{msg.user}]: {foundName} by {companyName} first released on {releaseDate}"
+
+    # snippet start
+    # finddev TEXT
+    # finddev Bungie
+    # finddev Capcom
+    # remarks
+    # Retrieves a random game developed by the given developer
+    def ExecuteFindDev(self, msg):
+        return
