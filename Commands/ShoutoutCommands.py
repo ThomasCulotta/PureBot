@@ -1,5 +1,4 @@
 import re
-import json
 import random
 
 from Utilities.BotRequests import GetUserId, GetGame
@@ -9,21 +8,8 @@ import Utilities.RegGroups as groups
 
 class ShoutoutCommands():
     def __init__(self):
-        self.autoShoutoutFile = "Commands/AutoShoutoutUsers.json"
-
-        with open(self.autoShoutoutFile, 'r') as file:
-            self.autoShoutoutUsers = json.load(file)
-
         self.activeCommands = {
             "shoutout" : self.ExecuteShoutout,
-        }
-
-        self.activeOnBroadcasterJoinEvents = {
-            self.ExecuteOnBroadcasterJoinShoutout
-        }
-
-        self.activeOnRaidEvents = {
-            self.ExecuteOnRaidShoutout
         }
 
         self.shoutoutRegex = re.compile(f"^shoutout {groups.user}")
@@ -59,17 +45,3 @@ class ShoutoutCommands():
             return f"[{msg.user}]: The syntax for that command is: shoutout USER"
 
         return self.ShoutoutHelper(regMatch.group("user"), msg.user)
-
-    # Event on broadcaster join
-    def ExecuteOnBroadcasterJoinShoutout(self):
-        with open(self.autoShoutoutFile, 'r') as file:
-            self.autoShoutoutUsers = json.load(file)
-
-    # Event on raid
-    def ExecuteOnRaidShoutout(self, user):
-        try:
-            self.autoShoutoutUsers.remove(user)
-        except ValueError:
-            return
-
-        return self.ShoutoutHelper(user, "puresushibot")

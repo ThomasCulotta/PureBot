@@ -60,12 +60,6 @@ class PureBot:
         # Maps all active channel points custom reward ids caught by imported command modules to their respective RedeemReward function
         self.redeem = {}
 
-        # Tracks all active events to execute on broadcaster join
-        self.onBroadcasterJoin = {}
-
-        # Tracks all active events to execute on raid
-        self.onRaid = {}
-
         for cmd in self.commands.values():
             if hasattr(cmd, "activeCommands"):
                 self.execute = {**self.execute, **cmd.activeCommands}
@@ -73,52 +67,24 @@ class PureBot:
             if hasattr(cmd, "activeRewards"):
                 self.redeem = {**self.redeem, **cmd.activeRewards}
 
-            if hasattr(cmd, "activeOnBroadcasterJoinEvents"):
-                self.onBroadcasterJoin = {*self.onBroadcasterJoin, *cmd.activeOnBroadcasterJoinEvents}
-
-            if hasattr(cmd, "activeOnRaidEvents"):
-                self.onRaid = {*self.onRaid, *cmd.activeOnRaidEvents}
-
-        ptf("Bot Started!")
-
         self.ws.start_bot()
         # Any code after this will be executed after a KeyboardInterrupt
 
     def message_handler(self, m):
-        joining = m.type == "JOIN"
-
         # Check for proper message type
         if (m.type != "PRIVMSG" and
-            m.type != "WHISPER" and
-            m.type != "USERNOTICE" and
-            not joining):
+            m.type != "WHISPER"):
             return
 
-        # Check for valid message with prefix, valid rewards, and raids
-        raiding = not joining and "msg-id" in m.tags and m.tags["msg-id"] == "raid"
-        validReward = not joining and not raiding and "custom-reward-id" in m.tags
-        validCommand = not joining and not raiding and m.message != None and m.message[0] == self.prefix
+        # Check for valid message with prefix and valid rewards
+        validReward = "custom-reward-id" in m.tags
+        validCommand = m.message != None and len(m.message) > 1 and m.message[0] == self.prefix
 
         if (not validReward and
-            not validCommand and
-            not joining and
-            not raiding):
+            not validCommand):
             return
 
         try:
-            if joining:
-                if m.user == self.chan:
-                    util.LogReceived(m.type, m.user, m.message, m.tags)
-                    for broadcasterJoinEvent in self.onBroadcasterJoin:
-                        broadcasterJoinEvent()
-
-                return
-
-            if raiding:
-                util.LogReceived(m.type, m.tags["login"], m.message, m.tags)
-                for raidEvent in self.onRaid:
-                    util.SendMessage(raidEvent(m.user))
-
             if validReward:
                 util.LogReceived(m.type, m.user, m.message, m.tags)
                 util.SendMessage(self.redeem[m.tags["custom-reward-id"]](m), m.type, m.user)
