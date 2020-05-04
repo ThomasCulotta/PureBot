@@ -30,7 +30,7 @@ class FindGameCommands():
         if regMatch == None:
             return f"[{msg.user}]: The syntax for that command is: findgame TEXT"
 
-        bodyBase = f"search \"{regMatch.group('text')}\"; limit 5; fields name, involved_companies.developer, involved_companies.company.name, first_release_date; where version_parent = null & category = 0"
+        bodyBase = f"search \"{regMatch.group('text')}\"; limit 3; fields name, involved_companies.developer, involved_companies.company.name, first_release_date; where version_parent = null & category = 0"
 
         # Successive searches for valid dev and date, then just valid date, then anything
         requestBodies = [

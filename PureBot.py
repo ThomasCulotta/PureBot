@@ -43,6 +43,7 @@ class PureBot:
             "ShoutoutCommands" : (),
             "FindGameCommands" : (),
             "FindSongCommands" : (),
+            "FindFoodCommands" : (),
         }
 
         for name in botconfig.exclude:

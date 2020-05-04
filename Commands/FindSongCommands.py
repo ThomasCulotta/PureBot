@@ -51,7 +51,6 @@ class FindSongCommands():
 
         response = requests.get(f"https://api.spotify.com/v1/search", params=queryParams, headers=self.spotifyHeader)
         data = response.json()
-        ptf(json.dumps(data, indent=2))
 
         if not response.ok or len(data["tracks"]["items"]) == 0:
             return f"[{msg.user}]: Song not found"
