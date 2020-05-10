@@ -12,6 +12,9 @@ class FindFoodCommands():
     def __init__(self):
         self.header = { "Accept" : "application/json" }
 
+        if not hasattr(botconfig, "spoonacularAuthKey"):
+            ptf("spoonacularAuthKey not found in botconfig")
+
         self.params = { "apiKey" : botconfig.spoonacularAuthKey }
 
         self.activeCommands = {

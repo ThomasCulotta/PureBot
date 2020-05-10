@@ -15,6 +15,15 @@ class ScoreCommands:
         self.leaderboard_col = mongoClient.QuoteBotDB[leaderboard_col_name]
         self.leaderboard_col.create_index([("user", pymongo.ASCENDING)])
 
+        if not hasattr(botconfig, "scoreLifespan"):
+            ptf("scoreLifespan not found in botconfig")
+        if not hasattr(botconfig, "clearScoreId"):
+            ptf("clearScoreId not found in botconfig")
+        if not hasattr(botconfig, "stealScoreId"):
+            ptf("stealScoreId not found in botconfig")
+        if not hasattr(botconfig, "swapScoreId"):
+            ptf("swapScoreId not found in botconfig")
+
         # Set expiration timer on collection documents
         self.leaderboard_col.create_index([("createdAt", pymongo.ASCENDING)], expireAfterSeconds=botconfig.scoreLifespan)
         ptfDebug(f"leaderboard_col_name: {leaderboard_col_name}")

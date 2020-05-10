@@ -9,12 +9,11 @@ import Utilities.TwitchUtils as util
 
 from Commands import *
 
-client = pymongo.MongoClient(f"mongodb://{botconfig.DBusername}:{botconfig.DBpassword}@{botconfig.DBhostIP}/QuoteBotDB")
-
 class PureBot:
     def __init__(self):
         self.chan = botconfig.twitchChannel
-        self.prefix = botconfig.prefix
+        self.prefixes = botconfig.prefixes
+        self.client = pymongo.MongoClient(f"mongodb://{botconfig.DBusername}:{botconfig.DBpassword}@{botconfig.DBhostIP}/QuoteBotDB")
 
         # Send along all required information, and the bot will start
         # sending messages to your callback function. (self.message_handler in this case)
@@ -27,10 +26,10 @@ class PureBot:
                                   capability=["membership", "tags", "commands"],
                                   live=True)
 
-        util.InitializeUtils(self.ws, self.chan, client)
+        util.InitializeUtils(self.ws, self.chan, self.client)
 
         # List of command names and args required for their constructor
-        args = (self.chan, client)
+        args = (self.chan, self.client)
         commandNames = {
             "WhoCommands" : args,
             "ScoreCommands" : args,
@@ -79,7 +78,7 @@ class PureBot:
 
         # Check for valid message with prefix and valid rewards
         validReward = "custom-reward-id" in m.tags
-        validCommand = m.message != None and len(m.message) > 1 and m.message[0] == self.prefix
+        validCommand = m.message != None and len(m.message) > 1 and m.message[0] in self.prefixes
 
         if (not validReward and
             not validCommand):

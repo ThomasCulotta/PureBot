@@ -11,6 +11,9 @@ import Utilities.RegGroups as groups
 
 class FindGameCommands():
     def __init__(self):
+        if not hasattr(botconfig, "igdbAuthKey"):
+            ptf("igdbAuthKey not found in botconfig")
+
         self.igdbHeader = { "user-key" : botconfig.igdbAuthKey,
                             "Accept" : "application/json" }
 
