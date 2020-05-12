@@ -18,7 +18,7 @@ class FindSongCommands():
         self.authHeader = { "Authorization" : f"Basic {base64.urlsafe_b64encode(botconfig.spotifyIdAndSecret.encode('utf-8')).decode('utf-8')}" }
         self.authBody = { "grant_type" : "client_credentials" }
 
-        self.spotifyHeader = { "Authorization" : "Bearer BQD8FqgKircT9PbOyw8mb0jHiw6HawVhrEt_CwGbdsHmm7f5VnZO7w2fCiY7GjTFUPNqYd8iGC4writNxBA",
+        self.spotifyHeader = { "Authorization" : "Bearer [Invalid]",
                                "Accept" : "application/json" }
 
         self.activeCommands = {

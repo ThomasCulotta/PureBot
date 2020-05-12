@@ -13,9 +13,20 @@ class FindGameCommands():
     def __init__(self):
         if not hasattr(botconfig, "igdbAuthKey"):
             ptf("igdbAuthKey not found in botconfig")
+        if not hasattr(botconfig, "steamAuthKey"):
+            ptf("steamAuthKey not found in botconfig")
 
         self.igdbHeader = { "user-key" : botconfig.igdbAuthKey,
                             "Accept" : "application/json" }
+
+        params = { "key" : botconfig.steamAuthKey }
+
+        response = requests.get("https://api.steampowered.com/ISteamApps/GetAppList/v2/", params=params)
+        data = response.json()
+
+        self.steamApps = {}
+        if response.ok:
+            self.steamApps = { app["name"] : app["appid"] for app in data["applist"]["apps"] }
 
         self.activeCommands = {
             "findgame" : self.ExecuteFindGame,
@@ -33,7 +44,7 @@ class FindGameCommands():
         if regMatch == None:
             return f"[{msg.user}]: The syntax for that command is: findgame TEXT"
 
-        bodyBase = f"search \"{regMatch.group('text')}\"; limit 3; fields name, involved_companies.developer, involved_companies.company.name, first_release_date; where version_parent = null & category = 0"
+        bodyBase = f"search \"{regMatch.group('text')}\"; limit 3; fields name, url, involved_companies.developer, involved_companies.company.name, first_release_date; where version_parent = null & category = 0"
 
         # Successive searches for valid dev and date, then just valid date, then anything
         requestBodies = [
@@ -59,5 +70,9 @@ class FindGameCommands():
         foundName = data["name"]
         releaseDate = datetime.datetime.utcfromtimestamp(data["first_release_date"]).strftime("%B %d, %Y") if "first_release_date" in data else "[Unknown Date]"
         companyName = next((comp["company"]["name"] for comp in data["involved_companies"] if comp["developer"]), "[Unknown Developer]") if "involved_companies" in data else "[Unknown Developer]"
+        gameUrl = data["url"]
 
-        return f"[{msg.user}]: {foundName} by {companyName} first released on {releaseDate}"
+        if foundName in self.steamApps:
+            gameUrl = f"https://store.steampowered.com/app/{self.steamApps[foundName]}"
+
+        return f"[{msg.user}]: {foundName} by {companyName} first released on {releaseDate} {gameUrl}"
