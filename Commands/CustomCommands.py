@@ -21,6 +21,13 @@ class CustomCommands:
         self.addComRegex = re.compile(f"^addcom (.+? \[ARG\]|.+?) {groups.text}$")
         self.delComRegex = re.compile(f"^delcom {groups.text}$")
 
+    def SaveCommands(self):
+        with open(self.commandFile, 'w') as outfile:
+            json.dump(self.customCommandList, outfile, indent = 4)
+
+        with open(self.commandFile, 'r') as file:
+            self.customCommandList = json.load(file)
+
     # snippet start
     # addcom COMMAND TEXT
     # addcom newcom I'm a new command
@@ -33,27 +40,26 @@ class CustomCommands:
         if regmatch == None:
             return f"[{msg.user}]: The syntax for that command is: addcom TEXT TEXT"
 
-        newCommand = regmatch.group(1).lower()
-        newCommandText = regmatch.group("text")
+        command = regmatch.group(1).lower()
+        commandText = regmatch.group("text")
 
         with open(self.commandFile, 'r') as file:
             self.customCommandList = json.load(file)
 
-        if newCommand in self.customCommandList:
-            return f"[{msg.user}]: That command ({newCommand}) already exists!"
+        commandExists = False
+        if command in self.customCommandList:
+            commandExists = True
 
-        self.customCommandList[newCommand] = newCommandText
+        self.customCommandList[command] = commandText
+        self.SaveCommands()
 
-        with open(self.commandFile, 'w') as outfile:
-            json.dump(self.customCommandList, outfile, indent = 2)
-
-        with open(self.commandFile, 'r') as file:
-            self.customCommandList = json.load(file)
-
-        if newCommand in self.customCommandList:
-            return f"[{msg.user}]: Command added as [{newCommand}]!"
+        if command in self.customCommandList:
+            if commandExists:
+                return f"[{msg.user}]: Command [{command}] was updated"
+            else:
+                return f"[{msg.user}]: Command [{command}] was added"
         else:
-            return f"[{msg.user}]: Command not added, for some reason."
+            return f"[{msg.user}]: Could not add/update command"
 
     # snippet start
     # delcom COMMAND
@@ -73,23 +79,15 @@ class CustomCommands:
             self.customCommandList = json.load(file)
 
         if command not in self.customCommandList:
-            return f"[{msg.user}]: That command ({command}) is not a command!"
+            return f"[{msg.user}]: {command} is not a command"
 
         self.customCommandList.pop(command)
+        self.SaveCommands()
 
-        #write changes to file
-        with open(self.commandFile, 'w') as outfile:
-            json.dump(self.customCommandList, outfile, indent = 2)
-
-        #reload file's contents
-        with open(self.commandFile, 'r') as file:
-            self.customCommandList = json.load(file)
-
-        #test if the command has been removed
         if command not in self.customCommandList:
-            return f"[{msg.user}]: That command ({command}) has been removed!"
+            return f"[{msg.user}]: Command [{command}] was deleted"
         else:
-            return f"[{msg.user}]: Command not removed, for some reason."
+            return f"[{msg.user}]: Command [{command}] could not be deleted"
 
     # Generic Commands
     def Execute(self, msg):
