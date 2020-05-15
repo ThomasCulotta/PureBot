@@ -2,7 +2,7 @@ import re
 import json
 import random
 
-from Utilities.FlushPrint import ptf, ptfDebug
+from Utilities.FlushPrint import ptf
 import Utilities.TwitchUtils as util
 import Utilities.RegGroups as groups
 
@@ -91,8 +91,6 @@ class CustomCommands:
 
     # Generic Commands
     def Execute(self, msg):
-        ptfDebug("Beginning Custom Command")
-
         tokens = msg.message.lower().split()
 
         if tokens[0] in self.customCommandList:
@@ -113,8 +111,6 @@ class CustomCommands:
 
         elif len(tokens) > 1 and (tokens[0] + " [ARG]") in self.customCommandList:
             util.LogReceived(msg.type, msg.user, msg.message, msg.tags, True)
-
-            ptfDebug("arg command")
             response = self.customCommandList[(tokens[0] + " [ARG]")].replace("[ARG]", tokens[1])
             return response
 

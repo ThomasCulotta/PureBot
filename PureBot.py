@@ -4,7 +4,7 @@ from TwitchWebsocket import TwitchWebsocket
 
 import botconfig
 
-from Utilities.FlushPrint import ptf, ptfDebug
+from Utilities.FlushPrint import ptf
 import Utilities.TwitchUtils as util
 
 from Commands import *

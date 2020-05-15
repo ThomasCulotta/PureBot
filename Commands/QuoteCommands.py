@@ -3,7 +3,7 @@ import pymongo
 import datetime
 
 from Utilities.BotRequests import GetGame
-from Utilities.FlushPrint import ptf, ptfDebug
+from Utilities.FlushPrint import ptf
 import Utilities.TwitchUtils as util
 import Utilities.RegGroups as groups
 
@@ -12,9 +12,8 @@ class QuoteCommands:
         quote_col_name = chan + "Quotes"
         self.quote_col = mongoClient.QuoteBotDB[quote_col_name]
         self.quote_col.create_index([("id", pymongo.ASCENDING)])
-        ptfDebug(f"quote_col_name: {quote_col_name}")
 
-        self.counter_col = mongoClient.QuoteBotDB['counters']
+        self.counter_col = mongoClient.QuoteBotDB["counters"]
         self.counterName = chan + "Counter"
 
         self.activeCommands = {
@@ -36,6 +35,16 @@ class QuoteCommands:
         self.quoteDelRegex = re.compile(f"^quote del {groups.idOrLast}")
         self.quoteChangeRegex = re.compile(f"^quote change {groups.num} {groups.text}$")
 
+    def CheckModifyQuote(action, result):
+        if not util.CheckPrivMod(msg.tags):
+            if result["user"] != msg.user:
+                result.append(f"[{msg.user}]: Only mods can {action} a quote someone else added")
+
+            if result["date"].strftime("%x") != datetime.datetime.now().strftime("%x"):
+                return f"[{msg.user}]: Only mods can {action} a quote on a different day than it was added"
+
+        return None
+
     # snippet start
     # quote (ID/TEXT)
     # quote
@@ -44,7 +53,6 @@ class QuoteCommands:
     # remarks
     # When "quote TEXT" is used, a random quote with the given text in it is returned.
     def ExecuteQuote(self, msg):
-        ptfDebug("Beginning Quote Command")
         try:
             subCommand = msg.message.lower().split()[1]
         except IndexError:
@@ -57,9 +65,9 @@ class QuoteCommands:
         regmatch = next((exp.match(msg.message) for exp in self.quoteRegex if exp.match(msg.message) != None), None)
 
         result = None
-        quoteID = None
+        quoteId = None
         if regmatch == None:
-            results = self.quote_col.aggregate([{ "$sample": { "size": 1 }}])
+            results = self.quote_col.aggregate([{ "$sample" : { "size" : 1 } }])
             for item in results:
                 result = item
         else:
@@ -69,32 +77,39 @@ class QuoteCommands:
                 quoteArg = None
 
             if quoteArg != None:
+                latestId = self.counter_col.find_one({ "name" : self.counterName })["value"] - 1
                 if quoteArg.isnumeric():
-                    quoteID = int(quoteArg)
+                    # Clamp id between 1 and latestId
+                    quoteId = max(min(int(quoteArg), latestId), 1)
                 else:
-                    quoteID = self.counter_col.find_one({"name": self.counterName})['value'] - 1
+                    quoteId = latestId
 
-                if quoteID:
-                    result = self.quote_col.find_one({"id":quoteID})
+                if quoteId:
+                    result = self.quote_col.find_one({ "id" : quoteId })
             else:
                 quoteArg = regmatch.group("text")
 
                 results = self.quote_col.aggregate([
-                    {"$match" : {"text" : {"$regex" : quoteArg, "$options" : "i"}}},
-                    {"$sample" : {"size" : 1}}])
+                    { "$match" : { "text" : {
+                                        "$regex" : quoteArg,
+                                        "$options" : "i"
+                                    } } },
+                    { "$sample" : { "size" : 1 } }])
 
                 for item in results:
                     result = item
 
         if result == None:
-            if quoteID == None:
+            if quoteId == None:
                 return f"[{msg.user}]: No quotes found"
 
-            return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
+            return f"[{msg.user}]: No quote {quoteId}"
         else:
-            formattedDate = result['date'].strftime("%x")
-            quoteID = result['id']
-            return f"[{quoteID}]: \"{result['text']}\" - {result['game']} on {formattedDate}"
+            quoteId = result["id"]
+            quoteText = result["text"]
+            quoteGame = result["game"]
+            quoteDate = result["date"].strftime("%x")
+            return f"[{quoteId}]: \"{quoteText}\" - {quoteGame} on {quoteDate}"
 
     # snippet start
     # quote add TEXT
@@ -111,16 +126,16 @@ class QuoteCommands:
             return f"[{msg.user}]: The syntax for that command is: quote add TEXT"
 
         result = self.counter_col.find_one_and_update(
-            {"name": self.counterName},
-            {'$inc': {'value':1}},
+            { "name" : self.counterName },
+            { "$inc" : { "value" : 1 } },
             upsert=True
         )
 
         if result == None:
-            return f"[{msg.user}]: Unable to get new quote id from {self.counterName}"
+            ptf(f"Counter not found for {self.counterName}")
+            return f"[{msg.user}]: Unable to add quote"
 
-        quoteID = result['value']
-
+        quoteId = result["value"]
         gameName = GetGame()
 
         if gameName == None:
@@ -129,17 +144,14 @@ class QuoteCommands:
         quoteText = regmatch.group("text")
         quoteText.strip("\"'")
 
-        ptfDebug(quoteText)
-        quoteObj = {
-            "id": quoteID,
-            "user": msg.user,
-            "text": quoteText,
-            "game": gameName,
-            "date": datetime.datetime.now()
-        }
-
-        self.quote_col.insert_one(quoteObj)
-        return f"[{msg.user}]: Your quote has been added with id {quoteID}!"
+        self.quote_col.insert_one({
+            "id" : quoteId,
+            "user" : msg.user,
+            "text" : quoteText,
+            "game" : gameName,
+            "date" : datetime.datetime.now()
+        })
+        return f"[{msg.user}]: Added quote {quoteId}"
 
     # snippet start
     # quote del ID
@@ -151,46 +163,40 @@ class QuoteCommands:
         if regmatch == None:
             return f"[{msg.user}]: The syntax for that command is: quote del NUMBER"
 
-        deleteFlag = False
-
-        result = self.counter_col.find_one({"name": self.counterName})
+        result = self.counter_col.find_one({ "name" : self.counterName })
 
         if result == None:
-            ptfDebug(f"Counter not found for {self.counterName}")
-            return f"[{msg.user}]: Database error. Unable to delete quote"
+            ptf(f"Counter not found for {self.counterName}")
+            return f"[{msg.user}]: Unable to delete quote"
 
-        lastquoteID = int(result['value']) - 1
+        latestId = int(result["value"]) - 1
+        quoteId = latestId
 
+        deleteFlag = False
         quoteIdOrLast = regmatch.group("idOrLast")
         if quoteIdOrLast.lower() == "last":
             deleteFlag = True
-            quoteID = lastquoteID
         else:
-            quoteID = int(quoteIdOrLast)
+            quoteId = int(quoteIdOrLast)
 
-            if quoteID == lastquoteID:
+            if quoteId == latestId:
                 deleteFlag = True
 
-        result = self.quote_col.find_one({"id":quoteID})
+        result = self.quote_col.find_one({ "id" : quoteId })
 
         if result == None:
-            return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
+            return f"[{msg.user}]: No quote {quoteId}"
 
-        if not util.CheckPrivMod(msg.tags):
-            if result['user'] != msg.user:
-                return f"[{msg.user}]: Only mods can delete a quote someone else added"
+        checkResult = CheckModifyQuote("delete")
+        if checkResult != None:
+            return checkResult
 
-            if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
-                return f"[{msg.user}]: Only mods can delete a quote on a different day than it was added"
-
-        ptfDebug(f"Deleting quoteID: {quoteID}")
-
-        self.quote_col.delete_one({"id":quoteID})
+        self.quote_col.delete_one({ "id" : quoteId })
 
         if deleteFlag:
-            self.counter_col.update_one({"name": self.counterName}, {'$inc': {'value':-1}})
+            self.counter_col.update_one({ "name" : self.counterName }, { "$inc" : { "value" : -1 } })
 
-        return f"[{msg.user}]: Deleted quote #{quoteID}!"
+        return f"[{msg.user}]: Deleted quote {quoteId}"
 
     # snippet start
     # quote change ID TEXT
@@ -203,26 +209,22 @@ class QuoteCommands:
         if regmatch == None:
             return f"[{msg.user}]: The syntax for that command is: quote change NUMBER TEXT"
 
-        quoteID = int(regmatch.group("num0"))
+        quoteId = int(regmatch.group("num0"))
         newQuote = regmatch.group("text")
         newQuote.strip("\"'")
-        ptfDebug(newQuote)
 
-        result = self.quote_col.find_one({"id":quoteID})
+        result = self.quote_col.find_one({ "id" : quoteId })
 
         if result == None:
-            return f"[{msg.user}]: No quote with an ID of [{quoteID}]!"
+            return f"[{msg.user}]: No quote {quoteId}"
 
-        if not util.CheckPrivMod(msg.tags):
-            if result['user'] != msg.user:
-                return f"[{msg.user}]: Only mods can edit a quote someone else added"
-
-            if result['date'].strftime("%x") != datetime.datetime.now().strftime("%x"):
-                return f"[{msg.user}]: Only mods can edit a quote on a different day than it was added"
+        checkResult = CheckModifyQuote("edit")
+        if checkResult != None:
+            return checkResult
 
         self.quote_col.update_one(
-            {"id": quoteID},
-            {'$set': {'text': newQuote}}
+            { "id" : quoteId },
+            { "$set" : { "text" : newQuote } }
         )
 
-        return f"[{msg.user}]: Updated quote #{quoteID}!"
+        return f"[{msg.user}]: Updated quote {quoteId}"

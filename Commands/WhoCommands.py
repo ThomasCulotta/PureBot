@@ -3,7 +3,7 @@ import json
 import random
 import pymongo
 
-from Utilities.FlushPrint import ptf, ptfDebug
+from Utilities.FlushPrint import ptf
 from Utilities.BotRequests import GetUserId
 import Utilities.TwitchUtils as util
 import Utilities.RegGroups as groups
@@ -13,7 +13,6 @@ class WhoCommands():
         colNameWho = chan + "Who"
         self.colWho = mongoClient.QuoteBotDB[colNameWho]
         self.colWho.create_index([("user", pymongo.ASCENDING)])
-        ptfDebug(f"colNameWho: {colNameWho}")
 
         self.activeCommands = {
             "who" : self.ExecuteWho,
@@ -64,19 +63,21 @@ class WhoCommands():
         except (IndexError, AttributeError):
             userName = msg.user
 
-        result = self.colWho.find_one({"user":userName})
+        result = self.colWho.find_one({ "user" : userName })
 
         if result == None:
             return f"[{msg.user}]: No quotes from {userName}"
 
-        quoteBank = json.loads(result['quotes'])
+        quoteBank = json.loads(result["quotes"])
+        minId = min(quoteBank.keys())
+        maxId = max(quoteBank.keys())
 
         if quoteId == None:
             quoteId, quote = random.choice(list(quoteBank.items()))
-        elif quoteId in quoteBank:
+        elif max(min(quoteId, maxId), minId) in quoteBank:
             quote = quoteBank[quoteId]
         else:
-            return f"[{msg.user}]: No quote from {userName} with id {quoteId}"
+            return f"[{msg.user}]: No {userName} quote {quoteId}"
 
         return f"[{userName} {quoteId}]: {quote}"
 
@@ -101,7 +102,7 @@ class WhoCommands():
             return f"[{msg.user}]: {user} is not an existing username."
 
         result = self.colWho.find_one(
-            {"user": userName}
+            { "user" : userName }
         )
 
         if result == None:
@@ -110,30 +111,29 @@ class WhoCommands():
             quoteBank = {}
         else:
             newCol = False
-            quoteId = result['counter']
-            quoteBank = json.loads(result['quotes'])
+            quoteId = result["counter"]
+            quoteBank = json.loads(result["quotes"])
 
         quoteBank[quoteId] = quote
-        ptfDebug(f"{userName} : {quote}")
 
         if newCol:
             self.colWho.insert_one( {
-                    "user": userName,
-                    "quotes": json.dumps(quoteBank),
-                    "counter": int(quoteId)+1,
+                    "user" : userName,
+                    "quotes" : json.dumps(quoteBank),
+                    "counter" : int(quoteId) + 1,
                 }
             )
         else:
             self.colWho.update_one(
-                {"user": userName},
-                {"$set": {
-                        "quotes": json.dumps(quoteBank),
-                        "counter": int(quoteId)+1
+                { "user" : userName },
+                { "$set" : {
+                        "quotes" : json.dumps(quoteBank),
+                        "counter" : int(quoteId) + 1
                     }
                 }
             )
 
-        return f"[{msg.user}]: Your quote for user {userName} has been added with id {quoteId}!"
+        return f"[{msg.user}]: Added {userName} quote {quoteId}"
 
     # snippet start
     # who del USER ID
@@ -155,29 +155,29 @@ class WhoCommands():
         if GetUserId(userName) == None:
             return f"[{msg.user}]: {userName} is not an existing username."
 
-        result = self.colWho.find_one({"user":userName})
+        result = self.colWho.find_one({ "user" : userName })
 
         if result == None:
             return f"[{msg.user}]: No quotes from {userName}"
 
-        quoteBank = json.loads(result['quotes'])
+        quoteBank = json.loads(result["quotes"])
         deletedQuote = None
 
         if quoteId.lower() == "last":
-            deletedId, deletedQuote = quoteBank.sort_by_key().pop_back()##################
+            deletedId, deletedQuote = quoteBank.sort_by_key().pop_back()
         else:
             deletedQuote = quoteBank.pop(quoteId, None)
 
         if deletedQuote == None:
-            return f"[{msg.user}]: No {userName} quote #{quoteId}"
+            return f"[{msg.user}]: No {userName} quote {quoteId}"
 
         if len(quoteBank) == 0:
-            self.colWho.delete_one({"user":userName})
-            return f"[{msg.user}]: Deleted {userName} quote #{quoteId}. No more quotes for {userName}"
+            self.colWho.delete_one({ "user" : userName })
+            return f"[{msg.user}]: Deleted {userName} quote {quoteId}. No more quotes for {userName}"
 
         self.colWho.update_one(
-                {"user": userName},
-                {"$set": {"quotes": json.dumps(quoteBank)}}
+                { "user" : userName },
+                { "$set" : { "quotes" : json.dumps(quoteBank) } }
             )
 
-        return f"[{msg.user}]: Deleted {userName} quote #{quoteId}"
+        return f"[{msg.user}]: Deleted {userName} quote {quoteId}"
