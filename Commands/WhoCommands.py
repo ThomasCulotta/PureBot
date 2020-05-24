@@ -72,7 +72,7 @@ class WhoCommands():
 
         if quoteId == None:
             quoteId, quote = random.choice(list(quoteBank.items()))
-        elif max(min(quoteId, maxId), minId) in quoteBank:
+        elif (quoteId := max(min(quoteId, maxId), minId)) in quoteBank:
             quote = quoteBank[quoteId]
         else:
             return f"[{msg.user}]: No {userName} quote {quoteId}"
