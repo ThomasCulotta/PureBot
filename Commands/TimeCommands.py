@@ -1,7 +1,8 @@
 import datetime
 
 from Utilities.BotRequests import GetStartTime
-from Utilities.FlushPrint import ptf, ptfDebug
+from Utilities.FlushPrint import ptf
+import Utilities.TwitchUtils as util
 
 class TimeCommands():
     def __init__(self):
@@ -12,9 +13,7 @@ class TimeCommands():
     # snippet start
     # uptime
     def ExecuteUptime(self, msg):
-        startTimeStr = GetStartTime()
-
-        if startTimeStr == None:
+        if (startTimeStr := GetStartTime()) is None:
             return f"[{msg.user}]: Uptime is unavailable."
 
         startTime = datetime.datetime.fromisoformat(startTimeStr)

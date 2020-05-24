@@ -45,10 +45,10 @@ class PollCommands():
                 minutes = int(self.pollTimeout / 60)
 
                 minMsg = "minute" if minutes == 1 else "minutes"
-                util.SendMessage(f"Don't forget to vote! Only {minutes} {minMsg} remaining.")
+                util.SendMessage(f"Don't forget to vote. Only {minutes} {minMsg} remaining")
 
             elif self.pollTimeout == 30:
-                util.SendMessage(f"Last chance to vote! Only 30 seconds left!")
+                util.SendMessage(f"Last chance to vote! Only 30 seconds left")
 
         self.EndPoll()
         return
@@ -72,7 +72,7 @@ class PollCommands():
                 else:
                     response += f"Option {winner.upper()} "
 
-                response += f"wins with {percent}% of the vote."
+                response += f"wins with {percent}% of the vote"
 
             self.voteCollection = {}
             self.voters = []
@@ -100,15 +100,13 @@ class PollCommands():
             return f"[{msg.user}]: Only mods can start a poll"
 
         if self.pollRunning:
-            return f"[{msg.user}]: Poll already active."
+            return f"[{msg.user}]: Poll already active"
 
         self.pollThread = threading.Thread(target=self.PollAsync)
 
         # Get the first valid match from pollRegex list
-        regMatch = next((exp.match(msg.message) for exp in self.pollRegex if exp.match(msg.message) != None), None)
-
-        if regMatch == None:
-            return f"[{msg.user}]: The syntax for that command is: poll NUM_MINUTES (NUM_CHOICES)"
+        if (regMatch := next((exp.match(msg.message) for exp in self.pollRegex if exp.match(msg.message) != None), None)) is None:
+            return util.GetSyntax(msg.user, "poll NUM_MINUTES (NUM_CHOICES)")
 
         optionMsg = "Vote "
 
@@ -121,7 +119,7 @@ class PollCommands():
             numChoices = int(regMatch.group("num1"))
 
             if numChoices < 2 or numChoices > 10:
-                return f"[{msg.user}]: Number of voting options must be between 2 and 10."
+                return f"[{msg.user}]: Number of voting options must be between 2 and 10"
 
             for i in range(numChoices):
                 self.voteCollection[chr(ord("a") + i)] = 0
@@ -147,7 +145,7 @@ class PollCommands():
             return f"[{msg.user}]: Only mods can end a poll"
 
         if not self.pollRunning:
-            return f"[{msg.user}]: No poll active."
+            return f"[{msg.user}]: No poll active"
 
         self.EndPoll()
         return
@@ -157,22 +155,20 @@ class PollCommands():
     # vote y
     def ExecuteVote(self, msg):
         if not self.pollRunning:
-            return f"[{msg.user}]: Nothing to vote for."
+            return f"[{msg.user}]: Nothing to vote for"
 
         if msg.user in self.voters:
-            return f"[{msg.user}]: You already voted in this poll."
+            return f"[{msg.user}]: You already voted in this poll"
 
-        regMatch = self.voteRegex.match(msg.message)
-
-        if regMatch == None:
-            return f"[{msg.user}]: The syntax for that command is: vote LETTER"
+        if (regMatch := self.voteRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "vote LETTER")
 
         vote = regMatch.group("text")[0].lower()
 
         if vote not in self.voteCollection:
-            return f"[{msg.user}]: {vote} is not a valid option for this poll."
+            return f"[{msg.user}]: {vote} is not a valid option for this poll"
 
         self.voters.append(msg.user)
         self.voteCollection[vote] += 1
 
-        return f"[{msg.user}]: Your vote for {vote.upper()} has been recorded."
+        return f"[{msg.user}]: Your vote for {vote.upper()} has been recorded"

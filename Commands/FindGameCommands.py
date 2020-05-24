@@ -7,6 +7,7 @@ import datetime
 import botconfig
 
 from Utilities.FlushPrint import ptf
+import Utilities.TwitchUtils as util
 import Utilities.RegGroups as groups
 
 class FindGameCommands():
@@ -39,10 +40,8 @@ class FindGameCommands():
     # findgame Halo
     # findgame Silent Hill
     def ExecuteFindGame(self, msg):
-        regMatch = self.findGameRegex.match(msg.message)
-
-        if regMatch == None:
-            return f"[{msg.user}]: The syntax for that command is: findgame TEXT"
+        if (regMatch := self.findGameRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "findgame TEXT")
 
         bodyBase = f"search \"{regMatch.group('text')}\"; limit 3; fields name, url, involved_companies.developer, involved_companies.company.name, first_release_date; where version_parent = null & category = 0"
 

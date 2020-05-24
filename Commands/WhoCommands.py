@@ -63,9 +63,7 @@ class WhoCommands():
         except (IndexError, AttributeError):
             userName = msg.user
 
-        result = self.colWho.find_one({ "user" : userName })
-
-        if result == None:
+        if (result := self.colWho.find_one({ "user" : userName })) is None:
             return f"[{msg.user}]: No quotes from {userName}"
 
         quoteBank = json.loads(result["quotes"])
@@ -90,10 +88,8 @@ class WhoCommands():
         if not util.CheckPrivSub(msg.tags):
             return f"[{msg.user}]: Only mods and subs can add a who quote"
 
-        regMatch = self.whoAddRegex.match(msg.message)
-
-        if regMatch == None:
-            return f"[{msg.user}]: The syntax for that command is: who add USER TEXT"
+        if (regMatch := self.whoAddRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "who add USER TEXT")
 
         userName = regMatch.group("user").lower()
         quote = regMatch.group("text")
@@ -101,11 +97,7 @@ class WhoCommands():
         if GetUserId(userName) == None:
             return f"[{msg.user}]: {user} is not an existing username."
 
-        result = self.colWho.find_one(
-            { "user" : userName }
-        )
-
-        if result == None:
+        if (result := self.colWho.find_one({ "user" : userName })) is None:
             newCol = True
             quoteId = 1
             quoteBank = {}
@@ -144,10 +136,8 @@ class WhoCommands():
         if not util.CheckPrivMod(msg.tags):
             return f"[{msg.user}]: Only mods can delete a who quote"
 
-        regMatch = self.whoDelRegex.match(msg.message)
-
-        if regMatch == None:
-            return f"[{msg.user}]: The syntax for that command is: who del USER NUMBER"
+        if (regMatch := self.whoDelRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "who del USER NUMBER")
 
         userName = regMatch.group("user").lower()
         quoteId = regMatch.group("idOrLast")
@@ -155,9 +145,7 @@ class WhoCommands():
         if GetUserId(userName) == None:
             return f"[{msg.user}]: {userName} is not an existing username."
 
-        result = self.colWho.find_one({ "user" : userName })
-
-        if result == None:
+        if (result := self.colWho.find_one({ "user" : userName })) is None:
             return f"[{msg.user}]: No quotes from {userName}"
 
         quoteBank = json.loads(result["quotes"])

@@ -1,7 +1,8 @@
 import re
 import random
 
-from Utilities.FlushPrint import ptf, ptfDebug
+from Utilities.FlushPrint import ptf
+import Utilities.TwitchUtils as util
 import Utilities.RegGroups as groups
 
 class DiceCommands():
@@ -19,10 +20,8 @@ class DiceCommands():
     # remarks
     # Between 1 and 10 dice may be rolled. Dice options are d2 to d100.
     def ExecuteRoll(self, msg):
-        regMatch = self.rollRegex.match(msg.message)
-
-        if regMatch == None:
-            return f"[{msg.user}]: The syntax for that command is: roll NUMdNUM (roll 1d20)"
+        if (regMatch := self.rollRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "roll NUMdNUM (roll 1d20)")
 
         num = int(regMatch.group("num0"))
         die = int(regMatch.group("num1"))

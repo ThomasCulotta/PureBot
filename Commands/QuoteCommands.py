@@ -9,11 +9,10 @@ import Utilities.RegGroups as groups
 
 class QuoteCommands:
     def __init__(self, chan, mongoClient):
-        quote_col_name = chan + "Quotes"
-        self.quote_col = mongoClient.QuoteBotDB[quote_col_name]
-        self.quote_col.create_index([("id", pymongo.ASCENDING)])
+        self.colQuotes = mongoClient.QuoteBotDB[chan + "Quotes"]
+        self.colQuotes.create_index([("id", pymongo.ASCENDING)])
 
-        self.counter_col = mongoClient.QuoteBotDB["counters"]
+        self.colCounters = mongoClient.QuoteBotDB["counters"]
         self.counterName = chan + "Counter"
 
         self.activeCommands = {
@@ -62,22 +61,21 @@ class QuoteCommands:
             return self.quoteSubCommands[subCommand](msg)
 
         # Get the first valid match from whoRegex list
-        regmatch = next((exp.match(msg.message) for exp in self.quoteRegex if exp.match(msg.message) != None), None)
-
         result = None
         quoteId = None
-        if regmatch == None:
-            results = self.quote_col.aggregate([{ "$sample" : { "size" : 1 } }])
+
+        if (regMatch := next((exp.match(msg.message) for exp in self.quoteRegex if exp.match(msg.message) != None), None)) is None:
+            results = self.colQuotes.aggregate([{ "$sample" : { "size" : 1 } }])
             for item in results:
                 result = item
         else:
             try:
-                quoteArg = regmatch.group("idOrLast")
+                quoteArg = regMatch.group("idOrLast")
             except IndexError:
                 quoteArg = None
 
             if quoteArg != None:
-                latestId = self.counter_col.find_one({ "name" : self.counterName })["value"] - 1
+                latestId = self.colCounters.find_one({ "name" : self.counterName })["value"] - 1
                 if quoteArg.isnumeric():
                     # Clamp id between 1 and latestId
                     quoteId = max(min(int(quoteArg), latestId), 1)
@@ -85,11 +83,11 @@ class QuoteCommands:
                     quoteId = latestId
 
                 if quoteId:
-                    result = self.quote_col.find_one({ "id" : quoteId })
+                    result = self.colQuotes.find_one({ "id" : quoteId })
             else:
-                quoteArg = regmatch.group("text")
+                quoteArg = regMatch.group("text")
 
-                results = self.quote_col.aggregate([
+                results = self.colQuotes.aggregate([
                     { "$match" : { "text" : {
                                         "$regex" : quoteArg,
                                         "$options" : "i"
@@ -105,11 +103,8 @@ class QuoteCommands:
 
             return f"[{msg.user}]: No quote {quoteId}"
         else:
-            quoteId = result["id"]
-            quoteText = result["text"]
-            quoteGame = result["game"]
             quoteDate = result["date"].strftime("%x")
-            return f"[{quoteId}]: \"{quoteText}\" - {quoteGame} on {quoteDate}"
+            return f"[{result['id']}]: \"{result['text']}\" - {result['game']} on {quoteDate}"
 
     # snippet start
     # quote add TEXT
@@ -120,12 +115,10 @@ class QuoteCommands:
         if not util.CheckPrivSub(msg.tags):
             return f"[{msg.user}]: Only mods and subs can add a quote"
 
-        regmatch = self.quoteAddRegex.match(msg.message)
+        if (regMatch := self.quoteAddRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "quote add TEXT")
 
-        if regmatch == None:
-            return f"[{msg.user}]: The syntax for that command is: quote add TEXT"
-
-        result = self.counter_col.find_one_and_update(
+        result = self.colCounters.find_one_and_update(
             { "name" : self.counterName },
             { "$inc" : { "value" : 1 } },
             upsert=True
@@ -136,21 +129,21 @@ class QuoteCommands:
             return f"[{msg.user}]: Unable to add quote"
 
         quoteId = result["value"]
-        gameName = GetGame()
 
-        if gameName == None:
+        if (gameName := GetGame()) is None:
             gameName = "[Unknown Game]"
 
-        quoteText = regmatch.group("text")
+        quoteText = regMatch.group("text")
         quoteText.strip("\"'")
 
-        self.quote_col.insert_one({
+        self.colQuotes.insert_one({
             "id" : quoteId,
             "user" : msg.user,
             "text" : quoteText,
             "game" : gameName,
             "date" : datetime.datetime.now()
         })
+
         return f"[{msg.user}]: Added quote {quoteId}"
 
     # snippet start
@@ -158,43 +151,37 @@ class QuoteCommands:
     # quote del 123
     # quote del last
     def ExecuteQuoteDel(self, msg):
-        regmatch = self.quoteDelRegex.match(msg.message)
+        if (regMatch := self.quoteDelRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "quote del NUMBER")
 
-        if regmatch == None:
-            return f"[{msg.user}]: The syntax for that command is: quote del NUMBER"
-
-        result = self.counter_col.find_one({ "name" : self.counterName })
-
-        if result == None:
+        if (result := self.colCounters.find_one({ "name" : self.counterName })) is None:
             ptf(f"Counter not found for {self.counterName}")
             return f"[{msg.user}]: Unable to delete quote"
 
         latestId = int(result["value"]) - 1
         quoteId = latestId
 
-        deleteFlag = False
-        quoteIdOrLast = regmatch.group("idOrLast")
+        deleting = False
+        quoteIdOrLast = regMatch.group("idOrLast")
+
         if quoteIdOrLast.lower() == "last":
-            deleteFlag = True
+            deleting = True
         else:
             quoteId = int(quoteIdOrLast)
 
             if quoteId == latestId:
-                deleteFlag = True
+                deleting = True
 
-        result = self.quote_col.find_one({ "id" : quoteId })
-
-        if result == None:
+        if (result := self.colQuotes.find_one({ "id" : quoteId })) is None:
             return f"[{msg.user}]: No quote {quoteId}"
 
-        checkResult = CheckModifyQuote("delete")
-        if checkResult != None:
+        if (checkResult := CheckModifyQuote("delete")):
             return checkResult
 
-        self.quote_col.delete_one({ "id" : quoteId })
+        self.colQuotes.delete_one({ "id" : quoteId })
 
-        if deleteFlag:
-            self.counter_col.update_one({ "name" : self.counterName }, { "$inc" : { "value" : -1 } })
+        if deleting:
+            self.colCounters.update_one({ "name" : self.counterName }, { "$inc" : { "value" : -1 } })
 
         return f"[{msg.user}]: Deleted quote {quoteId}"
 
@@ -204,25 +191,20 @@ class QuoteCommands:
     # remarks
     # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
     def ExecuteQuoteChange(self, msg):
-        regmatch = self.quoteChangeRegex.match(msg.message)
+        if (regMatch := self.quoteChangeRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "quote change NUMBER TEXT")
 
-        if regmatch == None:
-            return f"[{msg.user}]: The syntax for that command is: quote change NUMBER TEXT"
-
-        quoteId = int(regmatch.group("num0"))
-        newQuote = regmatch.group("text")
+        quoteId = int(regMatch.group("num0"))
+        newQuote = regMatch.group("text")
         newQuote.strip("\"'")
 
-        result = self.quote_col.find_one({ "id" : quoteId })
-
-        if result == None:
+        if (result := self.colQuotes.find_one({ "id" : quoteId })) is None:
             return f"[{msg.user}]: No quote {quoteId}"
 
-        checkResult = CheckModifyQuote("edit")
-        if checkResult != None:
+        if (checkResult := CheckModifyQuote("edit")):
             return checkResult
 
-        self.quote_col.update_one(
+        self.colQuotes.update_one(
             { "id" : quoteId },
             { "$set" : { "text" : newQuote } }
         )

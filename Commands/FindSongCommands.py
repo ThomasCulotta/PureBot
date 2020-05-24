@@ -8,6 +8,7 @@ import datetime
 import botconfig
 
 from Utilities.FlushPrint import ptf
+import Utilities.TwitchUtils as util
 import Utilities.RegGroups as groups
 
 class FindSongCommands():
@@ -43,10 +44,8 @@ class FindSongCommands():
     def ExecuteFindSong(self, msg):
         self.CheckGetAccessToken()
 
-        regMatch = self.findSongRegex.match(msg.message)
-
-        if regMatch == None:
-            return f"[{msg.user}]: The syntax for that command is: findsong TEXT"
+        if (regMatch := self.findSongRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "findsong TEXT")
 
         queryParams = { "q" : "track:" + regMatch.group("text"),
                         "type" : "track",

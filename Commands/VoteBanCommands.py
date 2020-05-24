@@ -3,7 +3,7 @@ import time
 import random
 import threading
 
-from Utilities.FlushPrint import ptf, ptfDebug
+from Utilities.FlushPrint import ptf
 import Utilities.TwitchUtils as util
 import Utilities.RegGroups as groups
 
@@ -48,10 +48,8 @@ class VoteBanCommands():
         if self.threadRunning:
             return f"[{msg.user}]: Busy banning someone else."
 
-        regMatch = self.voteBanRegex.match(msg.message)
-
-        if regMatch == None:
-            return f"[{msg.user}]: The syntax for that command is: voteban USER"
+        if (regMatch := self.voteBanRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "voteban USER")
 
         user = regMatch.group("user")
 

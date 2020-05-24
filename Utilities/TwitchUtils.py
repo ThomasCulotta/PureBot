@@ -22,14 +22,12 @@ def CheckPrivSub(tags):
     return (CheckPrivMod(tags) or
             tags["subscriber"] == "1")
 
-# True if user is a dev
-def CheckDev(user):
-    return (user == "babotzinc" or
-            user == "doomzero")
+def GetSyntax(user, syntax):
+    return f"[{user}]: The syntax for that command is: {syntax}"
 
 # Record that the given user has redeemed the given reward
 def RedeemReward(user, rewardId):
-    result = colRewards.find_one({"user": user})
+    result = colRewards.find_one({ "user" : user })
 
     rewards = {}
     if result == None:
@@ -40,7 +38,7 @@ def RedeemReward(user, rewardId):
         }
         colRewards.insert_one(userObj)
     else:
-        rewards = json.loads(result['rewards'])
+        rewards = json.loads(result["rewards"])
 
         if rewardId in rewards:
             rewards[rewardId] += 1
@@ -48,18 +46,18 @@ def RedeemReward(user, rewardId):
             rewards[rewardId] = 1
 
         colRewards.update_one(
-            {"user": user},
-            {"$set": {"rewards": json.dumps(rewards)}}
+            { "user" : user },
+            { "$set" : { "rewards" : json.dumps(rewards) } }
         )
 
 # Return true if the given user has redeemed the given reward and decrement
 def CheckRemoveReward(user, rewardId):
-    result = colRewards.find_one({"user": user})
+    result = colRewards.find_one({ "user" : user })
 
     if result == None:
         return False
 
-    rewards = json.loads(result['rewards'])
+    rewards = json.loads(result["rewards"])
 
     if rewardId in rewards:
         if rewards[rewardId] == 1:
@@ -68,11 +66,11 @@ def CheckRemoveReward(user, rewardId):
             rewards[rewardId] -= 1
 
         if len(rewards) == 0:
-            colRewards.delete_one({"user":user})
+            colRewards.delete_one({ "user" : user })
         else:
             colRewards.update_one(
-                {"user": user},
-                {"$set": {"rewards": json.dumps(rewards)}}
+                { "user" : user },
+                { "$set" : { "rewards" : json.dumps(rewards) } }
             )
 
         return True
@@ -109,9 +107,6 @@ def SendMessage(response, type="PRIVMSG", user=None):
 def RecordUsage(command, user):
     global statsDict
     global statsLock
-
-    if CheckDev(user):
-        return
 
     with statsLock:
         if command in statsDict:

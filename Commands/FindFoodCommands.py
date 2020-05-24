@@ -6,6 +6,7 @@ import requests
 import botconfig
 
 from Utilities.FlushPrint import ptf
+import Utilities.TwitchUtils as util
 import Utilities.RegGroups as groups
 
 class FindFoodCommands():
@@ -28,10 +29,8 @@ class FindFoodCommands():
     # findfood burger
     # findfood chicken alfredo
     def ExecuteFindFood(self, msg):
-        regMatch = self.findFoodRegex.match(msg.message)
-        ptf("hello")
-        if regMatch == None:
-            return f"[{msg.user}]: The syntax for that command is: findfood TEXT"
+        if (regMatch := self.findFoodRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "findfood TEXT")
 
         params = { **self.params,
                    "query" : regMatch.group("text"),
@@ -39,6 +38,7 @@ class FindFoodCommands():
 
         response = requests.get(f"https://api.spoonacular.com/recipes/search", params=params, headers=self.header)
         data = response.json()
+
         if not response.ok or "results" not in data or len(data["results"]) == 0:
             return f"[{msg.user}]: Recipe not found"
 

@@ -32,13 +32,11 @@ class CustomCommands:
     # addcom COMMAND TEXT
     # addcom newcom I'm a new command
     def ExecuteAddCom(self, msg):
-        if not util.CheckPrivMod(msg.tags) and not util.CheckDev():
+        if not util.CheckPrivMod(msg.tags):
             return f"[{msg.user}]: Only mods can add commands"
 
-        regmatch = self.addComRegex.match(msg.message)
-
-        if regmatch == None:
-            return f"[{msg.user}]: The syntax for that command is: addcom TEXT TEXT"
+        if (regmatch := self.addComRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "addcom TEXT TEXT")
 
         command = regmatch.group(1).lower()
         commandText = regmatch.group("text")
@@ -65,13 +63,11 @@ class CustomCommands:
     # delcom COMMAND
     # delcom newcom
     def ExecuteDelCom(self, msg):
-        if not util.CheckPrivMod(msg.tags) and not util.CheckDev():
+        if not util.CheckPrivMod(msg.tags):
             return f"[{msg.user}]: Only mods can delete commands"
 
-        regmatch = self.delComRegex.match(msg.message)
-
-        if regmatch == None:
-            return f"[{msg.user}]: The syntax for that command is: delcom TEXT"
+        if (regmatch := self.delComRegex.match(msg.message)) is None:
+            return util.GetSyntax(msg.user, "delcom TEXT")
 
         command = regmatch.group("text").lower()
 
