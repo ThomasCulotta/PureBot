@@ -15,11 +15,30 @@ class WhoCommands():
         self.colWho.create_index([("user", pymongo.ASCENDING)])
 
         self.activeCommands = {
+            # snippet start
+            # who (USER) (ID)
+            # who
+            # who 14
+            # who @BabotzInc
+            # who BabotzInc 14
+            # remarks
+            # When no username is given, this command defaults to your own quotes.
             "who" : self.ExecuteWho,
         }
 
         self.whoSubCommands = {
+            # snippet start
+            # who add USER TEXT
+            # who add @BabotzInc Hello I'm a Babotz quote
+            # remarks
+            # Mod Only. @ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
             "add" : self.ExecuteWhoAdd,
+
+            # snippet start
+            # who del USER ID
+            # who del @BabotzInc 12
+            # remarks
+            # Mod Only. @ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
             "del" : self.ExecuteWhoDel,
         }
 
@@ -33,14 +52,6 @@ class WhoCommands():
         self.whoAddRegex = re.compile(f"^who add {groups.user} {groups.text}$")
         self.whoDelRegex = re.compile(f"^who del {groups.user} {groups.idOrLast}")
 
-    # snippet start
-    # who (USER) (ID)
-    # who
-    # who 14
-    # who @BabotzInc
-    # who BabotzInc 14
-    # remarks
-    # When no username is given, this command defaults to your own quotes.
     def ExecuteWho(self, msg):
         try:
             subCommand = msg.message.lower().split()[1]
@@ -79,11 +90,6 @@ class WhoCommands():
 
         return f"[{userName} {quoteId}]: {quote}"
 
-    # snippet start
-    # who add USER TEXT
-    # who add @BabotzInc Hello I'm a Babotz quote
-    # remarks
-    # @ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
     def ExecuteWhoAdd(self, msg):
         if not util.CheckPrivSub(msg.tags):
             return f"[{msg.user}]: Only mods and subs can add a who quote"
@@ -127,11 +133,6 @@ class WhoCommands():
 
         return f"[{msg.user}]: Added {userName} quote {quoteId}"
 
-    # snippet start
-    # who del USER ID
-    # who del @BabotzInc 12
-    # remarks
-    # @ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
     def ExecuteWhoDel(self, msg):
         if not util.CheckPrivMod(msg.tags):
             return f"[{msg.user}]: Only mods can delete a who quote"

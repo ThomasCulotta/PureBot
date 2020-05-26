@@ -23,6 +23,10 @@ class FindSongCommands():
                                "Accept" : "application/json" }
 
         self.activeCommands = {
+            # snippet start
+            # findsong TEXT
+            # findsong Piano Man
+            # findsong Killer Queen
             "findsong" : self.ExecuteFindSong,
         }
 
@@ -37,10 +41,6 @@ class FindSongCommands():
             ptf(data)
             self.spotifyHeader["Authorization"] = f"Bearer {data['access_token']}"
 
-    # snippet start
-    # findsong TEXT
-    # findsong Piano Man
-    # findsong Killer Queen
     def ExecuteFindSong(self, msg):
         self.CheckGetAccessToken()
 

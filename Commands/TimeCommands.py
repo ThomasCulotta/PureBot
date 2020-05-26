@@ -7,11 +7,11 @@ import Utilities.TwitchUtils as util
 class TimeCommands():
     def __init__(self):
         self.activeCommands = {
+            # snippet start
+            # uptime
             "uptime" : self.ExecuteUptime,
         }
 
-    # snippet start
-    # uptime
     def ExecuteUptime(self, msg):
         if (startTimeStr := GetStartTime()) is None:
             return f"[{msg.user}]: Uptime is unavailable."

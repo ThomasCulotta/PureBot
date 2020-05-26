@@ -8,17 +8,17 @@ import Utilities.RegGroups as groups
 class DiceCommands():
     def __init__(self):
         self.activeCommands = {
+            # snippet start
+            # roll NUMdNUM
+            # roll 1d20
+            # roll 7d100
+            # remarks
+            # Between 1 and 10 dice may be rolled. Dice options are d2 to d100.
             "roll" : self.ExecuteRoll,
         }
 
         self.rollRegex = re.compile(f"^roll {groups.num}d{groups.num1}")
 
-    # snippet start
-    # roll NUMdNUM
-    # roll 1d20
-    # roll 7d100
-    # remarks
-    # Between 1 and 10 dice may be rolled. Dice options are d2 to d100.
     def ExecuteRoll(self, msg):
         if (regMatch := self.rollRegex.match(msg.message)) is None:
             return util.GetSyntax(msg.user, "roll NUMdNUM (roll 1d20)")

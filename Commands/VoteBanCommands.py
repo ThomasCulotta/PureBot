@@ -10,6 +10,12 @@ import Utilities.RegGroups as groups
 class VoteBanCommands():
     def __init__(self):
         self.activeCommands = {
+            # snippet start
+            # voteban USER
+            # voteban BabotzInc
+            # voteban @BabotzInc
+            # remarks
+            # This is a joke command.
             "voteban" : self.ExecuteVoteBan,
         }
 
@@ -38,12 +44,6 @@ class VoteBanCommands():
         self.threadRunning = False
         return
 
-    # snippet start
-    # voteban USER
-    # voteban BabotzInc
-    # voteban @BabotzInc
-    # remarks
-    # This is a joke command.
     def ExecuteVoteBan(self, msg):
         if self.threadRunning:
             return f"[{msg.user}]: Busy banning someone else."

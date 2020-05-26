@@ -16,11 +16,25 @@ class PollCommands():
         self.pollLock = threading.Lock()
 
         self.activeCommands = {
+            # snippet start
+            # poll NUM_MINUTES (NUM_OPTIONS)
+            # poll 2
+            # poll 4 3
+            # remarks
+            # Mod Only. A Yes/No poll is started when NUM_OPTIONS is not provided. NUM_OPTIONS may be 2-10 and will start a poll with A, B, C, etc.
             "poll" : self.ExecutePoll,
+
+            # snippet start
+            # vote LETTER
+            # vote y
             "vote" : self.ExecuteVote,
         }
 
         self.pollSubCommands = {
+            # snippet start
+            # poll end
+            # remarks
+            # Mod Only.
             "end" : self.ExecutePollEnd,
         }
 
@@ -81,12 +95,6 @@ class PollCommands():
         util.SendMessage(response)
         return
 
-    # snippet start
-    # poll NUM_MINUTES (NUM_OPTIONS)
-    # poll 2
-    # poll 4 3
-    # remarks
-    # A Yes/No poll is started when NUM_OPTIONS is not provided. NUM_OPTIONS may be 2-10 and will start a poll with A, B, C, etc.
     def ExecutePoll(self, msg):
         try:
             subCommand = msg.message.lower().split()[1]
@@ -138,8 +146,6 @@ class PollCommands():
         self.pollThread.start()
         return f"Poll running for {minutes} {minMsg}. {optionMsg}"
 
-    # snippet start
-    # poll end
     def ExecutePollEnd(self, msg):
         if not util.CheckPrivMod(msg.tags):
             return f"[{msg.user}]: Only mods can end a poll"
@@ -150,9 +156,6 @@ class PollCommands():
         self.EndPoll()
         return
 
-    # snippet start
-    # vote LETTER
-    # vote y
     def ExecuteVote(self, msg):
         if not self.pollRunning:
             return f"[{msg.user}]: Nothing to vote for"

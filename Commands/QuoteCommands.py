@@ -16,12 +16,37 @@ class QuoteCommands:
         self.counterName = chan + "Counter"
 
         self.activeCommands = {
+            # snippet start
+            # quote (ID/TEXT)
+            # quote
+            # quote 123
+            # quote hello
+            # remarks
+            # When "quote TEXT" is used, a random quote with the given text in it is returned.
             "quote" : self.ExecuteQuote,
         }
 
         self.quoteSubCommands = {
+            # snippet start
+            # quote add TEXT
+            # quote add Hi, I'm a PureSushi quote
+            # remarks
+            # Sub Only. Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
             "add" : self.ExecuteQuoteAdd,
+
+            # snippet start
+            # quote del ID
+            # quote del 123
+            # quote del last
+            # remarks
+            # Sub Only.
             "del" : self.ExecuteQuoteDel,
+
+            # snippet start
+            # quote change ID TEXT
+            # quote change 12 Hi, I'm a better PureSushi quote
+            # remarks
+            # Sub Only. Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
             "change" : self.ExecuteQuoteChange,
         }
 
@@ -34,23 +59,16 @@ class QuoteCommands:
         self.quoteDelRegex = re.compile(f"^quote del {groups.idOrLast}")
         self.quoteChangeRegex = re.compile(f"^quote change {groups.num} {groups.text}$")
 
-    def CheckModifyQuote(action, result):
+    def CheckModifyQuote(action, result, msg):
         if not util.CheckPrivMod(msg.tags):
             if result["user"] != msg.user:
-                result.append(f"[{msg.user}]: Only mods can {action} a quote someone else added")
+                return f"[{msg.user}]: Only mods can {action} a quote someone else added"
 
             if result["date"].strftime("%x") != datetime.datetime.now().strftime("%x"):
                 return f"[{msg.user}]: Only mods can {action} a quote on a different day than it was added"
 
         return None
 
-    # snippet start
-    # quote (ID/TEXT)
-    # quote
-    # quote 123
-    # quote hello
-    # remarks
-    # When "quote TEXT" is used, a random quote with the given text in it is returned.
     def ExecuteQuote(self, msg):
         try:
             subCommand = msg.message.lower().split()[1]
@@ -106,11 +124,6 @@ class QuoteCommands:
             quoteDate = result["date"].strftime("%x")
             return f"[{result['id']}]: \"{result['text']}\" - {result['game']} on {quoteDate}"
 
-    # snippet start
-    # quote add TEXT
-    # quote add Hi, I'm a PureSushi quote
-    # remarks
-    # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
     def ExecuteQuoteAdd(self, msg):
         if not util.CheckPrivSub(msg.tags):
             return f"[{msg.user}]: Only mods and subs can add a quote"
@@ -146,10 +159,6 @@ class QuoteCommands:
 
         return f"[{msg.user}]: Added quote {quoteId}"
 
-    # snippet start
-    # quote del ID
-    # quote del 123
-    # quote del last
     def ExecuteQuoteDel(self, msg):
         if (regMatch := self.quoteDelRegex.match(msg.message)) is None:
             return util.GetSyntax(msg.user, "quote del NUMBER")
@@ -175,7 +184,7 @@ class QuoteCommands:
         if (result := self.colQuotes.find_one({ "id" : quoteId })) is None:
             return f"[{msg.user}]: No quote {quoteId}"
 
-        if (checkResult := CheckModifyQuote("delete")):
+        if (checkResult := CheckModifyQuote("delete", result, msg)):
             return checkResult
 
         self.colQuotes.delete_one({ "id" : quoteId })
@@ -185,11 +194,6 @@ class QuoteCommands:
 
         return f"[{msg.user}]: Deleted quote {quoteId}"
 
-    # snippet start
-    # quote change ID TEXT
-    # quote change 12 Hi, I'm a better PureSushi quote
-    # remarks
-    # Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
     def ExecuteQuoteChange(self, msg):
         if (regMatch := self.quoteChangeRegex.match(msg.message)) is None:
             return util.GetSyntax(msg.user, "quote change NUMBER TEXT")
@@ -201,7 +205,7 @@ class QuoteCommands:
         if (result := self.colQuotes.find_one({ "id" : quoteId })) is None:
             return f"[{msg.user}]: No quote {quoteId}"
 
-        if (checkResult := CheckModifyQuote("edit")):
+        if (checkResult := CheckModifyQuote("edit", result, msg)):
             return checkResult
 
         self.colQuotes.update_one(

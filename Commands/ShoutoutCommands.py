@@ -9,17 +9,17 @@ import Utilities.RegGroups as groups
 class ShoutoutCommands():
     def __init__(self):
         self.activeCommands = {
+            # snippet start
+            # shoutout USER
+            # shoutout PureSushi
+            # shoutout @PureSushi
+            # remarks
+            # Mod Only. Promotes the given user's channel.
             "shoutout" : self.ExecuteShoutout,
         }
 
         self.shoutoutRegex = re.compile(f"^shoutout {groups.user}")
 
-    # snippet start
-    # shoutout USER
-    # shoutout PureSushi
-    # shoutout @PureSushi
-    # remarks
-    # Mod Only. Promotes the given user's channel.
     def ExecuteShoutout(self, msg):
         if not util.CheckPrivMod(msg.tags):
             return f"[{msg.user}]: Only mods can shoutout"

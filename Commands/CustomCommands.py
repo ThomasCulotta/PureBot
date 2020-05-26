@@ -14,7 +14,18 @@ class CustomCommands:
             self.customCommandList = json.load(file)
 
         self.activeCommands = {
+            # snippet start
+            # addcom COMMAND TEXT
+            # addcom newcom I'm a new command
+            # remarks
+            # Mod Only.
             "addcom" : self.ExecuteAddCom,
+
+            # snippet start
+            # delcom COMMAND
+            # delcom newcom
+            # remarks
+            # Mod Only.
             "delcom" : self.ExecuteDelCom,
         }
 
@@ -28,9 +39,6 @@ class CustomCommands:
         with open(self.commandFile, 'r') as file:
             self.customCommandList = json.load(file)
 
-    # snippet start
-    # addcom COMMAND TEXT
-    # addcom newcom I'm a new command
     def ExecuteAddCom(self, msg):
         if not util.CheckPrivMod(msg.tags):
             return f"[{msg.user}]: Only mods can add commands"
@@ -59,9 +67,6 @@ class CustomCommands:
         else:
             return f"[{msg.user}]: Could not add/update command"
 
-    # snippet start
-    # delcom COMMAND
-    # delcom newcom
     def ExecuteDelCom(self, msg):
         if not util.CheckPrivMod(msg.tags):
             return f"[{msg.user}]: Only mods can delete commands"

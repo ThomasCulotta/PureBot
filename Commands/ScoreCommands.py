@@ -30,12 +30,37 @@ class ScoreCommands:
         self.scoreMax = 101
 
         self.activeCommands = {
+            # snippet start
+            # purecount
             "purecount"   : self.ExecutePureCount,
+
+            # snippet start
+            # pureboard
             "pureboard"   : self.ExecutePureBoard,
+
+            # snippet start
+            # curseboard
             "curseboard"  : self.ExecuteCurseBoard,
             "cursedboard" : self.ExecuteCurseBoard,
+
+            # snippet start
+            # clearboard
+            # remarks
+            # Mod Only. Clears leaderboard.
             "clearboard"  : self.ExecuteClearBoard,
+
+            # snippet start
+            # stealscore USER
+            # stealscore BabotzInc
+            # remarks
+            # Requires spending sushi rolls. Only needed when you don't provide a name in the reward message.
             "stealscore"  : self.ExecuteStealScore,
+
+            # snippet start
+            # swapscore USER
+            # swapscore BabotzInc
+            # remarks
+            # Requires spending sushi rolls. Only needed when you don't provide a name in the reward message.
             "swapscore"   : self.ExecuteSwapScore,
         }
 
@@ -126,8 +151,6 @@ class ScoreCommands:
 
             return f"[{user}]: You have swapped {targUser}'s score with your own! Your pure count is {targScore}/100, and theirs is {userScore}/100"
 
-    # snippet start
-    # purecount
     def ExecutePureCount(self, msg):
         if (result := self.colLeaderboard.find_one({ "user" : msg.user })) is None:
             score = random.randint(self.scoreMin, self.scoreMax)
@@ -135,7 +158,7 @@ class ScoreCommands:
         else:
             score = result["score"]
 
-        resMessage = f"[{msg.user}] Your pure count is: {score}/100"
+        resMessage = f"[{msg.user}]: Your pure count is: {score}/100"
 
         if score == 69:
             resMessage += " 😎"
@@ -160,20 +183,12 @@ class ScoreCommands:
         resMessage = resMessage[:-2]
         return resMessage
 
-    # snippet start
-    # pureboard
     def ExecutePureBoard(self, msg):
         return self.BoardHelper(msg.user, -1)
 
-    # snippet start
-    # curseboard
     def ExecuteCurseBoard(self, msg):
         return self.BoardHelper(msg.user, 1)
 
-    # snippet start
-    # clearboard
-    # remarks
-    # Mod Only. Clears leaderboard.
     def ExecuteClearBoard(self, msg):
         if not util.CheckPrivMod(msg.tags):
             return f"[{msg.user}]: Only mods can clear the leaderboard"
@@ -181,22 +196,12 @@ class ScoreCommands:
         self.colLeaderboard.remove({})
         return f"[{msg.user}]: Leaderboard cleared"
 
-    ## snippet start
-    # stealscore USER
-    # stealscore BabotzInc
-    # remarks
-    # This command requires you to spend sushi rolls.
     def ExecuteStealScore(self, msg):
         if (regMatch := self.stealScoreRegex.match(msg.message)) is None:
             return util.GetSyntax(msg.user, "stealscore USER")
 
         return self.StealScoreHelper(msg.user, regMatch.group("user").lower())
 
-    ## snippet start
-    # swapscore USER
-    # swapscore BabotzInc
-    # remarks
-    # This command requires you to spend sushi rolls.
     def ExecuteSwapScore(self, msg):
         if (regMatch := self.swapScoreRegex.match(msg.message)) is None:
             return util.GetSyntax(msg.user, "swapscore USER")

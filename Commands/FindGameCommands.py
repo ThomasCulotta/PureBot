@@ -30,15 +30,15 @@ class FindGameCommands():
             self.steamApps = { app["name"] : app["appid"] for app in data["applist"]["apps"] }
 
         self.activeCommands = {
+            # snippet start
+            # findgame TEXT
+            # findgame Halo
+            # findgame Silent Hill
             "findgame" : self.ExecuteFindGame,
         }
 
         self.findGameRegex = re.compile(f"^findgame {groups.text}$")
 
-    # snippet start
-    # findgame TEXT
-    # findgame Halo
-    # findgame Silent Hill
     def ExecuteFindGame(self, msg):
         if (regMatch := self.findGameRegex.match(msg.message)) is None:
             return util.GetSyntax(msg.user, "findgame TEXT")

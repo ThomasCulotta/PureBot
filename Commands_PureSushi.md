@@ -7,10 +7,18 @@
 ```
 addcom newcom I'm a new command
 ```
+**Remarks**
+
+Mod Only.
+
 ### delcom COMMAND
 ```
 delcom newcom
 ```
+**Remarks**
+
+Mod Only.
+
 ---
 ## DiceCommands
 
@@ -25,6 +33,15 @@ roll 7d100
 Between 1 and 10 dice may be rolled. Dice options are d2 to d100.
 
 ---
+## FindFoodCommands
+
+### findfood TEXT
+```
+findfood burger
+
+findfood chicken alfredo
+```
+---
 ## FindGameCommands
 
 ### findgame TEXT
@@ -32,6 +49,15 @@ Between 1 and 10 dice may be rolled. Dice options are d2 to d100.
 findgame Halo
 
 findgame Silent Hill
+```
+---
+## FindSongCommands
+
+### findsong TEXT
+```
+findsong Piano Man
+
+findsong Killer Queen
 ```
 ---
 ## PollCommands
@@ -44,13 +70,17 @@ poll 4 3
 ```
 **Remarks**
 
-A Yes/No poll is started when NUM_OPTIONS is not provided. NUM_OPTIONS may be 2-10 and will start a poll with A, B, C, etc.
+Mod Only. A Yes/No poll is started when NUM_OPTIONS is not provided. NUM_OPTIONS may be 2-10 and will start a poll with A, B, C, etc.
 
-### poll end
 ### vote LETTER
 ```
 vote y
 ```
+### poll end
+**Remarks**
+
+Mod Only.
+
 ---
 ## QuoteCommands
 
@@ -72,7 +102,7 @@ quote add Hi, I'm a PureSushi quote
 ```
 **Remarks**
 
-Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
+Mod Only. Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
 
 ### quote del ID
 ```
@@ -80,13 +110,17 @@ quote del 123
 
 quote del last
 ```
+**Remarks**
+
+Mod Only.
+
 ### quote change ID TEXT
 ```
 quote change 12 Hi, I'm a better PureSushi quote
 ```
 **Remarks**
 
-Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
+Mod Only. Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
 
 ---
 ## ScoreCommands
@@ -98,6 +132,22 @@ Only the quote without quotation marks is required. The text will be formatted i
 **Remarks**
 
 Mod Only. Clears leaderboard.
+
+### stealscore USER
+```
+stealscore BabotzInc
+```
+**Remarks**
+
+Requires spending sushi rolls. Only needed when you don't provide a name in the reward message.
+
+### swapscore USER
+```
+swapscore BabotzInc
+```
+**Remarks**
+
+Requires spending sushi rolls. Only needed when you don't provide a name in the reward message.
 
 ---
 ## ShoutoutCommands
@@ -152,7 +202,7 @@ who add @BabotzInc Hello I'm a Babotz quote
 ```
 **Remarks**
 
-@ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
+Mod Only. @ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
 
 ### who del USER ID
 ```
@@ -160,7 +210,7 @@ who del @BabotzInc 12
 ```
 **Remarks**
 
-@ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
+Mod Only. @ing the user is recommended. Type @ and use Twitch's username picker/autocomplete to help ensure the correct username is given.
 
 
 ---

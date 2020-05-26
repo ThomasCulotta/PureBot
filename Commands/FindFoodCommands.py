@@ -19,15 +19,15 @@ class FindFoodCommands():
         self.params = { "apiKey" : botconfig.spoonacularAuthKey }
 
         self.activeCommands = {
+            # snippet start
+            # findfood TEXT
+            # findfood burger
+            # findfood chicken alfredo
             "findfood" : self.ExecuteFindFood,
         }
 
         self.findFoodRegex = re.compile(f"^findfood {groups.text}$")
 
-    # snippet start
-    # findfood TEXT
-    # findfood burger
-    # findfood chicken alfredo
     def ExecuteFindFood(self, msg):
         if (regMatch := self.findFoodRegex.match(msg.message)) is None:
             return util.GetSyntax(msg.user, "findfood TEXT")
