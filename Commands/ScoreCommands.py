@@ -116,13 +116,13 @@ class ScoreCommands:
 
         # Give the target a new score
         newScore = random.randint(self.scoreMin, self.scoreMax)
-        self.colLeaderboard.update_one(self.MakeUpdate(targUser, newScore))
+        self.colLeaderboard.update_one(*self.MakeUpdate(targUser, newScore))
 
         # Set the user's score to the target's old score
         if (userResult := self.colLeaderboard.find_one({ "user" : user })) is None:
             self.colLeaderboard.insert_one(self.MakeInsert(user, targScore))
         else:
-            self.colLeaderboard.update_one(self.MakeUpdate(user, targScore))
+            self.colLeaderboard.update_one(*self.MakeUpdate(user, targScore))
 
         return f"[{user}]: You have stolen {targUser}'s score and given them a new one! Your pure count is {targScore}/100, and theirs is {newScore}/100"
 
@@ -140,14 +140,14 @@ class ScoreCommands:
         if (userResult := self.colLeaderboard.find_one({ "user" : user })) is None:
             newScore = random.randint(self.scoreMin, self.scoreMax)
             self.colLeaderboard.insert_one(self.MakeInsert(user, targScore))
-            self.colLeaderboard.update_one(self.MakeUpdate(targUser, newScore))
+            self.colLeaderboard.update_one(*self.MakeUpdate(targUser, newScore))
 
             return f"[{user}]: You have stolen {targUser}'s score and given them a new one! Your pure count is {targScore}/100, and theirs is {newScore}/100"
 
         else:
             userScore = userResult["score"]
-            self.colLeaderboard.update_one(self.MakeUpdate(user, targScore))
-            self.colLeaderboard.update_one(self.MakeUpdate(targUser, userScore))
+            self.colLeaderboard.update_one(*self.MakeUpdate(user, targScore))
+            self.colLeaderboard.update_one(*self.MakeUpdate(targUser, userScore))
 
             return f"[{user}]: You have swapped {targUser}'s score with your own! Your pure count is {targScore}/100, and theirs is {userScore}/100"
 
@@ -158,7 +158,7 @@ class ScoreCommands:
         else:
             score = result["score"]
 
-        resMessage = f"[{msg.user}]: Your pure count is: {score}/100"
+        resMessage = f"[{msg.user}]: Your pure count is {score}/100"
 
         if score == 69:
             resMessage += " 😎"
