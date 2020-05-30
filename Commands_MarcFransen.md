@@ -1,4 +1,4 @@
-# PureSushi Channel Commands
+# MarcFransen Channel Commands
 
 ---
 ## CustomCommands
@@ -123,33 +123,6 @@ quote change 12 Hi, I'm a better PureSushi quote
 Sub Only. Only the quote without quotation marks is required. The text will be formatted in quotation marks with the date and current game for you.
 
 ---
-## ScoreCommands
-
-### purecount
-### pureboard
-### curseboard
-### clearboard
-**Remarks**
-
-Mod Only. Clears leaderboard.
-
-### stealscore USER
-```
-stealscore BabotzInc
-```
-**Remarks**
-
-Requires spending sushi rolls. Only needed when you don't provide a name in the reward message.
-
-### swapscore USER
-```
-swapscore BabotzInc
-```
-**Remarks**
-
-Requires spending sushi rolls. Only needed when you don't provide a name in the reward message.
-
----
 ## ShoutoutCommands
 
 ### shoutout USER
@@ -217,81 +190,168 @@ Mod Only. @ing the user is recommended. Type @ and use Twitch's username picker/
 ## Other Commands
 
 ```
+akl
+```
+```
+amanda
+```
+```
+amber
+```
+```
+anghel
+```
+```
+anya
+```
+```
+azure
+```
+```
 bonsai
 ```
 ```
-chateau
+bren
 ```
 ```
-commands
+brosoy
 ```
 ```
-compilation
+bus
 ```
 ```
-deathcount
+cassandra
+```
+```
+charity
+```
+```
+deeduy
 ```
 ```
 discord
 ```
 ```
-drive
+dooby
 ```
 ```
-fbi
+drift
 ```
 ```
-help
+driftcord
 ```
 ```
-hydrate
+emote
 ```
 ```
-kick
+floof
 ```
 ```
-leonhelp
+furey
 ```
 ```
-lewdcount
+garb
 ```
 ```
-list
+garbagio
 ```
 ```
-lore
+gnome
 ```
 ```
-movienight
+gt
+```
+```
+kafka
+```
+```
+kara
+```
+```
+lisa
+```
+```
+lulu
+```
+```
+marc
+```
+```
+mat
+```
+```
+meri
 ```
 ```
 multi
 ```
 ```
+newval
+```
+```
+nick
+```
+```
+nova
+```
+```
+owen
+```
+```
+parcasterix
+```
+```
+pat
+```
+```
+poke
+```
+```
 puresushi
 ```
 ```
-sushiwall
+qud
 ```
 ```
-thanks
+rick
 ```
 ```
-truth
+sav
 ```
 ```
-twitter
+save
 ```
 ```
-what
+sleepy
 ```
 ```
-wrench
+soul
 ```
 ```
-youtube
+space
 ```
 ```
-zach
+sukrin
+```
+```
+sushi
+```
+```
+trav
+```
+```
+typefun
+```
+```
+val
+```
+```
+welcome
+```
+```
+xsukrinx
+```
+```
+yosoy
 ```
 
