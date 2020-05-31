@@ -6,6 +6,7 @@ import datetime
 
 import botconfig
 
+from Utilities.BotRequests import GetGame
 from Utilities.FlushPrint import ptf
 import Utilities.TwitchUtils as util
 import Utilities.RegGroups as groups
@@ -31,19 +32,25 @@ class FindGameCommands():
 
         self.activeCommands = {
             # snippet start
-            # findgame TEXT
-            # findgame Halo
+            # findgame (TEXT)
+            # findgame
             # findgame Silent Hill
+            # Remarks
+            # findgame on its own will search for the currently played game.
             "findgame" : self.ExecuteFindGame,
         }
 
         self.findGameRegex = re.compile(f"^findgame {groups.text}$")
 
     def ExecuteFindGame(self, msg):
-        if (regMatch := self.findGameRegex.match(msg.message)) is None:
-            return util.GetSyntax(msg.user, "findgame TEXT")
+        if (regMatch := self.findGameRegex.match(msg.message)) is not None:
+            searchName = regMatch.group("text")
+        else:
+            searchName = GetGame()
 
-        bodyBase = f"search \"{regMatch.group('text')}\"; limit 3; fields name, url, involved_companies.developer, involved_companies.company.name, first_release_date; where version_parent = null & category = 0"
+        # Category 0: main_game
+        # Category 3: bundle (for episodic games, may catch other bundles though)
+        bodyBase = f"search \"{searchName}\"; limit 3; fields name, url, involved_companies.developer, involved_companies.company.name, first_release_date; where version_parent = null & category = (0,3)"
 
         # Successive searches for valid dev and date, then just valid date, then anything
         requestBodies = [
