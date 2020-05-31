@@ -1,17 +1,21 @@
 import re
 import json
 import random
+import pymongo
 
 from Utilities.FlushPrint import ptf
 import Utilities.TwitchUtils as util
 import Utilities.RegGroups as groups
 
 class CustomCommands:
-    def __init__(self):
-        self.commandFile = "Commands/CustomCommands.json"
+    def __init__(self, chan, mongoClient):
+        self.colCustomCommands = mongoClient.QuoteBotDB[chan + "CustomCommands"]
+        self.colCustomCommands.create_index([("command", pymongo.ASCENDING)])
 
-        with open(self.commandFile, 'r') as file:
-            self.customCommandList = json.load(file)
+        self.customCommandList = {}
+
+        for result in self.colCustomCommands.find():
+            self.customCommandList[result["command"]] = result["response"]
 
         self.activeCommands = {
             # snippet start
@@ -32,13 +36,6 @@ class CustomCommands:
         self.addComRegex = re.compile(f"^addcom (.+? \[ARG\]|.+?) {groups.text}$")
         self.delComRegex = re.compile(f"^delcom {groups.text}$")
 
-    def SaveCommands(self):
-        with open(self.commandFile, 'w') as outfile:
-            json.dump(self.customCommandList, outfile, indent = 4)
-
-        with open(self.commandFile, 'r') as file:
-            self.customCommandList = json.load(file)
-
     def ExecuteAddCom(self, msg):
         if not util.CheckPrivMod(msg.tags):
             return f"[{msg.user}]: Only mods can add commands"
@@ -49,15 +46,14 @@ class CustomCommands:
         command = regmatch.group(1).lower()
         commandText = regmatch.group("text")
 
-        with open(self.commandFile, 'r') as file:
-            self.customCommandList = json.load(file)
-
         commandExists = False
         if command in self.customCommandList:
             commandExists = True
+            self.colCustomCommands.update_one({ "command" : command }, { "$set" : { "response" : commandText } })
+        else:
+            self.colCustomCommands.insert_one({ "command" : command, "response" : commandText })
 
         self.customCommandList[command] = commandText
-        self.SaveCommands()
 
         if command in self.customCommandList:
             if commandExists:
@@ -76,14 +72,11 @@ class CustomCommands:
 
         command = regmatch.group("text").lower()
 
-        with open(self.commandFile, 'r') as file:
-            self.customCommandList = json.load(file)
-
         if command not in self.customCommandList:
             return f"[{msg.user}]: {command} is not a command"
 
+        self.colCustomCommands.delete_one({ "command" : command })
         self.customCommandList.pop(command)
-        self.SaveCommands()
 
         if command not in self.customCommandList:
             return f"[{msg.user}]: Command [{command}] was deleted"
