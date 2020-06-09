@@ -65,7 +65,7 @@ class WhoCommands():
         regMatch = next((exp.match(msg.message) for exp in self.whoRegex if exp.match(msg.message) != None), None)
 
         try:
-            quoteId = regMatch.group("num0")
+            quoteId = int(regMatch.group("num0"))
         except (IndexError, AttributeError):
             quoteId = None
 
@@ -78,12 +78,13 @@ class WhoCommands():
             return f"[{msg.user}]: No quotes from {userName}"
 
         quoteBank = json.loads(result["quotes"])
-        minId = min(quoteBank.keys())
-        maxId = max(quoteBank.keys())
+        ids = list(map(int, quoteBank.keys()))
+        minId = min(ids)
+        maxId = max(ids)
 
         if quoteId == None:
             quoteId, quote = random.choice(list(quoteBank.items()))
-        elif (quoteId := max(min(quoteId, maxId), minId)) in quoteBank:
+        elif (quoteId := str(max(min(quoteId, maxId), minId))) in quoteBank:
             quote = quoteBank[quoteId]
         else:
             return f"[{msg.user}]: No {userName} quote {quoteId}"
