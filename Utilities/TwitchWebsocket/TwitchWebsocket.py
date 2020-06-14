@@ -7,6 +7,7 @@ class TwitchWebsocket(threading.Thread):
     def __init__(self, host, port, chan, nick, auth, callback, capability = None, live = False):
         assert type(host) == str and type(port) == int and (type(callback) == types.FunctionType or type(callback) == types.MethodType)
         threading.Thread.__init__(self)
+        self.pingThread = threading.Thread(target=self.CheckPingAsync)
         self.name = "TwitchWebsocket"
         self._stop_event = threading.Event()
 
@@ -35,6 +36,7 @@ class TwitchWebsocket(threading.Thread):
 
     def start_nonblocking(self):
         self._initialize_websocket()
+        self.pingThread.start()
         self.start()
         self.login(self.nick, self.auth)
         self.join_channel(self.chan)
@@ -62,6 +64,7 @@ class TwitchWebsocket(threading.Thread):
         # Cancel the self.conn.recv() in run()
         self.conn.shutdown(socket.SHUT_WR)
         # Join this thread
+        self.pingThread.join(0.1)
         threading.Thread.join(self)
 
     def stopped(self):
@@ -70,22 +73,6 @@ class TwitchWebsocket(threading.Thread):
     def run(self):
         while not self.stopped():
             try:
-                currentTime = datetime.datetime.now()
-                if (currentTime - self.lastPingTime).total_seconds() > 330:
-                    ptf("No PING. Reconnecting", time=True)
-                    self.conn.shutdown(socket.SHUT_WR)
-
-                    self._initialize_websocket()
-
-                    if len(self.nick) > 0:
-                        self.login(self.nick, self.auth)
-
-                    if len(self.chan) > 1:
-                        self.join_channel(self.chan)
-
-                    if self.capability is not None:
-                        self.add_capability(self.capability)
-
                 try:
                     # Receive data from Twitch Websocket.
                     packet = self.conn.recv(8192).decode('UTF-8')
@@ -93,7 +80,6 @@ class TwitchWebsocket(threading.Thread):
                     ptf("Received bad packet", time=True)
                     # In case of unexpected end of data.
                     continue
-
 
                 self.data += packet
                 data_split = self.data.split("\r\n")
@@ -113,6 +99,25 @@ class TwitchWebsocket(threading.Thread):
 
             except OSError as e:
                 ptf(f"OSError: {e} -> {line}", time=True)
+
+                self._initialize_websocket()
+
+                if len(self.nick) > 0:
+                    self.login(self.nick, self.auth)
+
+                if len(self.chan) > 1:
+                    self.join_channel(self.chan)
+
+                if self.capability is not None:
+                    self.add_capability(self.capability)
+
+    def CheckPingAsync(self):
+        while not self.stopped():
+            time.sleep(10)
+
+            if (datetime.datetime.now() - self.lastPingTime).total_seconds() > 330:
+                ptf("No PING. Reconnecting", time=True)
+                self.conn.shutdown(socket.SHUT_WR)
 
                 self._initialize_websocket()
 
