@@ -107,6 +107,7 @@ class TwitchWebsocket(threading.Thread):
                     # so the developer doesn't have to.
                     if m.type == "PING":
                         self.send_pong()
+                        self.lastPingTime = datetime.datetime.now()
 
                     self.callback(m)
 
