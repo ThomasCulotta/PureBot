@@ -1,6 +1,6 @@
 import pymongo
 
-from TwitchWebsocket import TwitchWebsocket
+from Utilities.TwitchWebsocket.TwitchWebsocket import TwitchWebsocket
 
 import botconfig
 

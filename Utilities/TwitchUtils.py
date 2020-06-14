@@ -3,7 +3,7 @@ import time
 import pymongo
 import threading
 
-from TwitchWebsocket import TwitchWebsocket
+from .TwitchWebsocket.TwitchWebsocket import TwitchWebsocket
 from .FlushPrint import ptf
 
 ws = None
