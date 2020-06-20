@@ -115,22 +115,25 @@ class WhoCommands():
 
         quoteBank[quoteId] = quote
 
-        if newCol:
-            self.colWho.insert_one( {
-                    "user" : userName,
-                    "quotes" : json.dumps(quoteBank),
-                    "counter" : int(quoteId) + 1,
-                }
-            )
-        else:
-            self.colWho.update_one(
-                { "user" : userName },
-                { "$set" : {
+        try:
+            if newCol:
+                self.colWho.insert_one( {
+                        "user" : userName,
                         "quotes" : json.dumps(quoteBank),
-                        "counter" : int(quoteId) + 1
+                        "counter" : int(quoteId) + 1,
                     }
-                }
-            )
+                )
+            else:
+                self.colWho.update_one(
+                    { "user" : userName },
+                    { "$set" : {
+                            "quotes" : json.dumps(quoteBank),
+                            "counter" : int(quoteId) + 1
+                        }
+                    }
+                )
+        except TimeoutError:
+            return f"[{msg.user}]: Server took too long"
 
         return f"[{msg.user}]: Added {userName} quote {quoteId}"
 
@@ -161,13 +164,16 @@ class WhoCommands():
         if deletedQuote == None:
             return f"[{msg.user}]: No {userName} quote {quoteId}"
 
-        if len(quoteBank) == 0:
-            self.colWho.delete_one({ "user" : userName })
-            return f"[{msg.user}]: Deleted {userName} quote {quoteId}. No more quotes for {userName}"
+        try:
+            if len(quoteBank) == 0:
+                self.colWho.delete_one({ "user" : userName })
+                return f"[{msg.user}]: Deleted {userName} quote {quoteId}. No more quotes for {userName}"
 
-        self.colWho.update_one(
-                { "user" : userName },
-                { "$set" : { "quotes" : json.dumps(quoteBank) } }
-            )
+            self.colWho.update_one(
+                    { "user" : userName },
+                    { "$set" : { "quotes" : json.dumps(quoteBank) } }
+                )
+        except TimeoutError:
+            return f"[{msg.user}]: Server took too long"
 
         return f"[{msg.user}]: Deleted {userName} quote {quoteId}"

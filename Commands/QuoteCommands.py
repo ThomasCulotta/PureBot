@@ -131,11 +131,14 @@ class QuoteCommands:
         if (regMatch := self.quoteAddRegex.match(msg.message)) is None:
             return util.GetSyntax(msg.user, "quote add TEXT")
 
-        result = self.colCounters.find_one_and_update(
-            { "name" : self.counterName },
-            { "$inc" : { "value" : 1 } },
-            upsert=True
-        )
+        try:
+            result = self.colCounters.find_one_and_update(
+                { "name" : self.counterName },
+                { "$inc" : { "value" : 1 } },
+                upsert=True
+            )
+        except TimeoutError:
+            return f"[{msg.user}]: Server took too long"
 
         if result == None:
             ptf(f"Counter not found for {self.counterName}")
@@ -149,13 +152,16 @@ class QuoteCommands:
         quoteText = regMatch.group("text")
         quoteText.strip("\"'")
 
-        self.colQuotes.insert_one({
-            "id" : quoteId,
-            "user" : msg.user,
-            "text" : quoteText,
-            "game" : gameName,
-            "date" : datetime.datetime.now()
-        })
+        try:
+            self.colQuotes.insert_one({
+                "id" : quoteId,
+                "user" : msg.user,
+                "text" : quoteText,
+                "game" : gameName,
+                "date" : datetime.datetime.now()
+            })
+        except TimeoutError:
+            return f"[{msg.user}]: Server took too long"
 
         return f"[{msg.user}]: Added quote {quoteId}"
 
@@ -187,10 +193,13 @@ class QuoteCommands:
         if (checkResult := CheckModifyQuote("delete", result, msg)):
             return checkResult
 
-        self.colQuotes.delete_one({ "id" : quoteId })
+        try:
+            self.colQuotes.delete_one({ "id" : quoteId })
 
-        if deleting:
-            self.colCounters.update_one({ "name" : self.counterName }, { "$inc" : { "value" : -1 } })
+            if deleting:
+                self.colCounters.update_one({ "name" : self.counterName }, { "$inc" : { "value" : -1 } })
+        except TimeoutError:
+            return f"[{msg.user}]: Server took too long"
 
         return f"[{msg.user}]: Deleted quote {quoteId}"
 
