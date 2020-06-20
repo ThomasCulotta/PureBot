@@ -31,7 +31,7 @@ class TwitchWebsocket(threading.Thread):
         self.send_pass = lambda message,    command="PASS ": self._send(command, message)
         self.send_part = lambda message,    command="PART ": self._send(command, message)
         self.send_req  = lambda message,    command="CAP REQ :twitch.tv/": self._send(command, message)
-        self.send_message = lambda message, command="PRIVMSG ": self._send("{}{} :".format(command, self.chan.lower()), message) if self.live else print(message)
+        self.send_message = lambda message, command="PRIVMSG ": self._send("{}{} :".format(command, self.chan.lower()), message) if self.live else ptf(message)
         self.send_whisper = lambda sender,  message: self.send_message(f"/w {sender} {message}")
 
     def start_nonblocking(self):
@@ -132,8 +132,20 @@ class TwitchWebsocket(threading.Thread):
 
     def _send(self, command, message):
         if (sent := self.conn.send(bytes("{}{}\r\n".format(command, message), 'UTF-8'))) == 0:
-            ptf("Socket connection broken, sent is 0", time=True)
-            raise RuntimeError("Socket connection broken, sent is 0")
+            ptf("Socket connection broken, sent is 0. Reconnecting", time=True)
+
+            self.conn.shutdown(socket.SHUT_WR)
+
+            self._initialize_websocket()
+
+            if len(self.nick) > 0:
+                self.login(self.nick, self.auth)
+
+            if len(self.chan) > 1:
+                self.join_channel(self.chan)
+
+            if self.capability is not None:
+                self.add_capability(self.capability)
 
     def _initialize_websocket(self):
         while True:
@@ -145,7 +157,7 @@ class TwitchWebsocket(threading.Thread):
                 # needed.
 
                 #TODO Error handle socket.gaierror: [Errno 11001] getaddrinfo failed and other errors
-                self.conn.settimeout(330)
+                self.conn.settimeout(10)
 
                 self.conn.connect( (self.host, self.port) )
                 self.lastPingTime = datetime.datetime.now()
@@ -186,3 +198,6 @@ class TwitchWebsocket(threading.Thread):
 
         ptf("")
         ptf("Connected to Twitch IRC\n", time=True)
+
+        self.send_message("Hi chat. I'm back! :)")
+        self.conn.settimeout(330)
