@@ -59,7 +59,7 @@ class QuoteCommands:
         self.quoteDelRegex = re.compile(f"^quote del {groups.idOrLast}")
         self.quoteChangeRegex = re.compile(f"^quote change {groups.num} {groups.text}$")
 
-    def CheckModifyQuote(action, result, msg):
+    def CheckModifyQuote(self, action, result, msg):
         if not util.CheckPrivMod(msg.tags):
             if result["user"] != msg.user:
                 return f"[{msg.user}]: Only mods can {action} a quote someone else added"
@@ -190,7 +190,7 @@ class QuoteCommands:
         if (result := self.colQuotes.find_one({ "id" : quoteId })) is None:
             return f"[{msg.user}]: No quote {quoteId}"
 
-        if (checkResult := CheckModifyQuote("delete", result, msg)):
+        if (checkResult := self.CheckModifyQuote("delete", result, msg)):
             return checkResult
 
         try:
@@ -214,7 +214,7 @@ class QuoteCommands:
         if (result := self.colQuotes.find_one({ "id" : quoteId })) is None:
             return f"[{msg.user}]: No quote {quoteId}"
 
-        if (checkResult := CheckModifyQuote("edit", result, msg)):
+        if (checkResult := self.CheckModifyQuote("edit", result, msg)):
             return checkResult
 
         self.colQuotes.update_one(
