@@ -13,7 +13,7 @@ class PureBot:
     def __init__(self):
         self.chan = botconfig.twitchChannel
         self.prefixes = botconfig.prefixes
-        self.client = pymongo.MongoClient(f"mongodb://{botconfig.DBusername}:{botconfig.DBpassword}@{botconfig.DBhostIP}/QuoteBotDB", socketTimeoutMS=5000)
+        self.client = pymongo.MongoClient(f"{botconfig.DbConnectionString}", socketTimeoutMS=5000)
 
         # Send along all required information, and the bot will start
         # sending messages to your callback function. (self.message_handler in this case)

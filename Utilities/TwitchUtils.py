@@ -150,7 +150,7 @@ def InitializeUtils(socket, chan, mongoClient):
     global colRewards
 
     ws = socket
-    colRewards = mongoClient.QuoteBotDB[chan + "Rewards"]
+    colRewards = mongoClient.purebotdb[chan + "Rewards"]
     colRewards.create_index([("user", pymongo.ASCENDING)])
 
     with open('UsageStats.json', 'a+') as file:

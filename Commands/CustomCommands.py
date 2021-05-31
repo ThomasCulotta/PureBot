@@ -9,7 +9,7 @@ import Utilities.RegGroups as groups
 
 class CustomCommands:
     def __init__(self, chan, mongoClient):
-        self.colCustomCommands = mongoClient.QuoteBotDB[chan + "CustomCommands"]
+        self.colCustomCommands = mongoClient.purebotdb[chan + "CustomCommands"]
         self.colCustomCommands.create_index([("command", pymongo.ASCENDING)])
 
         self.customCommandList = {}

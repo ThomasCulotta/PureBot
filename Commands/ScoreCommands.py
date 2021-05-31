@@ -11,8 +11,9 @@ import Utilities.RegGroups as groups
 
 class ScoreCommands:
     def __init__(self, chan, mongoClient):
-        self.colLeaderboard = mongoClient.QuoteBotDB[chan + "LB"]
+        self.colLeaderboard = mongoClient.purebotdb[chan + "Leaderboards"]
         self.colLeaderboard.create_index([("user", pymongo.ASCENDING)])
+        self.colLeaderboard.create_index([("score", pymongo.ASCENDING)])
 
         if not hasattr(botconfig, "scoreLifespan"):
             ptf("scoreLifespan not found in botconfig")
@@ -24,7 +25,7 @@ class ScoreCommands:
             ptf("swapScoreId not found in botconfig")
 
         # Set expiration timer on collection documents
-        self.colLeaderboard.create_index([("createdAt", pymongo.ASCENDING)], expireAfterSeconds=botconfig.scoreLifespan)
+        self.colLeaderboard.create_index([("_ts", pymongo.ASCENDING)], expireAfterSeconds=botconfig.scoreLifespan)
 
         self.scoreMin = -1
         self.scoreMax = 101
@@ -41,7 +42,6 @@ class ScoreCommands:
             # snippet start
             # curseboard
             "curseboard"  : self.ExecuteCurseBoard,
-            "cursedboard" : self.ExecuteCurseBoard,
 
             # snippet start
             # clearboard
@@ -98,10 +98,10 @@ class ScoreCommands:
         return self.SwapScoreHelper(msg.user, regMatch.group("user"))
 
     def MakeInsert(self, user, score):
-        return { "user" : user, "score" : score, "createdAt" : datetime.datetime.utcnow() }
+        return { "user" : user, "score" : score, "_ts" : datetime.datetime.utcnow() }
 
     def MakeUpdate(self, user, score):
-        return { "user" : user }, { "$set" : { "score" : score, "createdAt" : datetime.datetime.utcnow() } }
+        return { "user" : user }, { "$set" : { "score" : score, "_ts" : datetime.datetime.utcnow() } }
 
     def StealScoreHelper(self, user, targUser):
         targUser = targUser.lower()

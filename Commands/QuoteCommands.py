@@ -1,4 +1,5 @@
 import re
+import random
 import pymongo
 import datetime
 
@@ -9,10 +10,10 @@ import Utilities.RegGroups as groups
 
 class QuoteCommands:
     def __init__(self, chan, mongoClient):
-        self.colQuotes = mongoClient.QuoteBotDB[chan + "Quotes"]
+        self.colQuotes = mongoClient.purebotdb[chan + "Quotes"]
         self.colQuotes.create_index([("id", pymongo.ASCENDING)])
 
-        self.colCounters = mongoClient.QuoteBotDB["counters"]
+        self.colCounters = mongoClient.purebotdb["counters"]
         self.counterName = chan + "Counter"
 
         self.activeCommands = {
@@ -83,9 +84,7 @@ class QuoteCommands:
         quoteId = None
 
         if (regMatch := next((exp.match(msg.message) for exp in self.quoteRegex if exp.match(msg.message) != None), None)) is None:
-            results = self.colQuotes.aggregate([{ "$sample" : { "size" : 1 } }])
-            for item in results:
-                result = item
+            result = random.choice(list(self.colQuotes.find()))
         else:
             try:
                 quoteArg = regMatch.group("idOrLast")
@@ -109,11 +108,9 @@ class QuoteCommands:
                     { "$match" : { "text" : {
                                         "$regex" : quoteArg,
                                         "$options" : "i"
-                                    } } },
-                    { "$sample" : { "size" : 1 } }])
+                                    } } }])
 
-                for item in results:
-                    result = item
+                result = random.choice(list(results))
 
         if result == None:
             if quoteId == None:
