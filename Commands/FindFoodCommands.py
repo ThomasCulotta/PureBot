@@ -15,6 +15,7 @@ class FindFoodCommands():
 
         if not hasattr(botconfig, "spoonacularAuthKey"):
             ptf("spoonacularAuthKey not found in botconfig")
+            return
 
         self.params = { "apiKey" : botconfig.spoonacularAuthKey }
 

@@ -15,8 +15,10 @@ class FindGameCommands():
     def __init__(self):
         if not hasattr(botconfig, "igdbAuthKey"):
             ptf("igdbAuthKey not found in botconfig")
+            return
         if not hasattr(botconfig, "steamAuthKey"):
             ptf("steamAuthKey not found in botconfig")
+            return
 
         self.igdbHeader = { "user-key" : botconfig.igdbAuthKey,
                             "Accept" : "application/json" }

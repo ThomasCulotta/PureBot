@@ -15,6 +15,7 @@ class FindSongCommands():
     def __init__(self):
         if not hasattr(botconfig, "spotifyIdAndSecret"):
             ptf("spotifyIdAndSecret not found in botconfig")
+            return
 
         self.authHeader = { "Authorization" : f"Basic {base64.urlsafe_b64encode(botconfig.spotifyIdAndSecret.encode('utf-8')).decode('utf-8')}" }
         self.authBody = { "grant_type" : "client_credentials" }
