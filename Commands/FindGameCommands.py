@@ -13,10 +13,10 @@ import Utilities.RegGroups as groups
 
 class FindGameCommands():
     def __init__(self):
-        if not hasattr(botconfig, "igdbAuthKey"):
+        if not hasattr(botconfig, "igdbAuthKey") || botconfig.igdbAuthKey == "":
             ptf("igdbAuthKey not found in botconfig")
             return
-        if not hasattr(botconfig, "steamAuthKey"):
+        if not hasattr(botconfig, "steamAuthKey") || botconfig.steamAuthKey == "":
             ptf("steamAuthKey not found in botconfig")
             return
 

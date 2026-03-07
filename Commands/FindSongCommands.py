@@ -13,7 +13,7 @@ import Utilities.RegGroups as groups
 
 class FindSongCommands():
     def __init__(self):
-        if not hasattr(botconfig, "spotifyIdAndSecret"):
+        if not hasattr(botconfig, "spotifyIdAndSecret") || botconfig.spotifyIdAndSecret == "":
             ptf("spotifyIdAndSecret not found in botconfig")
             return
 
