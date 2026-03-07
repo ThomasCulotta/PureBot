@@ -10,6 +10,7 @@ import Utilities.RegGroups as groups
 class CustomCommands:
     def __init__(self, chan, mongoClient):
         if mongoClient is None:
+            ptf("Mongo client not found for CustomCommands")
             return
 
         self.colCustomCommands = mongoClient.purebotdb[chan + "CustomCommands"]

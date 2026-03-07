@@ -11,6 +11,7 @@ import Utilities.RegGroups as groups
 class WhoCommands():
     def __init__(self, chan, mongoClient):
         if mongoClient is None:
+            ptf("Mongo client not found for WhoCommands")
             return
 
         colNameWho = chan + "Who"

@@ -12,20 +12,29 @@ import Utilities.RegGroups as groups
 class ScoreCommands:
     def __init__(self, chan, mongoClient):
         if mongoClient is None:
+            ptf("Mongo client not found for ScoreCommands")
             return
 
         self.colLeaderboard = mongoClient.purebotdb[chan + "Leaderboards"]
         self.colLeaderboard.create_index([("user", pymongo.ASCENDING)])
         self.colLeaderboard.create_index([("score", pymongo.ASCENDING)])
 
+        shouldReturn = False
         if not hasattr(botconfig, "scoreLifespan"):
             ptf("scoreLifespan not found in botconfig")
+            shouldReturn = True
         if not hasattr(botconfig, "clearScoreId"):
             ptf("clearScoreId not found in botconfig")
+            shouldReturn = True
         if not hasattr(botconfig, "stealScoreId"):
             ptf("stealScoreId not found in botconfig")
+            shouldReturn = True
         if not hasattr(botconfig, "swapScoreId"):
             ptf("swapScoreId not found in botconfig")
+            shouldReturn = True
+
+        if shouldReturn:
+            return
 
         # Set expiration timer on collection documents
         self.colLeaderboard.create_index([("_ts", pymongo.ASCENDING)], expireAfterSeconds=botconfig.scoreLifespan)

@@ -11,6 +11,7 @@ import Utilities.RegGroups as groups
 class QuoteCommands:
     def __init__(self, chan, mongoClient):
         if mongoClient is None:
+            ptf("Mongo client not found for QuoteCommands")
             return
 
         self.colQuotes = mongoClient.purebotdb[chan + "Quotes"]
