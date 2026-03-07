@@ -10,6 +10,9 @@ import Utilities.RegGroups as groups
 
 class WhoCommands():
     def __init__(self, chan, mongoClient):
+        if mongoClient is None:
+            return
+
         colNameWho = chan + "Who"
         self.colWho = mongoClient.purebotdb[colNameWho]
         self.colWho.create_index([("user", pymongo.ASCENDING)])

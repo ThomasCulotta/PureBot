@@ -27,6 +27,9 @@ def GetSyntax(user, syntax):
 
 # Record that the given user has redeemed the given reward
 def RedeemReward(user, rewardId):
+    if colRewards is None:
+        return
+    
     result = colRewards.find_one({ "user" : user })
 
     rewards = {}
@@ -52,6 +55,9 @@ def RedeemReward(user, rewardId):
 
 # Return true if the given user has redeemed the given reward and decrement
 def CheckRemoveReward(user, rewardId):
+    if colRewards is None:
+        return False
+    
     result = colRewards.find_one({ "user" : user })
 
     if result == None:
@@ -150,8 +156,10 @@ def InitializeUtils(socket, chan, mongoClient):
     global colRewards
 
     ws = socket
-    colRewards = mongoClient.purebotdb[chan + "Rewards"]
-    colRewards.create_index([("user", pymongo.ASCENDING)])
+    
+    if mongoClient is not None:
+        colRewards = mongoClient.purebotdb[chan + "Rewards"]
+        colRewards.create_index([("user", pymongo.ASCENDING)])
 
     with open('UsageStats.json', 'a+') as file:
         try:

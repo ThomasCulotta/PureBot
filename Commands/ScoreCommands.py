@@ -11,6 +11,9 @@ import Utilities.RegGroups as groups
 
 class ScoreCommands:
     def __init__(self, chan, mongoClient):
+        if mongoClient is None:
+            return
+
         self.colLeaderboard = mongoClient.purebotdb[chan + "Leaderboards"]
         self.colLeaderboard.create_index([("user", pymongo.ASCENDING)])
         self.colLeaderboard.create_index([("score", pymongo.ASCENDING)])

@@ -10,6 +10,9 @@ import Utilities.RegGroups as groups
 
 class QuoteCommands:
     def __init__(self, chan, mongoClient):
+        if mongoClient is None:
+            return
+
         self.colQuotes = mongoClient.purebotdb[chan + "Quotes"]
         self.colQuotes.create_index([("id", pymongo.ASCENDING)])
 
