@@ -19,6 +19,7 @@ class QuoteCommands:
 
         self.colCounters = mongoClient.purebotdb["counters"]
         self.counterName = chan + "Counter"
+        self.colCounters.insert_one({ "name" : self.counterName, "value" : 0 })
 
         self.activeCommands = {
             # snippet start
