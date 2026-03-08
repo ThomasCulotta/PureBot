@@ -60,14 +60,10 @@ def GetGame(user=None):
 
     if len(streamData) > 0:
         streamData = streamData[0]
+    else:
+        streamData = None
 
-    if "game_id" not in streamData:
-        response = requests.get(f"{krakenEndpoint}/channels/{GetUserId(user)}", headers=v5Header)
-        streamData = response.json()
-
-        if "game" in streamData:
-            return streamData["game"]
-
+    if streamData is None or "game_id" not in streamData:
         return None
 
     gameIdParam = { "id" : streamData["game_id"] }
