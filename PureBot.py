@@ -4,7 +4,7 @@ from Utilities.TwitchWebsocket.TwitchWebsocket import TwitchWebsocket
 
 import botconfig
 
-from Utilities.FlushPrint import ptf
+from Utilities.FlushPrint import ptf, ptfDebug
 import Utilities.TwitchUtils as util
 
 from Commands import *
@@ -14,8 +14,10 @@ class PureBot:
         self.chan = botconfig.twitchChannel
         self.prefixes = botconfig.prefixes
         self.client = None
-        if botconfig.DbConnectionString:
+        if botconfig.DbConnectionString and botconfig.DbConnectionString != "":
             self.client = pymongo.MongoClient(f"{botconfig.DbConnectionString}", socketTimeoutMS=5000)
+        else:
+            ptf("Mongo connection string not found in botconfig")
 
         # Send along all required information, and the bot will start
         # sending messages to your callback function. (self.message_handler in this case)
