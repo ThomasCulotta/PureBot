@@ -6,7 +6,6 @@ import botconfig
 from Utilities.FlushPrint import ptf, ptfDebug
 
 helixEndpoint  = "https://api.twitch.tv/helix"
-krakenEndpoint = "https://api.twitch.tv/kraken"
 
 clientId = botconfig.clientId
 appToken = "invalid"
