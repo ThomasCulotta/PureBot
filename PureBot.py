@@ -1,6 +1,7 @@
 import pymongo
 
 from Utilities.TwitchWebsocket.TwitchWebsocket import TwitchWebsocket
+from Utilities.TwitchAuth import TwitchAuth
 
 import botconfig
 
@@ -19,13 +20,19 @@ class PureBot:
         else:
             ptf("Mongo connection string not found in botconfig")
 
+        # Get OAuth token using TwitchAuth
+        auth = TwitchAuth(botconfig.clientId, botconfig.clientSecret, botconfig.authCode)
+        oauth_token = auth.GetAccessToken()
+        if not oauth_token:
+            raise Exception("Failed to obtain OAuth token")
+
         # Send along all required information, and the bot will start
         # sending messages to your callback function. (self.message_handler in this case)
         self.ws = TwitchWebsocket(host="irc.chat.twitch.tv",
                                   port=6667,
                                   chan="#" + self.chan,
                                   nick=botconfig.twitchUser,
-                                  auth=botconfig.oauth,
+                                  auth=oauth_token,
                                   callback=self.message_handler,
                                   capability=["membership", "tags", "commands"],
                                   live=True)

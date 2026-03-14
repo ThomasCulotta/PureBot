@@ -11,12 +11,9 @@ twitchUser = "<BOT_USERNAME>"
 clientId = "<CLIENT_ID>"
 clientSecret = "<CLIENT_SECRET>"
 
-# OAuth token for authentication
-# Generate at: https://twitchtokengenerator.com/
-oauth = "oauth:<ACCESS_TOKEN>"
-
-# Refresh at: https://twitchtokengenerator.com/api/refresh/<REFRESH_TOKEN>
-refreshOauth = "<REFRESH_TOKEN>"
+# Auth code to get OAuth token for
+# Generate at: https://id.twitch.tv/oauth2/authorize?client_id=vvftu582whx7x4aetle0hgjn6gkt1g&redirect_uri=http://localhost&response_type=code&scope=chat:read+chat:edit+user:read:chat
+authCode = "<AUTH_CODE>"
 
 # Other api keys
 spoonacularAuthKey = ""
