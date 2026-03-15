@@ -66,7 +66,7 @@ class TwitchAuth:
                 data = json.load(f)
             
             if not data or 'access_token' not in data or 'refresh_token' not in data or 'expires_at' not in data:
-                ptfDebug("Token file missing required fields")
+                ptf("Token file missing required fields")
                 return
             
             self.accessToken = data['access_token']
@@ -74,7 +74,7 @@ class TwitchAuth:
             self.expiresAt = data['expires_at']
             ptf("Loaded tokens from file")
         except Exception as e:
-            ptfDebug(f"Error loading tokens from file: {e}")
+            ptf(f"Error loading tokens from file: {e}")
     
     def _SaveTokensToFile(self):
         """Save tokens to JSON file."""
@@ -149,6 +149,7 @@ class TwitchAuth:
             redirectUri: Required for authorization_code grant type
         """
         try:
+            ptfDebug(f"Requesting tokens with grant type: {grantType}")
             params = {
                 'client_id': self.clientId,
                 'client_secret': self.clientSecret,
@@ -165,25 +166,25 @@ class TwitchAuth:
             response = requests.post(self.oauthUrl, params=params)
             
             if response.status_code != 200:
-                ptfDebug(f"Token request failed ({grantType}): {response.status_code} {response.text}")
+                ptf(f"Token request failed ({grantType}): {response.status_code} {response.text}")
                 return False
             
             data = response.json()
             
             if 'access_token' not in data or 'refresh_token' not in data:
-                ptfDebug(f"Invalid token response ({grantType}): {data}")
+                ptf(f"Invalid token response ({grantType}): {data}")
                 return False
             
             self.accessToken = data['access_token']
             self.refreshToken = data['refresh_token']
             
-            # Calculate expiration time
+            # Calculate expiration time (store as integer seconds)
             if 'expires_in' in data:
-                self.expiresAt = time.time() + data['expires_in']
+                self.expiresAt = int(time.time() + data['expires_in'])
             
             self._SaveTokensToFile()
             return True
         except Exception as e:
-            ptfDebug(f"Error getting tokens ({grantType}): {e}")
+            ptf(f"Error getting tokens ({grantType}): {e}")
             return False
 

@@ -32,7 +32,7 @@ class PureBot:
                                   port=6667,
                                   chan="#" + self.chan,
                                   nick=botconfig.twitchUser,
-                                  auth=oauth_token,
+                                  auth=f"oauth:{oauth_token}",
                                   callback=self.message_handler,
                                   capability=["membership", "tags", "commands"],
                                   live=True)
