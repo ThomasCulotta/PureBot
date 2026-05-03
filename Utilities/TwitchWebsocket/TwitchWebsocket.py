@@ -4,7 +4,7 @@ from .Message import Message
 from Utilities.FlushPrint import ptf
 
 class TwitchWebsocket(threading.Thread):
-    def __init__(self, host, port, chan, nick, auth, callback, capability = None, live = False):
+    def __init__(self, host, port, chan, nick, auth, callback, capability=None, live=False, auth_provider=None):
         assert type(host) == str and type(port) == int and (type(callback) == types.FunctionType or type(callback) == types.MethodType)
         threading.Thread.__init__(self)
         self.pingThread = threading.Thread(target=self.CheckPingAsync)
@@ -20,6 +20,7 @@ class TwitchWebsocket(threading.Thread):
         self.live = live
         self.callback = callback
         self.capability = capability
+        self.auth_provider = auth_provider
 
         self.data = str()
 
@@ -33,6 +34,20 @@ class TwitchWebsocket(threading.Thread):
         self.send_req  = lambda message,    command="CAP REQ :twitch.tv/": self._send(command, message)
         self.send_message = lambda message, command="PRIVMSG ": self._send("{}{} :".format(command, self.chan.lower()), message) if self.live else ptf(message)
         self.send_whisper = lambda sender,  message: self.send_message(f"/w {sender} {message}")
+
+    def _get_fresh_auth(self):
+        """Get a fresh OAuth token from auth_provider, or fall back to stored auth."""
+        if self.auth_provider:
+            try:
+                token = self.auth_provider.GetAccessToken()
+                if token:
+                    self.auth = f"oauth:{token}"
+                    ptf("Refreshed auth token for IRC reconnect", time=True)
+                else:
+                    ptf("auth_provider returned None, using existing auth", time=True)
+            except Exception as e:
+                ptf(f"Error getting fresh auth token: {e}", time=True)
+        return self.auth
 
     def start_nonblocking(self):
         self._initialize_websocket()
@@ -95,14 +110,28 @@ class TwitchWebsocket(threading.Thread):
                         self.send_pong()
                         self.lastPingTime = datetime.datetime.now()
 
+                    if m.type == "NOTICE" and "Login authentication failed" in (m.message or ""):
+                        ptf("Received 'Login authentication failed' from Twitch", time=True)
+                        if self.auth_provider:
+                            ptf("Attempting token refresh and re-login...", time=True)
+                            self._get_fresh_auth()
+                            self._initialize_websocket()
+                            self.login(self.nick, self.auth)
+                            self.join_channel(self.chan)
+                            if self.capability is not None:
+                                self.add_capability(self.capability)
+                            break
+                        continue
+
                     self.callback(m)
 
             except OSError as e:
                 ptf(f"OSError: {e} -> {line}", time=True)
-
+                time.sleep(2)
                 self._initialize_websocket()
 
                 if len(self.nick) > 0:
+                    self._get_fresh_auth()
                     self.login(self.nick, self.auth)
 
                 if len(self.chan) > 1:
@@ -118,10 +147,11 @@ class TwitchWebsocket(threading.Thread):
             if (datetime.datetime.now() - self.lastPingTime).total_seconds() > 330:
                 ptf("No PING. Reconnecting", time=True)
                 self.conn.shutdown(socket.SHUT_WR)
-
+                time.sleep(2)
                 self._initialize_websocket()
 
                 if len(self.nick) > 0:
+                    self._get_fresh_auth()
                     self.login(self.nick, self.auth)
 
                 if len(self.chan) > 1:
@@ -135,10 +165,11 @@ class TwitchWebsocket(threading.Thread):
             ptf("Socket connection broken, sent is 0. Reconnecting", time=True)
 
             self.conn.shutdown(socket.SHUT_WR)
-
+            time.sleep(2)
             self._initialize_websocket()
 
             if len(self.nick) > 0:
+                self._get_fresh_auth()
                 self.login(self.nick, self.auth)
 
             if len(self.chan) > 1:
@@ -163,9 +194,8 @@ class TwitchWebsocket(threading.Thread):
                 self.lastPingTime = datetime.datetime.now()
 
                 return
-            except socket.gaierror:
-                # Sleep and retry if not successful
-                ptf("Failed to connect socket. Sleeping and retrying...", time=True)
+            except (socket.gaierror, ConnectionRefusedError, OSError) as e:
+                ptf(f"Failed to connect socket ({type(e).__name__}). Sleeping and retrying...", time=True)
                 time.sleep(5)
 
     def join_channel(self, chan):
