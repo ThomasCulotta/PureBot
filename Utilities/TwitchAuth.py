@@ -105,6 +105,10 @@ class TwitchAuth:
                 except Exception as e:
                     ptf(f"Error saving tokens to file: {e}")
                     try:
+                        os.close(tmpfd)
+                    except OSError:
+                        pass
+                    try:
                         os.unlink(tmppath)
                     except OSError:
                         pass

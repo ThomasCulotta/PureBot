@@ -116,6 +116,7 @@ class TwitchWebsocket(threading.Thread):
                             ptf("Attempting token refresh and re-login...", time=True)
                             self._get_fresh_auth()
                             self._initialize_websocket()
+                            self.data = str()
                             self.login(self.nick, self.auth)
                             self.join_channel(self.chan)
                             if self.capability is not None:
