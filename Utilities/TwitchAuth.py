@@ -126,12 +126,38 @@ class TwitchAuth:
     def _AutoRefresh(self):
         """Automatically refresh the token (called by timer)."""
         ptfDebug("Auto-refreshing token")
+        
+        # Check if token was already refreshed by another code path
         with self._lock:
-            if self._RefreshAccessToken():
-                ptf("Token auto-refreshed successfully")
+            if not self._IsTokenExpired():
+                ptfDebug("Token still valid, skipping auto-refresh")
                 self._ScheduleTokenRefresh()
-            else:
-                ptf("Token auto-refresh failed")
+                return
+        
+        # Retry with exponential backoff
+        backoff_delays = [5, 30, 120]
+        for attempt, delay in enumerate(backoff_delays, 1):
+            with self._lock:
+                if self._RefreshAccessToken():
+                    ptf("Token auto-refreshed successfully")
+                    self._ScheduleTokenRefresh()
+                    return
+            ptf(f"Token auto-refresh attempt {attempt}/{len(backoff_delays)} failed, retrying in {delay}s")
+            time.sleep(delay)
+        
+        # All retries exhausted — try auth code as last resort
+        with self._lock:
+            ptf("WARNING: All refresh attempts failed. Trying auth code fallback.")
+            if self._GetTokensFromAuthCode():
+                ptf("Token obtained via auth code fallback")
+                self._ScheduleTokenRefresh()
+                return
+        
+        # Total failure — schedule recovery retry in 5 minutes
+        ptf("CRITICAL: All token refresh attempts failed. Scheduling retry in 300 seconds.")
+        self.refreshTimer = threading.Timer(300, self._AutoRefresh)
+        self.refreshTimer.daemon = True
+        self.refreshTimer.start()
     
     def _RefreshAccessToken(self):
         """Use refresh token to get a new access token."""
