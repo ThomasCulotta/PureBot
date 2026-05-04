@@ -1,4 +1,5 @@
 import pymongo
+import time
 
 from Utilities.TwitchWebsocket.TwitchWebsocket import TwitchWebsocket
 from Utilities.TwitchAuth import TwitchAuth
@@ -20,11 +21,21 @@ class PureBot:
         else:
             ptf("Mongo connection string not found in botconfig")
 
-        # Get OAuth token using TwitchAuth
-        auth = TwitchAuth(botconfig.clientId, botconfig.clientSecret, botconfig.authCode)
-        oauth_token = auth.GetAccessToken()
+        # Get OAuth token using TwitchAuth with retry
+        self.auth = TwitchAuth(botconfig.clientId, botconfig.clientSecret, botconfig.authCode)
+        oauth_token = None
+        retry_delays = [5, 15, 30, 60, 120]
+        for attempt in range(len(retry_delays) + 1):
+            oauth_token = self.auth.GetAccessToken()
+            if oauth_token:
+                break
+            if attempt < len(retry_delays):
+                delay = retry_delays[attempt]
+                ptf(f"Failed to obtain OAuth token (attempt {attempt + 1}/{len(retry_delays) + 1}). Retrying in {delay}s...", time=True)
+                time.sleep(delay)
+        
         if not oauth_token:
-            raise Exception("Failed to obtain OAuth token")
+            raise Exception("Failed to obtain OAuth token after all retry attempts")
 
         # Send along all required information, and the bot will start
         # sending messages to your callback function. (self.message_handler in this case)
@@ -35,7 +46,8 @@ class PureBot:
                                   auth=f"oauth:{oauth_token}",
                                   callback=self.message_handler,
                                   capability=["membership", "tags", "commands"],
-                                  live=True)
+                                  live=True,
+                                  auth_provider=self.auth)
 
         util.InitializeUtils(self.ws, self.chan, self.client)
 
